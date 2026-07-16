@@ -16,6 +16,11 @@ from yaml.constructor import ConstructorError
 
 REQUIRED_FILES = (
     "SKILL.md",
+    "AGENTS.md",
+    ".looppilot/README.md",
+    ".looppilot/STATE.md",
+    ".looppilot/HANDOFF.md",
+    ".looppilot/DECISIONS.md",
     "README.md",
     "CHANGELOG.md",
     "CONTRIBUTING.md",
@@ -43,6 +48,61 @@ LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 MERMAID_PATTERN = re.compile(
     r"^```mermaid[ \t]*\r?\n(.*?)^```[ \t]*$", re.MULTILINE | re.DOTALL
 )
+UPDATED_PATTERN = re.compile(
+    r"^Updated:[ \t]*(?:YYYY-MM-DD|\d{4}-\d{2}-\d{2})[ \t]*$", re.MULTILINE
+)
+STATUS_PATTERN = re.compile(r"^Status:[ \t]*(\S+)[ \t]*$", re.MULTILINE)
+CREDENTIAL_ASSIGNMENT_PATTERN = re.compile(
+    r"^[ \t]*(?:[a-z][a-z0-9_]*_)?(?:api[_ -]?key|access[_ -]?token|token|"
+    r"secret|password|cookie|credential)[ \t]*[:=][ \t]*"
+    r"(?!none(?:\s|$)|redacted(?:\s|$)|placeholder(?:\s|$)|<)[^\s`]+",
+    re.IGNORECASE | re.MULTILINE,
+)
+STATE_STATUSES = {
+    "inactive",
+    "active",
+    "partially-completed",
+    "blocked",
+    "completed",
+    "budget-stopped",
+    "cancelled",
+}
+HANDOFF_STATUSES = {"none", "active", "completed", "superseded"}
+SHARED_STATE_HEADINGS = {
+    ".looppilot/README.md": (
+        "## Purpose",
+        "## It Is Not",
+        "## When to Create or Update",
+        "## Source of Truth",
+        "## Status Values",
+        "## Native Plan Relationship",
+        "## Evidence and Update Discipline",
+        "## File Responsibilities",
+    ),
+    ".looppilot/STATE.md": (
+        "## Objective",
+        "## Success Criteria",
+        "## Current Progress",
+        "## Verified Evidence",
+        "## Blockers",
+        "## Native Plan Relationship",
+        "## Next Action",
+    ),
+    ".looppilot/HANDOFF.md": (
+        "## Current Objective",
+        "## Completed",
+        "## Observed Evidence",
+        "## Remaining Work",
+        "## Blockers",
+        "## Risks and Constraints",
+        "## Recommended Next Action",
+        "## Do Not Assume",
+    ),
+    ".looppilot/DECISIONS.md": (
+        "## Active Decisions",
+        "## Superseded Decisions",
+    ),
+}
 
 
 class UniqueKeySafeLoader(yaml.SafeLoader):
@@ -152,6 +212,82 @@ def validate_yaml_files(root: Path, errors: list[str]) -> None:
             errors.append(str(error))
 
 
+def validate_status(
+    root: Path, relative: Path, allowed: set[str], errors: list[str]
+) -> str | None:
+    text = (root / relative).read_text(encoding="utf-8")
+    match = STATUS_PATTERN.search(text)
+    if not match:
+        errors.append(f"{relative.as_posix()}: missing Status field")
+        return None
+    status = match.group(1)
+    if status not in allowed:
+        errors.append(f"{relative.as_posix()}: invalid Status {status!r}")
+    return status
+
+
+def validate_shared_state(root: Path, errors: list[str]) -> None:
+    state_path = Path(".looppilot/STATE.md")
+    state_status = validate_status(
+        root, state_path, STATE_STATUSES, errors
+    )
+    state_text = (root / state_path).read_text(encoding="utf-8")
+    if state_status in STATE_STATUSES - {"inactive"} and any(
+        marker in state_text
+        for marker in ("Updated: YYYY-MM-DD", "Updated by: none", "No active shared task.")
+    ):
+        errors.append(
+            f"{state_path.as_posix()}: template placeholders cannot declare "
+            f"Status {state_status!r}"
+        )
+
+    handoff_path = Path(".looppilot/HANDOFF.md")
+    handoff_status = validate_status(
+        root, handoff_path, HANDOFF_STATUSES, errors
+    )
+    handoff_text = (root / handoff_path).read_text(encoding="utf-8")
+    if handoff_status in HANDOFF_STATUSES - {"none"} and any(
+        marker in handoff_text
+        for marker in ("Updated: YYYY-MM-DD", "From: none", "No active handoff.")
+    ):
+        errors.append(
+            f"{handoff_path.as_posix()}: template placeholders cannot declare "
+            f"Status {handoff_status!r}"
+        )
+
+    decisions_path = Path(".looppilot/DECISIONS.md")
+    for relative in (state_path, handoff_path, decisions_path):
+        text = (root / relative).read_text(encoding="utf-8")
+        if not UPDATED_PATTERN.search(text):
+            errors.append(
+                f"{relative.as_posix()}: missing or invalid Updated field"
+            )
+
+    updater_patterns = {
+        state_path: re.compile(r"^Updated by:[ \t]*\S+", re.MULTILINE),
+        handoff_path: re.compile(r"^From:[ \t]*\S+", re.MULTILINE),
+        decisions_path: re.compile(r"^Updated by:[ \t]*\S+", re.MULTILINE),
+    }
+    for relative, pattern in updater_patterns.items():
+        text = (root / relative).read_text(encoding="utf-8")
+        if not pattern.search(text):
+            errors.append(f"{relative.as_posix()}: missing updater identifier")
+
+    for relative_text, headings in SHARED_STATE_HEADINGS.items():
+        relative = Path(relative_text)
+        text = (root / relative).read_text(encoding="utf-8")
+        if CREDENTIAL_ASSIGNMENT_PATTERN.search(text):
+            errors.append(
+                f"{relative.as_posix()}: possible credential assignment in shared state"
+            )
+        lines = set(text.splitlines())
+        for heading in headings:
+            if heading not in lines:
+                errors.append(
+                    f"{relative.as_posix()}: missing required heading {heading!r}"
+                )
+
+
 def markdown_files(root: Path) -> list[Path]:
     ignored = {".git", ".venv", "node_modules", "__pycache__"}
     return sorted(
@@ -219,6 +355,7 @@ def validate_repository(root: Path, extract_directory: Path | None = None) -> li
     if errors:
         return errors
 
+    validate_shared_state(root, errors)
     validate_yaml_files(root, errors)
     validate_skill_frontmatter(root, errors)
     validate_openai_yaml(root, errors)

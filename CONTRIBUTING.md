@@ -27,6 +27,24 @@ host-neutral, evidence-based, and useful beyond programming tasks.
   commands or searches were executed.
 - Keep relative links valid and Markdown lint friendly.
 
+## Shared-State Protocol Changes
+
+Contributions MUST keep stable rules and dynamic task state separate:
+
+- `AGENTS.md` MUST contain only durable repository instructions.
+- `.looppilot/` templates MUST define the protocol without fictional active work.
+- Contributors MUST NOT commit user credentials, sensitive state, private
+  chain-of-thought, complete conversations, or fabricated evidence.
+- Shared files MUST remain subordinate to the latest user instruction and the
+  host-native Goal and Plan.
+
+A change to the shared-state protocol MUST review and update, when affected:
+
+- `SKILL.md` and `README.md`;
+- `docs/validation.md` and `scripts/validate.py`;
+- `tests/scenarios.md`; and
+- `tests/evaluation-rubric.md`.
+
 ## Testing Documentation Changes
 
 Before submitting a change:
@@ -43,8 +61,8 @@ Before submitting a change:
 
 For the repository's repeatable maintenance checks, install the isolated development
 dependency from `requirements-dev.txt`, run the Python unit tests, and run
-`python scripts/validate.py`. Render both Mermaid diagrams with the pinned CLI as
-described in [`docs/validation.md`](docs/validation.md). These tools are not
+`python scripts/validate.py`. Render all three Mermaid diagrams with the pinned CLI
+as described in [`docs/validation.md`](docs/validation.md). These tools are not
 LoopPilot runtime dependencies.
 
 Include the checks actually performed and any unverified behavior in the change

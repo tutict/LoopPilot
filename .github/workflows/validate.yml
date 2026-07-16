@@ -24,7 +24,9 @@ jobs:
       - name: Render Mermaid diagrams
         run: |
           npx --yes --package @mermaid-js/mermaid-cli@11.16.0 mmdc -i .tmp/mermaid/README-1.mmd -o .tmp/mermaid/README-1.svg
+          npx --yes --package @mermaid-js/mermaid-cli@11.16.0 mmdc -i .tmp/mermaid/README-2.mmd -o .tmp/mermaid/README-2.svg
           npx --yes --package @mermaid-js/mermaid-cli@11.16.0 mmdc -i .tmp/mermaid/docs-lifecycle-1.mmd -o .tmp/mermaid/docs-lifecycle-1.svg
           test -s .tmp/mermaid/README-1.svg
+          test -s .tmp/mermaid/README-2.svg
           test -s .tmp/mermaid/docs-lifecycle-1.svg
       - run: git diff --check

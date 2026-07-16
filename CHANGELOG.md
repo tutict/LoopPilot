@@ -16,6 +16,11 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Repeatable static validation with pinned PyYAML and Mermaid CLI versions.
 - A minimal GitHub Actions validation workflow.
 - Evaluation templates for future observed host traces and A/B scoring.
+- Repository-level Agent instructions in `AGENTS.md`.
+- An optional `.looppilot/` shared-state and cross-session continuity protocol.
+- Inactive state, handoff, and decision templates.
+- Stale-state, prompt-injection, evidence-integrity, and authority safeguards.
+- Shared-state validation and regression tests.
 
 ### Changed
 

@@ -10,6 +10,13 @@ The four stop reports are outcomes, not additional required lifecycle states:
 persist them if it already supports outcome status, but LoopPilot does not require
 that representation.
 
+
+Shared-state persistence is not a ninth lifecycle state or a fixed step after every
+iteration. When cross-Agent or cross-session continuity is useful, an Agent MAY
+update `.looppilot/` after a material event such as verified progress, a blocker, a
+stable decision, an interruption, or a completion change. Routine iterations SHOULD
+remain in host-native state, and simple tasks SHOULD NOT persist shared state.
+
 ## Transition Overview
 
 ```mermaid

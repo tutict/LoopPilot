@@ -22,6 +22,20 @@ When no native Plan exists, a minimal task-local Plan is enough. When no persist
 exists, compact state may help within available context, but it cannot manufacture
 durable recovery or background work.
 
+
+## Static Rules, Dynamic State
+
+LoopPilot does not use one large `CLAUDE.md`-style file for both permanent rules and
+current task history. [`AGENTS.md`](../AGENTS.md) holds stable repository
+instructions, while [`.looppilot/`](../.looppilot/README.md) provides optional,
+minimal task-local continuity.
+
+The separation matches their different lifecycles: stable rules change through
+reviewed repository edits, while task state expires as work, evidence, instructions,
+and authority change. Keeping them separate reduces merge conflicts and context
+growth, makes each change easier to audit, and prevents an old task or handoff from
+polluting a new task.
+
 ## Evidence Before Completion
 
 Agent confidence is not external evidence. Verification changes by task type: tests

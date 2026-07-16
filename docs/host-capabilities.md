@@ -65,6 +65,23 @@ LoopPilot MUST NOT duplicate persistence, Memory, scheduling, or recovery. Persi
 expand user authorization: commit, push, publish, deploy, sending, destructive
 changes, and irreversible actions remain independently scoped.
 
+
+## Shared-State Adaptation
+
+The optional [shared-state protocol](../.looppilot/README.md) adapts to host
+capabilities without replacing them:
+
+- **Native state is sufficient:** the Agent SHOULD use the host Goal, Plan, Todo,
+  memory, and resumable task state; `.looppilot/` is usually unnecessary.
+- **A native Plan exists without durable recovery:** the Agent MAY write the minimum
+  handoff needed to resume, while the native Plan remains authoritative.
+- **The host is prompt-only or weakly stateful:** the Agent MAY keep a compact shared
+  summary when the user and environment permit a durable artifact, but this does not
+  create tools, scheduling, background execution, or reliable automatic recovery.
+
+In every case, the receiving Agent MUST re-check the latest instruction, authority,
+working tree, native state, and observed evidence before continuing.
+
 ## Capability Discovery
 
 Before relying on a capability:

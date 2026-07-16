@@ -240,27 +240,29 @@ next safe boundary:
 If the user changes from execution to advice-only, stop modifying state immediately.
 The agent MUST NOT let an old Plan override the newer instruction.
 
-## 10. Compact Internal State
+## 10. Shared State and Handoff
 
 Reuse native Goal, Plan, Todo, Memory, and task status whenever the host provides
-them. The agent MUST NOT maintain a parallel state file, duplicate complete conversation
-history, or create verbose logs by default.
+them. The agent MUST NOT create a competing detailed Plan in private or shared
+state.
 
-When the host lacks persistent task state and the task genuinely needs recovery
-across context boundaries, the agent MAY maintain one compact text state containing only:
+For cross-Agent or cross-session continuity, the agent MAY use the optional
+[`.looppilot/` protocol](.looppilot/README.md). Shared state MUST remain compact,
+factual, public-safe, and free of private reasoning. The agent MUST update it only
+after material progress, evidence, blockers, decisions, interruptions, or
+completion changes; simple one-step tasks SHOULD NOT create shared-state overhead.
 
-- goal;
-- success criteria;
-- completed;
-- current action;
-- blockers; and
-- next action.
+Shared state MUST NOT override newer user instructions, current authorization, an
+accessible host-native Plan, or actual observed state. Before resuming, the agent
+MUST re-check the user instruction, native state, files, tools, tests, and material
+evidence, then replace stale summaries. Unfinished complex work SHOULD leave a
+concise handoff containing only the objective, completed work, observed evidence,
+blockers, risks, and next highest-value action.
 
-Keep that state in the current context unless the user authorizes a durable artifact
-or the host provides a native persistence mechanism. A prompt-only host MUST NOT
-claim persistence, background work, tool execution, or recovery capabilities it
-does not have. In such a host, constrain the loop to available context, attribute
-user-reported evidence, and stop honestly when direct verification is impossible.
+When neither host persistence nor a durable artifact is available, the agent MAY
+keep the same minimum summary in current context. A prompt-only host MUST NOT claim
+persistence, background work, tool execution, or recovery capabilities it does not
+have.
 
 ## Progress Contract
 

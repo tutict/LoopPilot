@@ -124,6 +124,40 @@ Evidence: actual file contents, command status, and relevant checks.
 Stop: Completed, Partially Completed, Blocked, or Budget Stop with remaining gaps.
 ```
 
+## Shared State and Multi-Agent Handoff
+
+[`AGENTS.md`](AGENTS.md) gives Agents and hosts that load it the same stable
+instruction priority, verification discipline, safety rules, and authority
+boundaries. Dynamic task state is kept separate under the optional
+[`.looppilot/` protocol](.looppilot/README.md), so old task details do not turn into
+permanent repository rules.
+
+The host-native Goal, Plan, Todo, task state, or memory remains authoritative.
+Shared files contain only the minimum facts, evidence, blockers, decisions, and
+next-action summary needed for another Agent or resumed session. They do not store a
+second complete Plan, complete conversations, tool-call logs, credentials, or
+private chain-of-thought.
+
+```mermaid
+flowchart TD
+    USER["User instruction"] --> NATIVE["Host-native Goal / Plan"]
+    NATIVE --> LOOP["LoopPilot execution"]
+    LOOP --> EVIDENCE["Observed evidence"]
+    LOOP --> SHARED["Compact shared state"]
+    EVIDENCE --> NEXT["Next agent or resumed session"]
+    SHARED --> NEXT
+```
+
+When unfinished complex work needs durable continuity, the Agent MAY update
+`.looppilot/STATE.md` and `.looppilot/HANDOFF.md` after a material event. The
+receiving Agent MUST re-check the current user instruction, working tree, native
+Plan, and tool state. The handoff transfers context, not authority. Simple one-step
+tasks SHOULD skip shared-state updates entirely.
+
+See [`AGENTS.md`](AGENTS.md) for repository-wide rules,
+[`.looppilot/README.md`](.looppilot/README.md) for the protocol, and
+[`SKILL.md`](SKILL.md) for LoopPilot's execution behavior.
+
 ## Example Applications
 
 - **Programming:** revise an implementation after a failing test, then run relevant
@@ -174,7 +208,7 @@ The following repository-level checks have been exercised with pinned tools:
   mapping-key rejection and required metadata checks.
 - Markdown relative links, code fences, final newlines, trailing whitespace, and the
   declared Skill word range pass the static validator.
-- Both Mermaid diagrams render to non-empty SVG files with Mermaid CLI 11.16.0.
+- All three Mermaid diagrams render to non-empty SVG files with Mermaid CLI 11.16.0.
 
 These are syntax and repository-structure checks, not behavioral compatibility
 evidence. Real-host behavior, implicit activation accuracy, named-host compatibility,
@@ -206,6 +240,8 @@ claiming results.
 - [SKILL.md](SKILL.md): executable instructions.
 - [Lifecycle](docs/lifecycle.md): conceptual states and transitions.
 - [Host capabilities](docs/host-capabilities.md): adaptation boundaries.
+- [AGENTS.md](AGENTS.md): stable repository-level Agent instructions.
+- [Shared-state protocol](.looppilot/README.md): optional continuity and handoff.
 - [Safety and stopping](docs/safety-and-stopping.md): authority and outcomes.
 - [Design rationale](docs/design-rationale.md): design tradeoffs.
 - [Validation](docs/validation.md): repeatable maintenance checks and their boundary.
