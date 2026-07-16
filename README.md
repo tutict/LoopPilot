@@ -138,13 +138,16 @@ or external actions.
 
 ## Install or Copy
 
-LoopPilot has no runtime dependency:
+LoopPilot has no runtime dependency for Skill users:
 
 1. Copy or clone the repository to a location the host can read.
 2. Expose [SKILL.md](SKILL.md) using the host's documented skill or instruction
    mechanism.
 3. Preserve the relative docs and examples if the host can load them on demand.
 4. Invoke LoopPilot only for an appropriate task.
+
+Repository maintainers can install the isolated development dependency and run the
+repeatable checks described in [validation](docs/validation.md).
 
 ## Safety and Progress
 
@@ -163,6 +166,22 @@ quality and persistence depend on the host's actual tools and state. A prompt-on
 host cannot claim background execution, durable recovery, or direct verification it
 does not possess. Formal compatibility requires a separate, tested adapter.
 
+## Validation Status
+
+The following repository-level checks have been exercised with pinned tools:
+
+- Skill frontmatter and repository YAML parse with PyYAML 6.0.3, including duplicate
+  mapping-key rejection and required metadata checks.
+- Markdown relative links, code fences, final newlines, trailing whitespace, and the
+  declared Skill word range pass the static validator.
+- Both Mermaid diagrams render to non-empty SVG files with Mermaid CLI 11.16.0.
+
+These are syntax and repository-structure checks, not behavioral compatibility
+evidence. Real-host behavior, implicit activation accuracy, named-host compatibility,
+and A/B traces with rubric scores remain unverified. The
+[evaluation templates](evaluations/README.md) prepare that future work without
+claiming results.
+
 ## Current Limitations
 
 - No independent runtime, planner, tool layer, memory, scheduler, or recovery service
@@ -170,9 +189,10 @@ does not possess. Formal compatibility requires a separate, tested adapter.
 - Prompt-only hosts have weak state continuity and may require user-attributed
   evidence.
 - The lifecycle and pseudocode are conceptual, not executable interfaces.
-- Host-specific adapters and compatibility claims remain unverified.
-- Behavioral scenarios still require execution against real hosts to establish
-  empirical reliability.
+- Formal compatibility with Codex, Gemini CLI, GitHub Copilot, and other named hosts
+  remains unverified.
+- Automatic-trigger accuracy and behavioral reliability still require observed
+  real-host traces and rubric scoring.
 
 ## Roadmap
 
@@ -188,9 +208,11 @@ does not possess. Formal compatibility requires a separate, tested adapter.
 - [Host capabilities](docs/host-capabilities.md): adaptation boundaries.
 - [Safety and stopping](docs/safety-and-stopping.md): authority and outcomes.
 - [Design rationale](docs/design-rationale.md): design tradeoffs.
+- [Validation](docs/validation.md): repeatable maintenance checks and their boundary.
 - [Examples](examples/coding-task.md): illustrative traces.
 - [Behavioral scenarios](tests/scenarios.md): counterexamples and evaluation cases.
 - [Evaluation rubric](tests/evaluation-rubric.md): 0-to-3 scoring.
+- [Evaluation preparation](evaluations/README.md): future trace and score templates.
 - [CONTRIBUTING.md](CONTRIBUTING.md): contribution requirements.
 - [CHANGELOG.md](CHANGELOG.md): notable changes.
 

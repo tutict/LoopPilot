@@ -45,7 +45,7 @@ that may change the active Goal.
 
 **Core behavior:** Read the latest instruction, supplied context, available evidence,
 authority, and native state. Identify the objective, deliverables, constraints,
-success criteria, and possible blockers. Do not ask for information already present.
+success criteria, and possible blockers. The agent MUST NOT ask for information already present.
 
 **Exit condition:** Move to GOAL_READY when the Goal is actionable. Move to BLOCKED
 only when essential input or authorization is missing and no safe reasonable
@@ -81,8 +81,8 @@ the cost boundary, rather than a missing prerequisite, prevents further work.
 **Entry condition:** A safe, scoped, and verifiable action has been selected.
 
 **Core behavior:** Use only capabilities the host actually exposes. Observe the real
-result, errors, and side effects. Do not infer success from intent, simulate tool
-evidence, or repeat an unchanged failed action.
+result, errors, and side effects. The agent MUST NOT infer success from intent or
+simulate tool evidence. Apply the unchanged-failure invariant in `SKILL.md` before retrying.
 
 **Exit condition:** Move to VERIFYING after observing a result. Move to BLOCKED when
 execution cannot proceed without a missing prerequisite. Stop with the appropriate
@@ -111,8 +111,8 @@ Plan unsuitable.
 
 **Core behavior:** Classify the event as recoverable, blocked, infeasible, or
 budget-limited. Update the existing native Plan instead of creating a parallel one.
-Choose a materially different approach when retrying. Do not replan merely to appear
-reflective.
+Choose a materially different approach when retrying. The agent MUST NOT replan
+merely to appear reflective.
 
 **Exit condition:** Move to PLAN_READY when a viable revised path exists. Move to
 BLOCKED when a missing prerequisite prevents progress. End with Budget Stop when
@@ -126,7 +126,7 @@ external or destructive action, or an irreplaceable user decision.
 
 **Core behavior:** Stop execution, preserve completed work and evidence, and report
 the exact blocker, incomplete criteria, attempted materially different approaches,
-and smallest unblocker. Do not continue reflection or unrelated retries.
+and smallest unblocker. The agent MUST NOT continue reflection or unrelated retries.
 
 **Exit condition:** End the current run with a Blocked report. A later user message
 or environment change may begin a new INTAKE; Blocked is never Completed.

@@ -24,7 +24,8 @@ ready for review rather than approved for publication.
 1. State what changes and who is affected.
 2. State the migration deadline and required customer action.
 3. Include the supplied support channel.
-4. Explain service impact and rollback or recovery guidance if supplied in the brief.
+4. Explain service impact and include any rollback or recovery guidance supplied in
+   the brief.
 5. Fit the requested length and tone.
 6. Label the result as awaiting legal review.
 
@@ -58,8 +59,8 @@ length and tone: pass
 legal-review label: present
 ```
 
-The draft is incomplete. Its fluent prose does not compensate for the missing
-recovery guidance.
+The fictional brief supplies recovery guidance, so the draft is incomplete. Fluent
+prose does not compensate for the missing guidance.
 
 ## Replanning After the Coverage Failure
 
@@ -70,8 +71,9 @@ Classify the omission as a recoverable writing failure. Update the plan to:
 3. re-check only the affected factual and coverage criteria; and
 4. re-read the full draft for length and tone regression.
 
-Do not invent recovery steps. If the brief lacked them, the correct outcome would be
-**Blocked** pending necessary input.
+The agent MUST NOT invent recovery steps. If the brief did not supply them, omit the
+optional guidance and note that omission; it would not block completion of the
+requested draft.
 
 ## Second Execution and Verification
 
@@ -86,11 +88,11 @@ is not claimed because it has not occurred.
 
 ```text
 Status: Completed
-Completed work: one-page announcement and requirement-coverage review.
+Completed work: one-page announcement with supplied recovery guidance and coverage review.
 Verification evidence: illustrative brief-to-draft coverage, factual consistency, tone, and
 length checks.
 Remaining gaps: none within the requested draft scope; legal review and publication
-are separate future work.
+remain separate future work.
 Stop reason: the requested review-ready deliverable is complete; publication
 was outside scope.
 Best next action: submit the draft to the authorized legal reviewer.

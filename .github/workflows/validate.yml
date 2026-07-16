@@ -1,0 +1,30 @@
+name: Validate
+
+"on":
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -m unittest discover -s tests -p "test_*.py" -v
+      - run: python scripts/validate.py --extract-mermaid .tmp/mermaid
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Render Mermaid diagrams
+        run: |
+          npx --yes --package @mermaid-js/mermaid-cli@11.16.0 mmdc -i .tmp/mermaid/README-1.mmd -o .tmp/mermaid/README-1.svg
+          npx --yes --package @mermaid-js/mermaid-cli@11.16.0 mmdc -i .tmp/mermaid/docs-lifecycle-1.mmd -o .tmp/mermaid/docs-lifecycle-1.svg
+          test -s .tmp/mermaid/README-1.svg
+          test -s .tmp/mermaid/docs-lifecycle-1.svg
+      - run: git diff --check

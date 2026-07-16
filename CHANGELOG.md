@@ -13,6 +13,9 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Illustrative coding, research, and writing traces.
 - Behavioral scenarios and a 0-to-3 evaluation rubric.
 - Contributor guidance and MIT license.
+- Repeatable static validation with pinned PyYAML and Mermaid CLI versions.
+- A minimal GitHub Actions validation workflow.
+- Evaluation templates for future observed host traces and A/B scoring.
 
 ### Changed
 
@@ -22,3 +25,7 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Tightened activation exclusions, verification integrity, replanning, and authority.
 - Expanded counterexample scenarios and explicit rubric penalties.
 - Clarified that lifecycle and pseudocode names are conceptual, not fixed host APIs.
+- Aligned the writing example so absent optional recovery guidance is not a blocker.
+- Standardized normative `MUST`, `SHOULD`, and `MAY` language where behavior is
+  required, recommended, or optional.
+- Consolidated the unchanged-failure rule around one explicit Loop invariant.

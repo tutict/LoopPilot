@@ -1,7 +1,7 @@
 # Host Capability Levels
 
 LoopPilot adapts to capabilities a host actually exposes. These levels describe
-behavioral capacity, not certified product compatibility. Do not infer support for a
+behavioral capacity, not certified product compatibility. LoopPilot MUST NOT infer support for a
 named host unless a separate adapter and repeatable tests demonstrate it.
 
 ## Level 1: Prompt-Only Host
@@ -25,9 +25,9 @@ LoopPilot cannot reliably:
 - promise future asynchronous completion.
 
 Keep any Plan short and proportional. When cross-context recovery is genuinely
-needed, a compact text state may contain only the Goal, success criteria, completed
+needed, a compact text state MAY contain only the Goal, success criteria, completed
 work, current action, blockers, and next action. Keep it in context unless the user
-authorizes a durable artifact. Never claim that this creates persistence the host
+authorizes a durable artifact. The agent MUST NOT claim that this creates persistence the host
 does not have.
 
 ## Level 2: Planning and Tool Host
@@ -35,7 +35,7 @@ does not have.
 A planning and tool host exposes a native Plan or task list plus file, command,
 browser, application, or other tools.
 
-LoopPilot should:
+LoopPilot SHOULD:
 
 - inherit and update the native Goal, Plan, Todo, or task status;
 - select actions from current native state;
@@ -44,15 +44,15 @@ LoopPilot should:
 - record blockers and verification gaps in the native representation; and
 - replan there after failures, discoveries, or new user instructions.
 
-Do not mirror the Plan in a second private structure. Do not invent generic function
-names for reading Goals or updating Plans; use only verified host mechanisms.
+LoopPilot MUST NOT mirror the Plan in a second private structure or invent generic
+function names for reading Goals or updating Plans; use only verified host mechanisms.
 
 ## Level 3: Persistent Agent Host
 
 A persistent host can retain Goals, Plans, Memory, task status, and resumable work
 across execution windows.
 
-LoopPilot should operate as a policy layer:
+LoopPilot SHOULD operate as a policy layer:
 
 - reconcile new messages with persisted Goal and authority;
 - resume from recorded evidence rather than replaying completed actions;
@@ -61,7 +61,7 @@ LoopPilot should operate as a policy layer:
 - communicate only material progress; and
 - stop or resume according to capabilities the host actually supports.
 
-Do not duplicate persistence, Memory, scheduling, or recovery. Persistence does not
+LoopPilot MUST NOT duplicate persistence, Memory, scheduling, or recovery. Persistence does not
 expand user authorization: commit, push, publish, deploy, sending, destructive
 changes, and irreversible actions remain independently scoped.
 

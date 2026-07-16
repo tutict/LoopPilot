@@ -30,7 +30,7 @@ for writing, reproducible calculations for analysis, and content inspection for 
 work.
 
 Planned checks, simulated traces, expected outputs, and unexecuted commands remain
-non-evidence. When direct verification is unavailable, the outcome must expose the
+non-evidence. When direct verification is unavailable, the outcome MUST expose the
 gap rather than convert confidence into completion.
 
 ## Adaptive, Not Mechanically Persistent
