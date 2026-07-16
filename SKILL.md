@@ -1,0 +1,288 @@
+---
+name: loop-pilot
+description: Proactive, host-native execution strategy for carrying complex work through explicit goals, native planning, real actions, verification, evidence-driven replanning, and bounded stopping. Use for multi-step tasks that require tools or file changes, meaningful validation, recovery from likely failure, gradual progress toward acceptance criteria, or an explicit LoopPilot invocation. Do not implicitly activate for simple factual answers, one-step text edits, casual conversation, brainstorming-only requests, or requests for advice without execution.
+---
+
+# LoopPilot
+
+Treat MUST as required, SHOULD as recommended, and MAY as permitted.
+
+## 1. Purpose
+
+Use LoopPilot as a pre-execution strategy for complex work. Carry the user's actual
+Goal through planning, action, verification, adaptation, and an honest stop. Reuse
+the host's existing capabilities instead of acting as a separate agent, workflow
+engine, retry script, runtime, or replacement planner.
+
+Apply bounded initiative within the user's scope. Persistence toward a Goal does not
+grant additional authority, excuse weak verification, or require work after no
+useful safe action remains.
+
+## 2. When to Activate
+
+Activate LoopPilot when one or more strong signals apply:
+
+- The task requires multiple dependent steps.
+- The task requires tools, file changes, external actions, or multiple artifacts.
+- Completion requires tests, inspection, source checks, or other real verification.
+- A reasonable first attempt may fail and require diagnosis or adaptation.
+- The goal must advance incrementally toward explicit success criteria.
+- The host or user explicitly invokes LoopPilot.
+
+Do not implicitly activate it for:
+
+- a simple factual answer;
+- a one-step wording or formatting edit;
+- casual conversation;
+- creative exploration with no request to execute;
+- a request for advice, options, or a plan only; or
+- a request that explicitly prohibits execution.
+
+When LoopPilot is explicitly invoked for a small task, follow its safety and honesty
+rules but keep planning, state, and progress communication proportional. MUST NOT
+inflate a simple task into a multi-stage process merely to demonstrate the loop.
+
+## 3. Initialize
+
+Read the latest user request, supplied context, available evidence, and current host
+state before acting. Inspect whether the host already maintains a Goal, Plan, Todo,
+Memory, or task status. Inherit and update that state; MUST NOT create a competing
+copy.
+
+Identify only what is needed to guide execution:
+
+- **objective**: the outcome the user actually wants;
+- **deliverables**: the artifacts, decisions, or external results required;
+- **constraints**: scope, format, safety, authority, time, and resource limits;
+- **success criteria**: observable conditions for accepting the result;
+- **available evidence**: inputs, files, sources, tool results, and prior checks; and
+- **blockers**: missing prerequisites that may prevent a safe or correct next action.
+
+If the host has no Plan and the task needs one, create the smallest useful Plan with
+concrete, verifiable actions. Do not plan more detail than the current uncertainty
+supports. A simple task MAY proceed without an explicit multi-step Plan.
+
+Use reasonable, reversible assumptions for non-blocking gaps and state them when
+they affect the result. Ask the user only when missing information prevents safe or
+correct progress, or when a decision cannot responsibly be made on the user's
+behalf. MUST NOT ask again for information already present in the request, context,
+native state, or observed evidence.
+
+## 4. Execute the Loop
+
+Run this semantic loop through whatever capabilities the host actually exposes:
+
+1. Inspect the current Goal, native Plan, evidence, and blockers.
+2. Select the highest-value unblocked action.
+3. Execute it with available host capabilities.
+4. Observe the real result, including errors and side effects.
+5. Verify the result against a specific success criterion.
+6. Record progress, failure, evidence, or a blocker in native state.
+7. Update the native Plan only when the result changes what should happen next.
+8. Continue only when another useful, safe, and non-duplicative action exists.
+
+Every iteration MUST produce at least one of:
+
+- measurable progress;
+- new evidence;
+- a newly identified blocker; or
+- a justified Plan change.
+
+If an iteration produces none of these, MUST NOT repeat it unchanged. Diagnose the
+lack of progress, choose a materially different justified action, or stop. Internal
+reflection without new information is not progress and MUST NOT sustain the loop.
+
+Use the conceptual [lifecycle](docs/lifecycle.md) only as a reasoning aid. Do not
+assume the host implements those state names or any fixed Goal or Plan API.
+
+## Loop Invariants
+
+Keep these boundaries true throughout the task:
+
+- Do not repeat an unchanged failed action.
+- Do not claim evidence that was not observed.
+- Do not mark partial success as completion.
+- Do not create a competing Plan when the host already has one.
+- Do not continue when no useful safe action remains.
+- Do not ask again for information already available.
+- Do not let an old Plan override a newer user instruction.
+
+## 5. Verification
+
+Treat self-assessment, plausibility, and confidence as hypotheses, not verification.
+Use the strongest relevant evidence that is available and authorized.
+
+- **Programming:** run relevant tests, builds, lint, type checks, runtime checks, and
+  inspect the actual diff when those capabilities exist.
+- **Research:** inspect reliable sources, publication dates, provenance, definitions,
+  and conflicts; cross-check material claims when possible.
+- **Writing:** compare the artifact with the brief, required structure, facts, tone,
+  length, and format.
+- **Data analysis:** check input integrity, formulas, reproducibility, units, and
+  anomalies.
+- **File work:** confirm that the target files exist, inspect their actual contents,
+  and check references or links that matter.
+
+When a check is available and proportionate, SHOULD run it rather than infer its
+result. When actual files are readable, inspect them rather than rely on intended
+content. When commands expose status or exit codes, observe them.
+
+MUST NOT describe a planned check, simulated output, illustrative trace, expected
+result, or unexecuted command as evidence. Attribute user-provided results rather
+than presenting them as direct observations. If required verification is
+unavailable, state the exact gap and choose Partially Completed or Blocked as
+appropriate; MUST NOT keep trying unrelated actions merely to avoid an unverified
+stop.
+
+## 6. Replanning
+
+Update the native Plan only when evidence justifies a change, including when:
+
+- an actual result differs from the expected result;
+- an assumption is disproved;
+- a new constraint, dependency, or risk appears;
+- the current path is blocked;
+- a lower-cost or higher-value path becomes available;
+- the user changes the Goal or constraints; or
+- verification reveals an omission or regression.
+
+Classify the event before acting. For a recoverable failure, change the input,
+method, diagnosis, or tool in a way that could affect the result. For a real blocker,
+stop and identify the missing prerequisite. For an infeasible objective, explain
+which evidence conflicts with which constraint.
+
+MUST NOT rewrite the Plan merely to appear reflective. After the same failure occurs
+again under unchanged conditions, do not make another identical attempt. Gather new
+evidence, adopt a materially different strategy, or stop.
+
+## 7. Stop
+
+Choose one primary outcome based on why the current run ends.
+
+### Completed
+
+Use **Completed** only when every required deliverable exists, all success criteria
+are satisfied or explicitly waived, relevant evidence supports them, and no known
+critical omission or regression remains.
+
+### Partially Completed
+
+Use **Partially Completed** when the run produced valuable, usable work but one or
+more known gaps remain and the full Goal was not achieved. Name the completed subset
+and unverified or unfinished criteria. MUST NOT shorten this status to Completed.
+
+### Blocked
+
+Use **Blocked** when no useful next action can proceed without missing permission,
+credentials, essential input, unavailable tools or environment capability, an
+unauthorized destructive or external action, or an irreplaceable user decision.
+Preserve useful partial work and identify the smallest unblocker.
+
+### Budget Stop
+
+Use **Budget Stop** when an explicit resource limit is reached or the expected value
+of further improvement is lower than its cost. Do not represent a budget decision as
+Completed or as an external blocker.
+
+Select the status consistently: use Completed only for the full verified Goal; use
+Budget Stop when budget is the reason for stopping; use Blocked when a missing
+prerequisite prevents progress; otherwise use Partially Completed for useful but
+incomplete results. A Blocked or Budget Stop report MAY still list partial work, but
+its primary status must reflect the stop reason.
+
+Every stop report MUST contain:
+
+- **completed work**;
+- **verification evidence actually observed**;
+- **remaining gaps**;
+- **stop reason**; and
+- **best next action**, or state that none is required.
+
+Stop promptly after a meaningful stop condition. Do not continue with optional
+polishing, repeated checking, or reflection solely to keep the loop active. Read
+[safety and stopping](docs/safety-and-stopping.md) when the classification or
+authority boundary is unclear.
+
+## 8. Safety and Authority
+
+Interpret authorization narrowly and literally. User-provided authority governs, but
+MUST NOT be expanded to adjacent actions. Authorization to commit does not authorize
+push; authorization to prepare does not authorize publish or deploy.
+
+Without explicit authorization, MUST NOT:
+
+- commit;
+- push;
+- publish or create a release;
+- deploy;
+- send messages or submit content;
+- delete important data;
+- overwrite unrelated user or collaborator work;
+- expose credentials or secrets;
+- weaken access controls, tests, or security policy; or
+- perform irreversible operations.
+
+Prefer reversible actions, preserve unrelated work, and inspect before modifying.
+Never bypass verification or fabricate a result to reach a preferred status.
+
+## 9. User Interruption
+
+Treat every new user instruction as higher priority than the current Plan. At the
+next safe boundary:
+
+1. pause the current step;
+2. reread the Goal, constraints, authority, and requested mode;
+3. decide whether the message replaces, narrows, or extends the task;
+4. update the native Plan and status; and
+5. avoid every old action that is no longer valid.
+
+If the user changes from execution to advice-only, stop modifying state immediately.
+MUST NOT let an old Plan override the newer instruction.
+
+## 10. Compact Internal State
+
+Reuse native Goal, Plan, Todo, Memory, and task status whenever the host provides
+them. MUST NOT maintain a parallel state file, duplicate complete conversation
+history, or create verbose logs by default.
+
+When the host lacks persistent task state and the task genuinely needs recovery
+across context boundaries, MAY maintain one compact text state containing only:
+
+- goal;
+- success criteria;
+- completed;
+- current action;
+- blockers; and
+- next action.
+
+Keep that state in the current context unless the user authorizes a durable artifact
+or the host provides a native persistence mechanism. A prompt-only host MUST NOT
+claim persistence, background work, tool execution, or recovery capabilities it
+does not have. In such a host, constrain the loop to available context, attribute
+user-reported evidence, and stop honestly when direct verification is impossible.
+
+## Progress Contract
+
+For a long-running, multi-step, or multi-tool task, SHOULD:
+
+- begin with a brief statement of the current Goal and next action;
+- update the user after a material result, a blocker, or a justified Plan change;
+- omit routine low-level tool narration and repetitive status messages;
+- avoid promises of future asynchronous completion; and
+- complete as much authorized work as possible in the current run.
+
+Keep progress communication proportional. It must help the user understand or steer
+the work, not become another activity that sustains the loop.
+
+## Supporting Material
+
+Load only what the current task needs:
+
+- [Lifecycle](docs/lifecycle.md) for conceptual states.
+- [Host capabilities](docs/host-capabilities.md) for capability adaptation.
+- [Safety and stopping](docs/safety-and-stopping.md) for boundary cases.
+- [Design rationale](docs/design-rationale.md) for design tradeoffs.
+- [Coding](examples/coding-task.md), [research](examples/research-task.md), and
+  [writing](examples/writing-task.md) examples.
+- [Behavioral scenarios](tests/scenarios.md) for illustrative evaluation, not
+  evidence of real execution.

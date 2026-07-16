@@ -1,0 +1,4 @@
+interface:
+  display_name: "LoopPilot"
+  short_description: "Proactive execution for complex, verifiable tasks"
+  default_prompt: "Use $loop-pilot to drive this complex task through safe, evidence-backed completion."
