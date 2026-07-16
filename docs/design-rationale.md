@@ -36,6 +36,31 @@ and authority change. Keeping them separate reduces merge conflicts and context
 growth, makes each change easier to audit, and prevents an old task or handoff from
 polluting a new task.
 
+## Supervision, Review, and Integration
+
+Delegation creates a new failure mode: every contributor can finish a local part
+while no one owns the correctness of the whole. LoopPilot therefore keeps one
+Supervisor accountable for the parent Goal and one identifiable Supervisor or
+Integrator accountable for the final combined result.
+
+A handoff is not sufficient. Handoff transfers compact continuity to a later Agent;
+delegation creates bounded responsibility under a still-active parent Goal. A Task
+Contract is needed because the Worker requires explicit scope, deliverables,
+evidence, dependencies, Reviewer, integration owner, and authority.
+
+Independent Review and integration are separate gates. `approved` establishes that
+one subtask satisfies its contract. `integrated` establishes that reviewed work
+coexists with other outputs and passes parent-level verification. Keeping the
+statuses separate exposes conflicts and combined regressions that no isolated
+review can detect.
+
+LoopPilot defines this as a protocol rather than an automatic multi-Agent runtime.
+Hosts differ in assignment, parallelism, cancellation, persistence, permission
+isolation, and merge behavior. A repository runtime would duplicate host
+orchestration, introduce new security boundaries, and falsely imply compatibility.
+The protocol instead adapts to observed host capabilities and states the remaining
+runtime limits.
+
 ## Evidence Before Completion
 
 Agent confidence is not external evidence. Verification changes by task type: tests

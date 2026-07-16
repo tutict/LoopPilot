@@ -45,6 +45,25 @@ A change to the shared-state protocol MUST review and update, when affected:
 - `tests/scenarios.md`; and
 - `tests/evaluation-rubric.md`.
 
+## Delegation Protocol Changes
+
+A change to supervised delegation MUST review and update every affected layer:
+
+- `SKILL.md` and `AGENTS.md`;
+- `.looppilot/DELEGATION.md` and `.looppilot/tasks/`;
+- `README.md` and `docs/multi-agent-coordination.md`;
+- lifecycle, host-capability, safety, rationale, and validation docs;
+- `scripts/validate.py`;
+- regression tests;
+- behavioral scenarios and the evaluation rubric; and
+- CI Mermaid extraction and rendering.
+
+Contributions MUST preserve the distinction between handoff and delegation,
+`approved` and `integrated`, scoped responsibility and explicit authority, and
+protocol guidance and real runtime isolation. They MUST NOT claim that LoopPilot
+creates, schedules, cancels, isolates, or merges Agents unless a separately tested
+host capability actually does so.
+
 ## Testing Documentation Changes
 
 Before submitting a change:
@@ -61,7 +80,7 @@ Before submitting a change:
 
 For the repository's repeatable maintenance checks, install the isolated development
 dependency from `requirements-dev.txt`, run the Python unit tests, and run
-`python scripts/validate.py`. Render all three Mermaid diagrams with the pinned CLI
+`python scripts/validate.py`. Render all four Mermaid diagrams with the pinned CLI
 as described in [`docs/validation.md`](docs/validation.md). These tools are not
 LoopPilot runtime dependencies.
 

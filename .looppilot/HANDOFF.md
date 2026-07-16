@@ -38,5 +38,8 @@ No active handoff.
 - The receiving Agent MUST re-check the latest user instruction and authorization.
 - The receiving Agent MUST re-check the working tree, native Plan, files, tests,
   and actual tool state.
-- The receiving Agent MUST label inference as `inference` and unchecked information as `unverified`.
+- The receiving Agent MUST label inference as `inference` and unchecked information
+  as `unverified`.
 - The receiving Agent MUST NOT treat a handoff as authority for consequential action.
+- A handoff is not a Task Contract and does not assign or transfer Supervisor,
+  Worker, Reviewer, or Integrator responsibility.

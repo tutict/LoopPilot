@@ -264,6 +264,34 @@ keep the same minimum summary in current context. A prompt-only host MUST NOT cl
 persistence, background work, tool execution, or recovery capabilities it does not
 have.
 
+## 11. Supervised Delegation
+
+The agent MAY delegate only when the host supports task assignment and delegation
+has clear value. Simple tasks MUST NOT incur multi-Agent overhead.
+
+For delegated work:
+
+1. A Supervisor MUST remain accountable for the parent Goal.
+2. Every delegated task MUST have a scoped
+   [Task Contract](.looppilot/tasks/TASK-TEMPLATE.md).
+3. Workers MUST remain within allowed scope and MUST NOT claim parent completion.
+4. Submitted work MUST be independently reviewed before integration.
+5. Reviewer approval MUST reference explicit criteria and observed evidence.
+6. `approved` means review passed; `integrated` means the reviewed result was
+   combined and passed integration checks.
+7. Approved work MUST still pass parent-level integration verification.
+8. Conflicting outputs MUST NOT be silently merged or resolved by
+   last-writer-wins.
+9. Delegation MUST NOT expand authority beyond the contract and current user
+   instruction.
+10. Concurrent direct writes to the same core file SHOULD be replaced by
+    suggestion-only tasks and one Integrator edit.
+11. One identifiable Supervisor or Integrator MUST own the final result.
+
+Use the optional [coordination protocol](docs/multi-agent-coordination.md) only at
+the host's observed capability level. LoopPilot does not create Agents, schedule
+work, isolate permissions, cancel sessions, lock files, or merge results.
+
 ## Progress Contract
 
 For a long-running, multi-step, or multi-tool task, the agent SHOULD:

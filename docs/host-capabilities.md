@@ -82,6 +82,36 @@ capabilities without replacing them:
 In every case, the receiving Agent MUST re-check the latest instruction, authority,
 working tree, native state, and observed evidence before continuing.
 
+## Delegation Capabilities
+
+Multi-Agent support is not one binary capability. A host may provide:
+
+1. **No task assignment:** the current Agent MUST execute directly and keep
+   delegation inactive.
+2. **Sequential assignment:** a Supervisor can delegate one bounded Task Contract,
+   recover the result, and then assign the next.
+3. **Independent review:** a distinct session or Agent can inspect a submission
+   against criteria and evidence.
+4. **Concurrent Workers:** multiple non-overlapping tasks can run at once.
+5. **Cancellation or resumption:** the host can stop, supersede, or resume assigned
+   sessions with observable state.
+6. **Runtime permission isolation:** the host can technically enforce per-Agent
+   file, tool, network, or external-action permissions.
+
+LoopPilot MAY use only capabilities actually observed. Sequential delegation MUST
+NOT be described as concurrency. A second label or prompt does not prove Reviewer
+independence. Concurrent assignment does not prove filesystem isolation. Written
+authority fields do not enforce permissions unless the host provides that
+mechanism.
+
+When a host lacks hard isolation, the Supervisor MUST reduce overlap, minimize
+authority, prefer suggestion-only tasks for the same core file, and treat the
+protocol as behavioral guidance rather than a security boundary.
+
+Real Agent creation, scheduling, cancellation, concurrent isolation, and recovery
+on Codex, Gemini CLI, GitHub Copilot, or another named host require separate
+observed tests.
+
 ## Capability Discovery
 
 Before relying on a capability:

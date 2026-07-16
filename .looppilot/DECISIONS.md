@@ -34,3 +34,6 @@ New user instructions or observed evidence may invalidate an active decision. Th
 Agent MUST move replaced decisions here, identify the superseding source, and MUST
 NOT record ordinary execution steps, secrets, private reasoning, or fabricated
 evidence.
+
+A stable resolution to a multi-Agent conflict MAY be recorded here when it affects
+later work. Ordinary Reviewer findings and revision results remain with the task.

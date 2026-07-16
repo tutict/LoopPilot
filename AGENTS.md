@@ -90,6 +90,36 @@ and MUST NOT be persisted as standing repository permission.
 A handoff records context, not authority; the receiving
 agent MUST re-check current authorization before a consequential action.
 
+## Supervised Delegation
+
+Delegation is optional and MAY be used only when the host supports task assignment
+and the benefit exceeds coordination cost. Simple tasks MUST NOT be split across
+multiple Agents without a clear, documented benefit.
+
+When work is delegated:
+
+- one Supervisor MUST remain accountable for the parent Goal;
+- every subtask MUST have a scoped
+  [Task Contract](.looppilot/tasks/TASK-TEMPLATE.md);
+- Workers MUST stay within allowed scope, respect forbidden scope, and MUST NOT
+  announce parent completion;
+- submitted work MUST receive an independent Reviewer decision before integration;
+- `approved` means review passed, while `integrated` means the result was combined
+  and passed integration checks;
+- one identifiable Supervisor or Integrator MUST own the final result and run
+  parent-level verification;
+- delegation MUST NOT expand authority beyond the Task Contract and latest user
+  instruction;
+- conflicting outputs MUST NOT be silently overwritten or resolved by
+  last-writer-wins; and
+- multiple Workers SHOULD NOT concurrently edit the same core file. Prefer
+  suggestion-only tasks followed by one Integrator edit.
+
+The coordination summary belongs in
+[`.looppilot/DELEGATION.md`](.looppilot/DELEGATION.md). Detailed role, lifecycle,
+review, revision, and conflict rules are in the
+[delegated task protocol](.looppilot/tasks/README.md).
+
 ## Handoff
 
 Before stopping or changing agents or sessions, unfinished complex work SHOULD

@@ -158,6 +158,30 @@ See [`AGENTS.md`](AGENTS.md) for repository-wide rules,
 [`.looppilot/README.md`](.looppilot/README.md) for the protocol, and
 [`SKILL.md`](SKILL.md) for LoopPilot's execution behavior.
 
+## Supervised Multi-Agent Delegation
+
+LoopPilot can describe supervised delegation when the host already supports
+multiple Agents, delegated sessions, or equivalent task assignment. It does not
+automatically create Agents or provide a scheduler, concurrency runtime, file
+isolation, locking, cancellation service, or merge engine.
+
+One Supervisor remains accountable for the parent Goal. Workers handle only
+contracted subtasks, an independent Reviewer checks scope and evidence, and one
+Supervisor or Integrator owns the final combined result. `approved` means a subtask
+passed review; it is not `integrated` until the reviewed work is combined and
+parent-level checks pass.
+
+Simple tasks are completed directly rather than split for ceremony. Parallel work
+requires non-overlapping scope or suggestion-only tasks followed by one Integrator
+edit. Delegation never transfers authority beyond the explicit Task Contract and
+latest user instruction.
+
+See the [coordination design](docs/multi-agent-coordination.md), inactive
+[delegation summary](.looppilot/DELEGATION.md), and
+[Task Contract protocol](.looppilot/tasks/README.md). Real multi-Agent creation,
+Reviewer independence, concurrency isolation, and named-host behavior remain
+unverified.
+
 ## Example Applications
 
 - **Programming:** revise an implementation after a failing test, then run relevant
@@ -208,11 +232,13 @@ The following repository-level checks have been exercised with pinned tools:
   mapping-key rejection and required metadata checks.
 - Markdown relative links, code fences, final newlines, trailing whitespace, and the
   declared Skill word range pass the static validator.
-- All three Mermaid diagrams render to non-empty SVG files with Mermaid CLI 11.16.0.
+- All four Mermaid diagrams, including the supervised delegation lifecycle, render
+  to non-empty SVG files with Mermaid CLI 11.16.0.
 
 These are syntax and repository-structure checks, not behavioral compatibility
 evidence. Real-host behavior, implicit activation accuracy, named-host compatibility,
-and A/B traces with rubric scores remain unverified. The
+multi-Agent creation and delegation, Reviewer independence, concurrent file
+isolation, and A/B traces with rubric scores remain unverified. The
 [evaluation templates](evaluations/README.md) prepare that future work without
 claiming results.
 
@@ -225,6 +251,8 @@ claiming results.
 - The lifecycle and pseudocode are conceptual, not executable interfaces.
 - Formal compatibility with Codex, Gemini CLI, GitHub Copilot, and other named hosts
   remains unverified.
+- Real concurrent scheduling, runtime permission isolation, distributed locking,
+  automatic merging, and cross-session delegated recovery are not implemented.
 - Automatic-trigger accuracy and behavioral reliability still require observed
   real-host traces and rubric scoring.
 
@@ -243,6 +271,8 @@ claiming results.
 - [AGENTS.md](AGENTS.md): stable repository-level Agent instructions.
 - [Shared-state protocol](.looppilot/README.md): optional continuity and handoff.
 - [Safety and stopping](docs/safety-and-stopping.md): authority and outcomes.
+- [Multi-Agent coordination](docs/multi-agent-coordination.md): supervised
+  delegation, review, conflict, and integration protocol.
 - [Design rationale](docs/design-rationale.md): design tradeoffs.
 - [Validation](docs/validation.md): repeatable maintenance checks and their boundary.
 - [Examples](examples/coding-task.md): illustrative traces.

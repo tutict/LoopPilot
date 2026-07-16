@@ -21,6 +21,13 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Inactive state, handoff, and decision templates.
 - Stale-state, prompt-injection, evidence-integrity, and authority safeguards.
 - Shared-state validation and regression tests.
+- An optional host-native supervised delegation protocol with Supervisor, Worker,
+  Reviewer, and Integrator responsibilities.
+- Task Contract, Reviewer result, and delegation-state templates.
+- Task lifecycle, revision, conflict, parallel-eligibility, authority-isolation,
+  and parent-integration rules.
+- Delegation validation, regression tests, behavioral scenarios, rubric dimensions,
+  and a rendered multi-Agent coordination diagram.
 
 ### Changed
 

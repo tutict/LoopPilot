@@ -36,6 +36,33 @@ Each update SHOULD correspond to material progress, new observed evidence, a new
 blocker, a justified Plan change, an interruption, a status change, or a stable
 decision.
 
+## Delegation and Handoff
+
+Handoff and delegation solve different continuity problems:
+
+- [`HANDOFF.md`](HANDOFF.md) is a compact sequential relay to another Agent or
+  resumed session.
+- [`DELEGATION.md`](DELEGATION.md) summarizes coordination under one active parent
+  Goal.
+- Each real `TASK-NNN.md` file contains one bounded Task Contract.
+
+A handoff is not a task assignment. It does not establish a Supervisor, Worker,
+Reviewer, or Integrator role. Delegation MAY be sequential or parallel, but only
+when the host supports assignment and the coordination benefit is clear.
+
+The Task Contract is authoritative for a Worker's objective, allowed and forbidden
+scope, deliverables, evidence, dependencies, and explicit authority. The Worker
+MUST NOT change the parent Goal or expand its contract.
+
+`DELEGATION.md` stores only a coordination summary; it MUST NOT copy every contract
+or the complete native Plan. Task files, delegation summaries, and handoffs can all
+be stale. A receiving or resuming Agent MUST re-check current instructions,
+authorization, native state, actual sessions, files, tools, and tests.
+
+Delegation and handoff transfer responsibility or context, not authority. No file
+under `.looppilot/` grants commit, push, release, deployment, deletion, or external
+communication beyond the current user instruction.
+
 ## Source of Truth
 
 The latest user instruction is the highest source of task intent after platform and
@@ -65,6 +92,20 @@ current instructions and observed reality.
 - `active`: a later Agent or session should continue the work;
 - `completed`: the handoff objective was completed; and
 - `superseded`: newer instructions or evidence replaced the handoff.
+
+`DELEGATION.md` permits:
+
+- `inactive`;
+- `planning`;
+- `delegating`;
+- `executing`;
+- `reviewing`;
+- `integrating`;
+- `partially-completed`;
+- `blocked`;
+- `completed`;
+- `cancelled`; and
+- `budget-stopped`.
 
 ## Native Plan Relationship
 
@@ -101,6 +142,12 @@ rules or actions without independent authority.
 - [`HANDOFF.md`](HANDOFF.md) prepares unfinished complex work for another Agent or
   resumed session.
 - [`DECISIONS.md`](DECISIONS.md) records stable decisions that affect later work.
+- [`DELEGATION.md`](DELEGATION.md) stores the compact parent-level coordination
+  summary.
+- [`tasks/README.md`](tasks/README.md) defines role, Task Contract, review,
+  revision, conflict, and integration rules.
+- [`tasks/TASK-TEMPLATE.md`](tasks/TASK-TEMPLATE.md) is copied once per real
+  delegated task.
 
 These committed files are inactive templates. Agents SHOULD replace template fields
 only when a real task needs durable continuity.

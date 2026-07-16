@@ -17,6 +17,21 @@ update `.looppilot/` after a material event such as verified progress, a blocker
 stable decision, an interruption, or a completion change. Routine iterations SHOULD
 remain in host-native state, and simple tasks SHOULD NOT persist shared state.
 
+## Optional Delegation Branch
+
+Supervised delegation is an optional branch inside PLAN_READY and EXECUTING, not a
+ninth lifecycle state or a mandatory step. When the host supports assignment and
+the benefit is clear, the Supervisor MAY create scoped Task Contracts, collect
+Worker submissions, obtain independent Review, and integrate approved work.
+
+The parent run remains in the same conceptual lifecycle. Worker completion does not
+move the parent Goal to COMPLETED. Reviewed work returns to VERIFYING only after an
+Integrator combines it and runs parent-level checks. Conflicts, invalid authority,
+failed review, or changed user instructions may return the run to EXECUTING or
+REPLANNING, or lead to an honest stop.
+
+See [supervised multi-Agent coordination](multi-agent-coordination.md).
+
 ## Transition Overview
 
 ```mermaid
