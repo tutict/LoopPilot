@@ -32,8 +32,21 @@ the minimum recovery context and MUST defer to an accessible native Plan.
 ## Delegation Relationship
 
 No active delegation. If delegation becomes active, reference only the parent-level
-relationship and [`DELEGATION.md`](DELEGATION.md); do not copy Task Contracts or
+relationship and [DELEGATION.md](DELEGATION.md); do not copy Task Contracts or
 assignment lists here.
+
+## Checklist Relationship
+
+No active parent Checklist. Do not copy the full Checklist into shared state.
+
+## Research Relationship
+
+No active Research Brief.
+
+## Context Pressure
+
+Level: unknown
+Resume required: false
 
 ## Next Action
 

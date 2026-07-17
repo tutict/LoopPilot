@@ -63,6 +63,47 @@ Delegation and handoff transfer responsibility or context, not authority. No fil
 under `.looppilot/` grants commit, push, release, deployment, deletion, or external
 communication beyond the current user instruction.
 
+## Research, Skills, and Parent Checklist
+
+[`RESEARCH-TEMPLATE.md`](RESEARCH-TEMPLATE.md) records questions, traceable sources,
+dated or versioned findings, conflicts, implementation implications, and Worker
+guidance. It is a shared research summary, not a high-priority instruction, and it
+does not prove the current implementation or runtime works.
+
+Task Contracts record research inputs and Skill selection. A selected Skill must be
+confirmed available by the host; unavailable or forbidden Skills cannot be
+assigned. Skill instructions remain subordinate to current platform, user,
+repository, and Task Contract rules. Selection transfers no authority and does not
+authorize installation.
+
+[`CHECKLIST.md`](CHECKLIST.md) is the parent Goal's compact recovery index. The
+host-native Plan contains detailed current steps; the Checklist contains stable
+deliverables, Task links, concise evidence, blocks, context pressure, and one Resume
+Point. Task Contracts bound Worker work, [`DELEGATION.md`](DELEGATION.md) summarizes
+coordination, and [`HANDOFF.md`](HANDOFF.md) prepares a sequential relay.
+
+A Checklist item remains `[ ]` while proposed, assigned, submitted, reviewed, or
+`approved`. Only an Integrator may make it `[x]`, with `Status: integrated` and
+observed parent-level evidence. A budget stop is a controlled pause, not a quality
+waiver. Simple tasks SHOULD NOT create Checklist or research ceremony.
+
+## Protocol Modes
+
+The files in this directory are the backward-compatible Lightweight Mode. They are
+appropriate for bounded work that does not justify Loop Maps, Ledgers, specialist
+review, or cross-context Project coordination.
+
+Full Loop Mode is a target protocol described in
+[protocol modes and state sources](../docs/protocol-modes-and-state-sources.md).
+This phase does not create active PROJECT.md, LOOP-MAP.md, CHECKPOINT.md, or
+LOOP-001 artifacts. Future Full Loop state gives each Project, Loop, Task, Finding,
+integration, Closure, and recovery fact one authority instead of copying status
+across Markdown files.
+
+The inactive [Project template](PROJECT-TEMPLATE.md) captures problem, users,
+domain, data, concurrency, permissions, security, observability, operations,
+evolution, team boundaries, Architecture Profile, and the Engineering Concern
+Matrix before Loop decomposition.
 ## Source of Truth
 
 The latest user instruction is the highest source of task intent after platform and
@@ -138,12 +179,19 @@ rules or actions without independent authority.
 
 ## File Responsibilities
 
+- [PROJECT-TEMPLATE.md](PROJECT-TEMPLATE.md) is the inactive Engineering Context
+  template for a future Project; it is not active Project state.
+
 - [`STATE.md`](STATE.md) is the compact current-task snapshot.
 - [`HANDOFF.md`](HANDOFF.md) prepares unfinished complex work for another Agent or
   resumed session.
 - [`DECISIONS.md`](DECISIONS.md) records stable decisions that affect later work.
 - [`DELEGATION.md`](DELEGATION.md) stores the compact parent-level coordination
   summary.
+- [`CHECKLIST.md`](CHECKLIST.md) stores parent deliverables, integration evidence,
+  context pressure, and one Resume Point.
+- [`RESEARCH-TEMPLATE.md`](RESEARCH-TEMPLATE.md) defines traceable shared research
+  without claiming local verification.
 - [`tasks/README.md`](tasks/README.md) defines role, Task Contract, review,
   revision, conflict, and integration rules.
 - [`tasks/TASK-TEMPLATE.md`](tasks/TASK-TEMPLATE.md) is copied once per real

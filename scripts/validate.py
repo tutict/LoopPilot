@@ -13,6 +13,12 @@ from urllib.parse import unquote, urlsplit
 
 import yaml
 from yaml.constructor import ConstructorError
+from engineering_validation import validate_loop_engineering
+from protocol_validation import (
+    validate_repository_extensions,
+    validate_review_protocol,
+    validate_task_skill_routing,
+)
 
 
 REQUIRED_FILES = (
@@ -22,6 +28,9 @@ REQUIRED_FILES = (
     ".looppilot/STATE.md",
     ".looppilot/HANDOFF.md",
     ".looppilot/DECISIONS.md",
+    ".looppilot/CHECKLIST.md",
+    ".looppilot/RESEARCH-TEMPLATE.md",
+    ".looppilot/PROJECT-TEMPLATE.md",
     "README.md",
     ".looppilot/DELEGATION.md",
     ".looppilot/tasks/README.md",
@@ -34,7 +43,15 @@ REQUIRED_FILES = (
     ".github/workflows/validate.yml",
     "requirements-dev.txt",
     "scripts/validate.py",
+    "scripts/protocol_validation.py",
+    "scripts/engineering_validation.py",
     "docs/validation.md",
+    "docs/loop-engineering-model.md",
+    "docs/project-engineering-context.md",
+    "docs/protocol-modes-and-state-sources.md",
+    "docs/architecture-pattern-selection.md",
+    "docs/project-closure.md",
+    "docs/full-loop-migration-plan.md",
     "evaluations/README.md",
     "docs/host-capabilities.md",
     "evaluations/codex/README.md",
@@ -47,6 +64,7 @@ REQUIRED_FILES = (
     "docs/safety-and-stopping.md",
     "tests/evaluation-rubric.md",
     "tests/scenarios.md",
+    "tests/test_loop_engineering_architecture.py",
 )
 SKILL_WORD_RANGE = range(1500, 2501)
 FRONTMATTER_PATTERN = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
@@ -132,6 +150,10 @@ TASK_REQUIRED_FIELDS = (
     "success_criteria",
     "required_evidence",
     "dependencies",
+    "research_inputs",
+    "skill_assignment",
+    "skill_selection",
+    "checklist_item",
     "authority",
     "reviewer",
     "integration_owner",
@@ -180,10 +202,10 @@ TASK_STATUS_OWNERS = {
 }
 LOGICAL_ROLES = {"supervisor", "worker", "reviewer", "integrator"}
 REVIEW_REQUIRED_HEADINGS = (
-    "## Criteria Checked",
-    "## Findings",
-    "## Required Corrections",
-    "## Remaining Verification Gaps",
+    "## Standards Review",
+    "## Spec Review",
+    "## Verification Gaps",
+    "## Overall Decision Rationale",
     "## Authority Note",
 )
 SHARED_STATE_HEADINGS = {
@@ -191,6 +213,7 @@ SHARED_STATE_HEADINGS = {
         "## Purpose",
         "## It Is Not",
         "## When to Create or Update",
+        "## Research, Skills, and Parent Checklist",
         "## Source of Truth",
         "## Status Values",
         "## Native Plan Relationship",
@@ -205,6 +228,9 @@ SHARED_STATE_HEADINGS = {
         "## Blockers",
         "## Native Plan Relationship",
         "## Delegation Relationship",
+        "## Checklist Relationship",
+        "## Research Relationship",
+        "## Context Pressure",
         "## Next Action",
     ),
     ".looppilot/HANDOFF.md": (
@@ -214,6 +240,11 @@ SHARED_STATE_HEADINGS = {
         "## Remaining Work",
         "## Blockers",
         "## Risks and Constraints",
+        "## Checklist Status",
+        "## Resume Point",
+        "## Context Pressure",
+        "## Active Research Brief",
+        "## Active Skill Assignments",
         "## Recommended Next Action",
         "## Do Not Assume",
     ),
@@ -229,6 +260,10 @@ SHARED_STATE_HEADINGS = {
         "## Blocked Tasks",
         "## Conflicts",
         "## Integration Status",
+        "## Research Status",
+        "## Skill Assignment Summary",
+        "## Checklist Status",
+        "## Budget Status",
         "## Next Coordination Action",
     ),
 }
@@ -391,6 +426,7 @@ def validate_task_contract_file(
 ) -> TaskContractSummary | None:
     location = path.name
     try:
+        text = path.read_text(encoding="utf-8")
         contract = parse_markdown_frontmatter(path)
         for field in TASK_REQUIRED_FIELDS:
             if field not in contract:
@@ -409,6 +445,8 @@ def validate_task_contract_file(
 
         for field in TASK_LIST_FIELDS:
             require_non_empty_list(contract, field, location)
+
+        validate_task_skill_routing(contract, text, location)
 
         scope = contract["scope"]
         if not isinstance(scope, dict):
@@ -752,12 +790,14 @@ def validate_review_file(
                 )
 
         text = path.read_text(encoding="utf-8")
+        validate_review_protocol(review, text, is_template, location)
+
         lines = set(text.splitlines())
         for heading in REVIEW_REQUIRED_HEADINGS:
             if heading not in lines:
                 raise ValueError(f"{location}: missing {heading!r}")
 
-        if not is_template:
+        if not is_template and "## Standards Review" not in text:
             criteria = markdown_section_lines(text, "## Criteria Checked")
             findings = markdown_section_lines(text, "## Findings")
             corrections = markdown_section_lines(text, "## Required Corrections")
@@ -899,6 +939,10 @@ def validate_shared_state(root: Path, errors: list[str]) -> None:
         "## Blocked Tasks": ["- None."],
         "## Conflicts": ["- None."],
         "## Integration Status": ["- Not started."],
+        "## Research Status": ["- None."],
+        "## Skill Assignment Summary": ["- None."],
+        "## Checklist Status": ["- Inactive; no parent Checklist is active."],
+        "## Budget Status": ["- Context pressure unknown; no budget stop is active."],
         "## Next Coordination Action": ["- None."],
     }
     if delegation_status == "inactive":
@@ -1063,6 +1107,8 @@ def validate_repository(root: Path, extract_directory: Path | None = None) -> li
         return errors
 
     validate_shared_state(root, errors)
+    validate_repository_extensions(root, errors)
+    validate_loop_engineering(root, errors)
     validate_yaml_files(root, errors)
     validate_skill_frontmatter(root, errors)
     validate_openai_yaml(root, errors)
@@ -1086,6 +1132,9 @@ def validate_repository(root: Path, extract_directory: Path | None = None) -> li
         "README.md",
         "docs/lifecycle.md",
         "docs/multi-agent-coordination.md",
+        "docs/loop-engineering-model.md",
+        "docs/protocol-modes-and-state-sources.md",
+        "docs/project-closure.md",
     ):
         if required_source not in sources:
             errors.append(f"{required_source}: expected at least one Mermaid block")

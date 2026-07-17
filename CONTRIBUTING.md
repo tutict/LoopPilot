@@ -64,6 +64,22 @@ protocol guidance and real runtime isolation. They MUST NOT claim that LoopPilot
 creates, schedules, cancels, isolates, or merges Agents unless a separately tested
 host capability actually does so.
 
+Changes to research, Skill routing, dual review, Checklist, budget stop, or resume
+must also update their templates and public-entry validator fixtures. They MUST NOT
+add web crawlers, Skill installers, token-count services, host scans, or claims of
+real named-host compatibility.
+
+## Loop Engineering Architecture Changes
+
+Changes to the first-stage architecture must preserve Lightweight Mode, keep Full
+Loop artifacts inactive until a later migration phase, and maintain one source of
+truth per state type. Detailed semantics belong in the architecture documents;
+SKILL.md, AGENTS.md, and README.md should carry only routing and invariant rules.
+
+When changing the Project template, modes, object model, role boundaries, Reviewer
+Matrix, Barriers, acceptance, or migration plan, update public-CLI regression tests
+and validation documentation. Do not turn structural validation into a scheduler,
+Finding engine, commit gate, or host-compatibility claim.
 ## Testing Documentation Changes
 
 Before submitting a change:
@@ -80,8 +96,8 @@ Before submitting a change:
 
 For the repository's repeatable maintenance checks, install the isolated development
 dependency from `requirements-dev.txt`, run the Python unit tests, and run
-`python scripts/validate.py`. Render all four Mermaid diagrams with the pinned CLI
-as described in [`docs/validation.md`](docs/validation.md). These tools are not
+`python scripts/validate.py`. Render every extracted Mermaid diagram with the pinned
+CLI as described in [`docs/validation.md`](docs/validation.md). These tools are not
 LoopPilot runtime dependencies.
 
 Include the checks actually performed and any unverified behavior in the change

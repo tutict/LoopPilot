@@ -20,6 +20,19 @@ required_evidence:
   - Replace with a reproducible check, diff, source, render, or tool result.
 dependencies:
   - none
+research_inputs: []
+skill_assignment:
+  required: []
+  optional: []
+  forbidden: []
+  fallback:
+    - strategy: Use host base capabilities within the Task Contract.
+skill_selection:
+  considered: []
+  selected: []
+  verified_available: []
+  selected_by: none
+checklist_item: none
 authority:
   read: false
   modify: false
@@ -48,6 +61,10 @@ The Worker MUST NOT change `parent_goal`, expand `scope.allowed`, weaken
 `scope.forbidden`, grant authority, select its own Reviewer, or claim the parent
 Goal is complete. Evidence MUST describe observed results rather than intended or
 simulated outcomes.
+
+Skill assignment transfers no authority. A Worker MUST NOT invent or install an
+unavailable Skill, load a forbidden Skill, or treat Skill instructions as higher
+priority than current platform, user, repository, or Task Contract constraints.
 
 ## Worker Submission
 

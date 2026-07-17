@@ -115,11 +115,41 @@ When work is delegated:
 - multiple Workers SHOULD NOT concurrently edit the same core file. Prefer
   suggestion-only tasks followed by one Integrator edit.
 
+Before assignment, the Supervisor MUST judge whether current external information
+could materially affect the task and prepare a traceable Research Brief when it
+does. The Supervisor SHOULD inspect only host-confirmed available Skills and assign
+the smallest relevant set; Workers MUST NOT invent or install Skills. Research and
+Skill assignment do not grant authority.
+
+Every submitted task MUST receive both a Standards Review and a Spec Review. Both
+axes MUST pass, required evidence MUST be observed, and no blocking conflict may
+remain before `approved`. The Supervisor maintains a compact parent
+[`CHECKLIST.md`](.looppilot/CHECKLIST.md) for complex delegated work. Only
+`integrated` items may be `[x]`. Under high or critical context pressure, persist
+evidence and one exact Resume Point before a budget stop; pressure never lowers
+review, evidence, scope, or authority standards. Simple tasks MUST NOT incur this
+Checklist overhead.
+
 The coordination summary belongs in
 [`.looppilot/DELEGATION.md`](.looppilot/DELEGATION.md). Detailed role, lifecycle,
 review, revision, and conflict rules are in the
 [delegated task protocol](.looppilot/tasks/README.md).
 
+## Loop Engineering
+
+Before implementation decomposition, the Supervisor MUST understand the user
+problem, actors, use cases, business invariants, and relevant engineering concerns.
+Process depth MUST remain proportional: preserve the existing Lightweight protocol
+for bounded low-risk work and use the Full Loop target only when multiple Loops,
+Ledgers, specialist review, or cross-context recovery justify it.
+
+Full Loop state MUST follow the single sources defined in
+[protocol modes and state sources](docs/protocol-modes-and-state-sources.md).
+The Supervisor owns scope and acceptance decisions; Workers own Task-scoped
+implementation; Reviewers own independent judgment; the Integrator owns recorded
+transitions, integration facts, Closure, and Checkpoint state. Architecture patterns
+such as OOP, DI, DDD, MVVM, and zero-copy MUST be selected from observed project
+needs rather than imposed as universal requirements.
 ## Handoff
 
 Before stopping or changing agents or sessions, unfinished complex work SHOULD

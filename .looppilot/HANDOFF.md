@@ -29,6 +29,26 @@ No active handoff.
 
 - None.
 
+## Checklist Status
+
+Status: inactive
+
+## Resume Point
+
+- None.
+
+## Context Pressure
+
+Level: unknown
+
+## Active Research Brief
+
+- None.
+
+## Active Skill Assignments
+
+- None.
+
 ## Recommended Next Action
 
 - None.

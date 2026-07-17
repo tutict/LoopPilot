@@ -61,6 +61,50 @@ orchestration, introduce new security boundaries, and falsely imply compatibilit
 The protocol instead adapts to observed host capabilities and states the remaining
 runtime limits.
 
+## Research, Skill Routing, and Dual Review
+
+Research belongs with the Supervisor because shared, current source work can shape
+task boundaries before Workers duplicate effort. A traceable brief lets Workers
+reuse findings while preserving source authority, version differences, conflicts,
+and the boundary between external evidence and local verification. Research remains
+conditional so a well-specified local task does not create browsing ceremony.
+
+Only confirmed available Skills may be assigned because a universal registry would
+be another fictional runtime contract. Selecting the smallest relevant set reduces
+supply-chain exposure and context growth. Recording unavailable, forbidden, and
+fallback options makes absence explicit without installing anything or granting
+authority.
+
+Standards and Spec review answer different questions: whether the work obeys the
+system's constraints, and whether it solves the contracted problem. Keeping both
+axes explicit prevents strong functional output from masking unsafe or
+unmaintainable work, and prevents polished standards compliance from masking a
+missing requirement.
+
+## Checklist and Proactive Budget Stop
+
+The parent Checklist is not a second Plan. The native Plan stays dynamic and
+detailed; the Checklist stores only stable deliverables, integration state,
+evidence, pressure, and one Resume Point. Restricting `[x]` to integrated work keeps
+Reviewer approval distinct from parent completion.
+
+A proactive budget stop preserves recoverability before the host forces a context
+loss. Qualitative pressure works across hosts that expose different or no token
+signals. Stopping early is a controlled pause, never permission to weaken review,
+evidence, success criteria, authority, or completion honesty.
+
+## Engineering Context Before Decomposition
+
+A file-oriented split can hide shared invariants, data contracts, permissions, and
+operational risks. Loop boundaries therefore follow user outcomes, business
+cohesion, dependencies, integration risk, and recoverability. The
+[Project Engineering Context](project-engineering-context.md) makes those inputs
+explicit before Task decomposition.
+
+The protocol has two depths. Lightweight Mode protects simple work from ceremony.
+Full Loop Mode is reserved for work whose risk and recovery needs justify contracts,
+Ledgers, Findings, Closure, and Checkpoint artifacts. Architecture patterns are
+selected by fitness; none is a universal compliance target.
 ## Evidence Before Completion
 
 Agent confidence is not external evidence. Verification changes by task type: tests

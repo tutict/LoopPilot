@@ -19,49 +19,73 @@ python <skill-creator>/scripts/quick_validate.py .
 `scripts/validate.py` uses PyYAML rather than a handwritten YAML parser. It checks
 required files, Skill frontmatter, YAML mappings and duplicate keys, Markdown code
 fences, final newlines, trailing whitespace, relative links, the declared Skill word
-range, and extractable Mermaid blocks. It also validates the required
-`AGENTS.md`/`.looppilot/` files, STATE and HANDOFF status enums, inactive template
-truthfulness, delegation status and headings, Task Contract fields and IDs, explicit
-authority booleans, task transitions and status ownership, Reviewer decisions and
-required correction structure, real `TASK-NNN.md` and `REVIEW-TASK-NNN.md` files,
-placeholder rejection, revision budgets, required Review Results, cross-file
-Reviewer identity, current and retained-review lifecycle consistency, independent
-Reviewers, and obvious credential assignments.
-The validator reads repository files only; it does not inspect environment variables
-or print credentials.
+range, and extractable Mermaid blocks. It also validates `AGENTS.md` and
+`.looppilot/` shared-state status, inactive-template truthfulness, delegation and
+Task Contract lifecycles, explicit authority, review identity, revision budgets,
+required Review Results, and obvious credential assignments.
 
-The Skill Creator `quick_validate.py` command independently checks Skill
-frontmatter, required metadata, and naming rules.
+The protocol extension checks Checklist statuses, item IDs, integrated-only
+checkmarks, observed evidence, completed criteria, and budget-stop recovery fields.
+It checks Research Brief status, source provenance, dates or versions, conflicts,
+findings, and the local-verification boundary. It also checks research and Skill
+assignment fields, observed Skill availability, forbidden selections, authority
+notes, Standards and Spec decisions, conjunctive approval, and observed evidence.
+
+The Loop Engineering extension checks that the inactive Project template exists,
+contains every required Project Engineering Context heading, includes a blank
+Engineering Concern Matrix and Architecture Profile, remains inactive, and contains
+no obvious credential assignment. It requires the six first-stage architecture
+documents, the canonical Loop definition, both protocol modes, the Task, Finding,
+and Checkpoint sources of truth, and rejects positive named-host validation claims.
+
+The 22 architecture regression cases mutate repository fixtures and invoke only the
+public validator CLI. These checks deliberately do not implement Loop identifiers,
+active Ledgers, Finding transitions, commit policy, or Project Closure decisions.
+All tests exercise the public entry point:
+
+```text
+python scripts/validate.py --root <fixture>
+```
+
+The validator reads repository files only. It does not inspect environment
+variables, browse the web, scan host Skill directories, count tokens, or print
+credentials.
 
 ## Mermaid Rendering
 
-Extract the diagrams to a temporary directory and render all four with the pinned
-CLI:
+Extract every diagram to a temporary directory and render it with the pinned CLI:
 
 ```text
 python scripts/validate.py --extract-mermaid .tmp/mermaid
-npx --yes --package @mermaid-js/mermaid-cli@11.16.0 mmdc -i .tmp/mermaid/README-1.mmd -o .tmp/mermaid/README-1.svg
-npx --yes --package @mermaid-js/mermaid-cli@11.16.0 mmdc -i .tmp/mermaid/README-2.mmd -o .tmp/mermaid/README-2.svg
-npx --yes --package @mermaid-js/mermaid-cli@11.16.0 mmdc -i .tmp/mermaid/docs-lifecycle-1.mmd -o .tmp/mermaid/docs-lifecycle-1.svg
-npx --yes --package @mermaid-js/mermaid-cli@11.16.0 mmdc -i .tmp/mermaid/docs-multi-agent-coordination-1.mmd -o .tmp/mermaid/docs-multi-agent-coordination-1.svg
+for diagram in .tmp/mermaid/*.mmd; do
+  npx --yes --package @mermaid-js/mermaid-cli@11.16.0 mmdc -i "$diagram" -o "${diagram%.mmd}.svg"
+done
 ```
 
-Confirm all render commands exit successfully and every SVG file is non-empty. Keep
-the temporary sources and render outputs outside commits.
+Confirm every render exits successfully and every SVG is non-empty. Keep temporary
+sources and outputs outside commits.
 
 ## Continuous Integration
 
 The `Validate` GitHub Actions workflow repeats the Python tests, static validator,
-real YAML and duplicate-key checks through the validator, all four Mermaid renders,
-output-size checks, and `git diff --check` on pushes and pull requests. It does not
-publish generated artifacts. A local pass does not imply that a remote workflow run
-passed; report each environment separately.
+real YAML and duplicate-key checks, every extracted Mermaid render, output-size
+checks, and `git diff --check` on pushes and pull requests. It does not publish
+generated artifacts, perform live research, scan host Skills, or calculate real
+tokens. A local pass does not imply a remote workflow pass.
 
 ## Validation Boundary
 
 These checks do not measure implicit activation accuracy, completion behavior,
-replanning quality, or compatibility with a named host. Record those results only
-from observed evaluation traces using the templates under `evaluations/`. They also
-do not prove real Agent creation, delegated-session recovery, Reviewer independence,
-concurrent file isolation, distributed locking, automatic merge behavior, or
-parent-level outcomes on a real multi-Agent host.
+replanning quality, or compatibility with a named host. Record such results only
+from observed evaluation traces. Static checks also do not prove real Agent
+creation, delegated-session recovery, Reviewer independence, concurrent isolation,
+distributed locking, cancellation, automatic merge behavior, or parent outcomes.
+
+They also do not prove Full Loop operation on a real Project, automatic
+Project-to-Loop decomposition, business-complexity judgment, dynamic Reviewer
+selection, automatic architecture-pattern choice, Commit and Checkpoint recovery,
+or the Project Closure release flow.
+They do not prove real network research, installed-Skill discovery on Codex, Gemini
+CLI, or GitHub Copilot, automatic Skill-selection accuracy, real remaining-token
+reads, context-pressure judgment, live budget stop and resume, or actual
+dual-Reviewer independence. Those claims require observed host traces.

@@ -94,9 +94,23 @@ class DelegationValidationTests(unittest.TestCase):
     ) -> Path:
         template = fixture / ".looppilot" / "tasks" / "REVIEW-TEMPLATE.md"
         text = template.read_text(encoding="utf-8")
+        axes_by_decision = {
+            "approved": ("pass", "pass", "observed"),
+            "revision-requested": ("pass", "revision-requested", "pending"),
+            "rejected": ("rejected", "pass", "pending"),
+            "blocked": ("blocked", "pass", "pending"),
+        }
+        standards, spec, evidence = axes_by_decision.get(
+            decision, ("AXIS-DECISION", "AXIS-DECISION", "EVIDENCE-STATUS")
+        )
         replacements = (
             ("task_id: TASK-000", f"task_id: {task_id}"),
             ("decision: DECISION", f"decision: {decision}"),
+            ("standards_decision: AXIS-DECISION", f"standards_decision: {standards}"),
+            ("spec_decision: AXIS-DECISION", f"spec_decision: {spec}"),
+            ("required_evidence: EVIDENCE-STATUS", f"required_evidence: {evidence}"),
+            ("Decision: AXIS-DECISION", f"Decision: {standards}"),
+            ("Decision: AXIS-DECISION", f"Decision: {spec}"),
             ("reviewed: YYYY-MM-DD", "reviewed: 2026-07-16"),
             ("reviewer: none", f"reviewer: {reviewer}"),
         )
@@ -477,7 +491,7 @@ class DelegationValidationTests(unittest.TestCase):
             review_template = fixture / ".looppilot" / "tasks" / "REVIEW-TEMPLATE.md"
             review_template.write_text(
                 review_template.read_text(encoding="utf-8").replace(
-                    "## Required Corrections\n", "## Requested Changes\n", 1
+                    "### Required Corrections\n", "### Requested Changes\n", 1
                 ),
                 encoding="utf-8",
             )
@@ -485,7 +499,7 @@ class DelegationValidationTests(unittest.TestCase):
             result = self.run_validator(fixture)
 
         self.assertEqual(1, result.returncode)
-        self.assertIn("REVIEW-TEMPLATE.md: missing '## Required Corrections'", result.stdout)
+        self.assertIn("Standards Review missing '### Required Corrections'", result.stdout)
 
 
 
@@ -614,8 +628,8 @@ class DelegationValidationTests(unittest.TestCase):
             )
             review.write_text(
                 review.read_text(encoding="utf-8").replace(
-                    "## Required Corrections\n\n- None.",
-                    "## Required Corrections\n\n"
+                    "### Required Corrections\n\n- None.",
+                    "### Required Corrections\n\n"
                     "- Add the missing regression evidence.",
                     1,
                 ),
@@ -675,8 +689,8 @@ class DelegationValidationTests(unittest.TestCase):
             )
             review.write_text(
                 review.read_text(encoding="utf-8").replace(
-                    "## Findings\n\n- None.",
-                    "## Findings\n\n"
+                    "### Findings\n\n- None.",
+                    "### Findings\n\n"
                     "- The result cannot continue without a new approach.",
                     1,
                 ),

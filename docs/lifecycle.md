@@ -30,6 +30,17 @@ Integrator combines it and runs parent-level checks. Conflicts, invalid authorit
 failed review, or changed user instructions may return the run to EXECUTING or
 REPLANNING, or lead to an honest stop.
 
+Research, Skill routing, and a parent Checklist are conditional parts of this
+branch, not mandatory lifecycle states. Before assignment, the Supervisor prepares
+a Research Brief only when current external facts matter and inspects only Skills
+the host confirms are available. Complex delegated Goals may use a Checklist as a
+stable recovery index; simple tasks do not.
+
+When context pressure becomes high or critical, the parent run preserves observed
+evidence and one exact Resume Point, then may end with Budget Stop. Resumption starts
+at INTAKE: current instructions, native state, files, Git, Checklist, contracts, and
+handoff are revalidated before execution continues.
+
 See [supervised multi-Agent coordination](multi-agent-coordination.md).
 
 ## Transition Overview
@@ -60,6 +71,17 @@ work and known gaps but no stronger Blocked or Budget Stop reason. Budget Stop m
 end a run from any active state when a resource or diminishing-return boundary is
 reached. These report rules do not require new host states or transitions.
 
+## Loop Engineering Barriers
+
+For Full Loop delivery, the conceptual lifecycle is refined by Contract,
+Implementation, Integration, Review, and Closure Barriers. These are evidence
+boundaries rather than host scheduler states. Functional, Engineering, and Delivery
+Acceptance all precede Loop closure.
+
+A Task-level Readiness Check only permits a Worker Delivery to enter integration.
+Final review examines the unified result after the Integration Barrier. See the
+[Loop Engineering model](loop-engineering-model.md) for barrier criteria and
+[protocol modes](protocol-modes-and-state-sources.md) for state ownership.
 ## INTAKE
 
 **Entry condition:** Receive a new request, a resumed task, or a user interruption

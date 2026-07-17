@@ -264,56 +264,86 @@ keep the same minimum summary in current context. A prompt-only host MUST NOT cl
 persistence, background work, tool execution, or recovery capabilities it does not
 have.
 
-## 11. Supervised Delegation
+## 11. Software Engineering and Loop Boundaries
 
-The agent MAY delegate only when the host supports task assignment and delegation
-has clear value. Simple tasks MUST NOT incur multi-Agent overhead.
+A Loop is a cohesive change set that can be independently implemented, integrated,
+reviewed, accepted, committed when authorized, and resumed from persisted state.
+The Supervisor MUST understand the user problem before decomposing implementation
+work and MUST choose process depth in proportion to complexity, risk, and recovery.
 
-For delegated work:
+- Every Loop MUST map deliverables to explicit user or system outcomes.
+- Business invariants MUST be identified before dependent parallel work.
+- Relevant engineering concerns MUST be assessed before contract approval.
+- Architecture patterns MUST follow actual needs. DDD MUST NOT be required without
+  sufficient domain complexity; MVVM primarily applies to presentation.
+- Zero-copy MUST be justified by measurable performance evidence.
+- Functionally correct work MUST NOT pass final review when unsafe,
+  operationally unrecoverable, or incompatible with required evolution.
+- Every Full Loop MUST have one source of truth for Task, Finding, and Checkpoint
+  state. A Checklist is not a second Plan or Ledger.
+- One Supervisor owns scope and acceptance decisions. One Integrator owns recorded
+  transitions, final integration facts, Closure, and recovery state.
+- Recovery MUST use current evidence, Checkpoint, and Closure artifacts instead of
+  replaying the full conversation.
 
-1. A Supervisor MUST remain accountable for the parent Goal.
-2. Every delegated task MUST have a scoped
-   [Task Contract](.looppilot/tasks/TASK-TEMPLATE.md).
-3. Workers MUST remain within allowed scope and MUST NOT claim parent completion.
-4. Submitted work MUST be independently reviewed before integration.
-5. Reviewer approval MUST reference explicit criteria and observed evidence.
-6. `approved` means review passed; `integrated` means the reviewed result was
-   combined and passed integration checks.
-7. Approved work MUST still pass parent-level integration verification.
-8. Conflicting outputs MUST NOT be silently merged or resolved by
-   last-writer-wins.
-9. Delegation MUST NOT expand authority beyond the contract and current user
-   instruction.
-10. Concurrent direct writes to the same core file SHOULD be replaced by
-    suggestion-only tasks and one Integrator edit.
-11. One identifiable Supervisor or Integrator MUST own the final result.
+Use Lightweight Mode for bounded low-risk work. Use the Full Loop target only when
+multiple Loops, a Task DAG, specialist review, Finding cycles, independent commit
+boundaries, or cross-context recovery justify it. See the
+[Loop Engineering model](docs/loop-engineering-model.md) and
+[mode and state-source rules](docs/protocol-modes-and-state-sources.md).
 
-Use the optional [coordination protocol](docs/multi-agent-coordination.md) only at
-the host's observed capability level. LoopPilot does not create Agents, schedule
-work, isolate permissions, cancel sessions, lock files, or merge results.
+## 12. Supervised Delegation
+
+Delegate only when the host supports assignment and the benefit exceeds
+coordination cost. The Supervisor remains accountable; each Worker receives a
+scoped [Task Contract](.looppilot/tasks/TASK-TEMPLATE.md), stays in scope, and does
+not claim parent completion. Submitted work needs independent review and
+parent-level integration evidence. Approved means reviewed; integrated additionally
+means combined and verified. Preserve authority boundaries, resolve conflicts
+explicitly, avoid concurrent writes to one core file, and name one final Integrator.
+The [coordination protocol](docs/multi-agent-coordination.md) does not create
+runtime capabilities the host lacks.
+
+## 13. Research and Skill Routing
+
+Before delegation, decide whether current external facts can change the work. When
+they can, use an available research capability and a traceable
+[Research Brief](.looppilot/RESEARCH-TEMPLATE.md); otherwise use repository
+evidence. Select only host-confirmed, relevant Skills, record unavailable or
+forbidden choices and a base-host fallback, and never treat Skill assignment as
+authority.
+
+## 14. Dual-Axis Review
+
+Delegated work requires Standards Review for rules, safety, scope, quality, context,
+and maintainability, plus Spec Review for outcomes, criteria, evidence, omissions,
+and integration readiness. Approval requires both axes to pass, observed required
+evidence, and no blocking conflict. Context pressure cannot skip either axis.
+
+## 15. Token-Aware Checklist and Budget Stop
+
+For a complex parent Goal, use [CHECKLIST.md](.looppilot/CHECKLIST.md) as a compact
+index, never a second Plan or log. Only integrated items with observed evidence MAY
+be checked. At high pressure, finish the smallest verifiable unit and persist one
+exact Resume Point; at critical pressure, persist and stop. Budget stop requires
+budget-stopped and Resume required: true. Resume by rechecking instructions, native
+state, files, Git, tasks, delegation, handoff, and checked evidence. Pressure never
+weakens review, authority, evidence, or honesty.
 
 ## Progress Contract
 
-For a long-running, multi-step, or multi-tool task, the agent SHOULD:
-
-- begin with a brief statement of the current Goal and next action;
-- update the user after a material result, a blocker, or a justified Plan change;
-- omit routine low-level tool narration and repetitive status messages;
-- avoid promises of future asynchronous completion; and
-- complete as much authorized work as possible in the current run.
-
-Progress communication MUST remain proportional and help the user understand or
-steer the work; it MUST NOT become another activity that sustains the loop.
+For long-running work, state the Goal and next action, report material progress or
+blockers, avoid repetitive narration, and complete as much authorized work as
+possible now. Communication MUST help the user steer the work and MUST NOT become
+an activity that sustains the loop.
 
 ## Supporting Material
 
-Load only what the current task needs:
-
-- [Lifecycle](docs/lifecycle.md) for conceptual states.
-- [Host capabilities](docs/host-capabilities.md) for capability adaptation.
-- [Safety and stopping](docs/safety-and-stopping.md) for boundary cases.
-- [Design rationale](docs/design-rationale.md) for design tradeoffs.
-- [Coding](examples/coding-task.md), [research](examples/research-task.md), and
-  [writing](examples/writing-task.md) examples.
-- [Behavioral scenarios](tests/scenarios.md) for illustrative evaluation, not
-  evidence of real execution.
+Load only relevant material: [lifecycle](docs/lifecycle.md),
+[host capabilities](docs/host-capabilities.md),
+[safety and stopping](docs/safety-and-stopping.md),
+[design rationale](docs/design-rationale.md), the
+[coding](examples/coding-task.md), [research](examples/research-task.md), and
+[writing](examples/writing-task.md) examples, or
+[behavioral scenarios](tests/scenarios.md). Scenarios illustrate evaluation; they
+are not execution evidence.

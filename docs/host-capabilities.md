@@ -112,6 +112,34 @@ Real Agent creation, scheduling, cancellation, concurrent isolation, and recover
 on Codex, Gemini CLI, GitHub Copilot, or another named host require separate
 observed tests.
 
+## Research, Skill, Budget, and Review Capabilities
+
+The protocol adapts independently to these host-native or equivalent capabilities:
+
+| Capability | When present | When absent |
+| --- | --- | --- |
+| Web, search, browser, or document access | Prepare a dated, traceable Research Brief when external facts materially affect work | Use supplied and local evidence; mark missing current facts as unverified or blocked |
+| Installed or accessible Skill discovery | Select the smallest confirmed relevant set and record provenance and version | Use explicitly supplied Skills or base host capabilities; never invent or install one |
+| Native token or context signal | Classify pressure and stop before forced interruption | Use qualitative host-visible pressure; do not claim an exact balance |
+| Independent Reviewer session | Assign Standards and Spec review independently | Record the independence gap and use the strongest equivalent check without claiming independence |
+| Persistent native state | Keep the native Goal and Plan authoritative across resume | Persist only the compact Checklist and handoff the host can actually retain |
+
+These capabilities are separable. Web access does not imply Skill discovery; Skill
+discovery does not imply installation authority; a context signal does not provide
+an accurate universal token count; persistence does not prove automated resume.
+LoopPilot cannot fill a missing hard capability through protocol text.
+
+## Loop Engineering Capability Boundary
+
+The Full Loop document model does not prove that a host can create Agents, schedule
+Tasks, isolate worktrees, maintain Ledgers, select Reviewers, commit, recover
+context, or close Projects. Use only observed host capabilities and preserve
+manual, host-native, or base-tool fallbacks.
+
+Static templates and validators establish repository structure. Claims about Loop
+decomposition, dynamic Reviewer selection, multi-Agent concurrency, Checkpoint
+recovery, Project Closure, or named-host compatibility require dated behavioral
+traces.
 ## Capability Discovery
 
 Before relying on a capability:

@@ -182,6 +182,45 @@ See the [coordination design](docs/multi-agent-coordination.md), inactive
 Reviewer independence, concurrency isolation, and named-host behavior remain
 unverified.
 
+For complex delegated work, the Supervisor first decides whether current external
+facts are necessary. It prepares a traceable
+[Research Brief](.looppilot/RESEARCH-TEMPLATE.md) only when local evidence is not
+sufficient, and selects only Skills the host has actually confirmed are available.
+The minimum relevant Skill set and fallback are recorded in the Task Contract;
+assignment never expands authority or installs anything.
+
+Submitted tasks pass through separate Standards and Spec reviews. Both must pass
+and required evidence must be observed before `approved`. The parent
+[Checklist](.looppilot/CHECKLIST.md) remains unchecked until the Integrator combines
+the work and verifies the parent result. It stores stable deliverables, concise
+evidence, context pressure, and one Resume Point rather than duplicating the native
+Plan.
+
+Context pressure is classified as `unknown`, `normal`, `elevated`, `high`, or
+`critical`. High or critical pressure triggers state persistence and a controlled
+budget stop before forced interruption; no exact token balance is assumed. Real
+network research, installed-Skill discovery, token signals, independent Reviewers,
+and budget-stop recovery remain host capabilities and are not verified by this
+repository's static tests.
+
+## Loop Engineering Foundation
+
+LoopPilot now defines the first-stage architecture for a Project made of bounded
+Loops. A Loop is a cohesive change set that can be independently implemented,
+integrated, reviewed, accepted, committed when authorized, and resumed from
+persisted state. The model connects Tasks, Worker Deliveries, Integration Records,
+Review Reports, Findings, three-layer acceptance, Loop Closure, and Checkpoints.
+
+The existing shared-state protocol remains
+[Lightweight Mode](docs/protocol-modes-and-state-sources.md). Full Loop Mode is a
+documented migration target for multi-Loop, high-risk, or cross-context delivery;
+it is not an implemented runtime or a claim of host compatibility.
+
+Start with the [Loop Engineering model](docs/loop-engineering-model.md), the
+[Project Engineering Context](docs/project-engineering-context.md),
+[pattern-selection rules](docs/architecture-pattern-selection.md), the
+[Project Closure target](docs/project-closure.md), and the
+[Full Loop migration plan](docs/full-loop-migration-plan.md).
 ## Example Applications
 
 - **Programming:** revise an implementation after a failing test, then run relevant
@@ -232,13 +271,15 @@ The following repository-level checks have been exercised with pinned tools:
   mapping-key rejection and required metadata checks.
 - Markdown relative links, code fences, final newlines, trailing whitespace, and the
   declared Skill word range pass the static validator.
-- All four Mermaid diagrams, including the supervised delegation lifecycle, render
-  to non-empty SVG files with Mermaid CLI 11.16.0.
+- All repository Mermaid diagrams, including Loop objects, mode selection, barriers,
+  delegation, and Project Closure, render to non-empty SVG files with Mermaid CLI
+  11.16.0.
 
 These are syntax and repository-structure checks, not behavioral compatibility
 evidence. Real-host behavior, implicit activation accuracy, named-host compatibility,
-multi-Agent creation and delegation, Reviewer independence, concurrent file
-isolation, and A/B traces with rubric scores remain unverified. The
+Full Loop operation, automatic Loop decomposition, dynamic Reviewer selection,
+multi-Agent creation and delegation, Checkpoint recovery, Project Closure,
+concurrent file isolation, and A/B traces with rubric scores remain unverified. The
 [evaluation templates](evaluations/README.md) prepare that future work without
 claiming results.
 

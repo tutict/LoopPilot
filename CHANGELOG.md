@@ -29,6 +29,23 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Delegation validation, regression tests, behavioral scenarios, rubric dimensions,
   and a rendered multi-Agent coordination diagram.
 
+- Conditional Supervisor research preparation and a traceable Research Brief.
+- Host-confirmed minimal Skill selection, assignment, fallback, and supply-chain
+  boundaries in Task Contracts.
+- Mandatory Standards and Spec review axes with conjunctive approval rules.
+- A parent Goal Checklist with integrated-only checkmarks, context-pressure levels,
+  exact Resume Points, and proactive budget-stop behavior.
+- Static validation and 36 public-entry regression cases for Checklist, Research,
+  Skill routing, and dual review behavior.
+
+- A first-stage Loop Engineering architecture defining Project, Loop, Task,
+  Delivery, Review, Finding, Integration, Commit, Closure, and Checkpoint
+  relationships.
+- An inactive Project Engineering Context template, Engineering Concern Matrix,
+  architecture pattern guidance, protocol modes and state sources, Project Closure
+  target, and six-phase Full Loop migration plan.
+- Minimal architecture validation, 22 public-CLI regression cases, four focused
+  Mermaid diagrams, 15 behavior scenarios, and 14 evaluation dimensions.
 ### Changed
 
 - Refactored the Skill into a stronger host-native execution contract.

@@ -23,6 +23,13 @@ decomposes the work, checks dependencies and overlap, creates Task Contracts,
 assigns Workers, selects sequence or parallelism, tracks status, sends submissions
 to review, handles revisions or reassignment, and ensures parent-level verification.
 
+Before assignment, the Supervisor MUST judge whether current external facts could
+materially affect the work. When needed, it prepares a traceable
+[`RESEARCH-TEMPLATE.md`](../RESEARCH-TEMPLATE.md) brief from authoritative sources.
+It SHOULD inspect host-confirmed available Skills and assign the smallest relevant,
+trusted, version-aware set with a recorded fallback. It MUST NOT invent or install a
+Skill, assume every host exposes the same inventory, or treat selection as authority.
+
 The Supervisor MUST NOT approve solely from Worker self-report, equate all
 `approved` tasks with a completed parent Goal, silently merge conflicts, expand
 authorization, or over-decompose simple work.
@@ -34,19 +41,27 @@ dependencies, works within `scope.allowed`, avoids `scope.forbidden`, produces t
 specified deliverables, gathers observed evidence, reports risks and blockers, and
 submits the result for review.
 
-A Worker MUST NOT change the parent Goal, grant itself authority, inherit another
+A Worker SHOULD reuse still-current Supervisor research but MUST verify that it
+applies to the actual code and environment. A Worker MUST NOT invent, install, or
+load a forbidden Skill, change the parent Goal, grant itself authority, inherit another
 Agent's authority, modify forbidden areas, resolve cross-task conflicts privately,
 mark its task `approved` or `integrated`, or announce parent completion.
 
 ### Reviewer
 
-The Reviewer independently checks scope, deliverables, success criteria, required
-evidence, parent-goal alignment, conflicts, regressions, and authority compliance.
-The only decisions are `approved`, `revision-requested`, `rejected`, and `blocked`.
+The Reviewer independently performs two axes. Standards Review checks instruction
+priority, repository rules, safety, authority, scope, maintainability, source
+quality, Skill discipline, context efficiency, and runtime-free platform neutrality.
+Spec Review checks the objective, deliverables, success criteria, required evidence,
+dependencies, research use, parent alignment, edge cases, omissions, and integration
+readiness.
 
-The Reviewer MUST NOT use a vague approval, treat Worker claims as verification,
-hide gaps, expand Worker authority, authorize consequential actions, or announce
-parent completion.
+Each axis decides `pass`, `revision-requested`, `rejected`, or `blocked`. Overall
+decisions remain `approved`, `revision-requested`, `rejected`, or `blocked`.
+`approved` requires both axes to pass, required evidence to be observed, and no
+blocking conflict. One strong axis cannot offset the other. The Reviewer MUST NOT
+use a vague approval, treat Worker claims as verification, hide gaps, expand
+authority, skip an axis under context pressure, or announce parent completion.
 
 ### Integrator
 
@@ -118,6 +133,16 @@ Required fields have these meanings:
 - `required_evidence`: diffs, tests, builds, sources, renders, file existence, or
   other reproducible evidence.
 - `dependencies`: `none`, Task IDs, external inputs, permissions, or user decisions.
+- `research_inputs`: Research Brief IDs, purposes, and required findings used by the
+  Worker.
+- `skill_assignment`: required, optional, forbidden, and fallback capabilities;
+  required Skills record source, version, expected output, and observed
+  `verified_available` state.
+- `skill_selection`: considered, selected, and unavailable choices plus the
+  Supervisor identity. Unavailable or forbidden Skills cannot be selected.
+- `checklist_item`: a stable `ITEM-NNN` parent Checklist link, or `none` when a
+  justified delegated task does not map one-to-one. Task IDs and Item IDs are not
+  interchangeable.
 - `authority`: explicit booleans for `read`, `modify`, `delete`, `commit`, `push`,
   `release`, `deploy`, and `external_communication`.
 - `reviewer`: independent reviewer identity or logical role.
@@ -184,6 +209,15 @@ missing evidence, scope violation or conflict, and the expected correction. A
 `rejected` decision MUST explain why the result should not continue to revision or
 integration.
 
+The approval rule is:
+
+```text
+Standards Review = pass
+AND Spec Review = pass
+AND required evidence is observed
+AND no unresolved blocking conflict exists
+```
+
 The Worker keeps the original Task ID, increments `revision_count`, and returns from
 `revision-requested` to `in-progress`. The Supervisor SHOULD set a positive,
 task-specific revision limit appropriate to risk and cost before assignment.
@@ -217,6 +251,36 @@ Worker confidence. The responsible role SHOULD:
 
 Stable conflict resolutions MAY be recorded in [`DECISIONS.md`](../DECISIONS.md).
 Ordinary review results belong with the task and SHOULD NOT be copied there.
+
+## Parent Checklist and Budget Stop
+
+A complex parent Goal SHOULD use [`CHECKLIST.md`](../CHECKLIST.md) as a compact
+recovery index, not a second native Plan. Each delegated task SHOULD reference one
+stable Checklist item. An item MAY aggregate multiple tasks through the Integrator,
+but a task MUST NOT silently complete undeclared items. Reviewer approval leaves an
+item `[ ]`; only parent integration verification permits `[x]` with
+`Status: integrated` and observed evidence.
+
+Context pressure is `unknown`, `normal`, `elevated`, `high`, or `critical`. At
+`high`, the Supervisor SHOULD stop creating low-priority tasks, avoid new high-risk
+work, finish the smallest verifiable unit, and persist Checklist, task status,
+evidence, shared state, handoff, and one exact Resume Point. At `critical`, it MUST
+persist and stop before forced interruption. Budget stop requires:
+
+```text
+Checklist Status: budget-stopped
+Resume required: true
+```
+
+The stop record names completed and incomplete items, observed evidence, blockers,
+the current task, one Resume Point, and the next highest-value action. Pressure
+never skips either review axis, lowers criteria, expands authority, checks an
+approved item, fabricates evidence, or calls partial work completed.
+
+On resume, re-check the latest instruction, native Goal and Plan, files, Git,
+Checklist, delegation, active contracts, and handoff. Revalidate `[x]` evidence and
+correct stale state before continuing. Simple tasks MUST NOT create Checklist,
+research, or Skill-routing overhead.
 
 ## Host and State Boundaries
 
