@@ -189,3 +189,9 @@ leaving these Ledger authorities unchanged.
 Lightweight Mode keeps its compact Checklist and shared-state summary. It MUST NOT
 incur Full Loop Map or Ledger overhead for simple work. In Full Loop Mode, the
 Checklist is a recovery aid and projection only.
+
+Phase 4 does not change these authorities. The
+[Checkpoint and context-recovery protocol](full-loop-checkpoint-and-context-recovery.md)
+uses the Map and Ledgers as required recovery inputs while keeping `CHECKPOINT.md`
+as the one recovery entry. Its Manifest and Resume Report are context-selection and
+validation evidence, not additional status sources.

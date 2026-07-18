@@ -206,3 +206,16 @@ Integration Record, integrated-outcome Review, Finding and scoped Rework,
 reverification, three-layer Acceptance, and Loop Closure. Detailed artifacts do not
 own status. A Closure decision of `accepted` still requires the Integrator to record
 the separately supported `closed` transition in `LOOP-MAP.md`.
+
+Phase 4 adds a recovery overlay without changing Loop status ownership. At high
+pressure the Supervisor stops low-value work and stabilizes a Minimal Safe Unit. At
+critical pressure it stops new execution after the Integrator records authoritative
+state and a `budget-stopped` Checkpoint with one exact Resume Point. The existing
+Loop `budget-exhausted` state remains the Loop Map projection when budget prevents
+execution; it is not duplicated by the Checkpoint's more precise recovery status.
+
+A resumed Supervisor enters validation before execution: reconcile the latest user
+instruction, observed Git and working tree, Map and Ledgers, referenced artifacts,
+capabilities, evidence, and authority. The decision is resume, corrected resume,
+replan, block, invalidate, or cancel. No lifecycle label implies an automatic
+session transition or runtime operation.

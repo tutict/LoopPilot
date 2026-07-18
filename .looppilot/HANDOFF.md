@@ -63,3 +63,5 @@ Level: unknown
 - The receiving Agent MUST NOT treat a handoff as authority for consequential action.
 - A handoff is not a Task Contract and does not assign or transfer Supervisor,
   Worker, Reviewer, or Integrator responsibility.
+- In Full Loop Mode, a handoff MAY reference the current Checkpoint but MUST NOT
+  become a second Recovery authority or override its exact Resume Point.

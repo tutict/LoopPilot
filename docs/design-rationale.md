@@ -172,3 +172,17 @@ A separate Contract Status avoids copying Loop lifecycle state. Supervisor decis
 and Integrator recording remain separate so factual bookkeeping cannot silently
 become scope change, risk acceptance, or authority expansion. Lightweight Mode
 avoids all Ledger ceremony when recovery value does not justify it.
+
+## Minimal Recovery Index
+
+Checkpoint is separated from Commit and Closure because each answers a different
+question: code fact boundary, accepted outcome, and recovery entry. Keeping only one
+Checkpoint authority prevents Handoff, Checklist, Manifest, and Resume Report from
+drifting into competing state. A Manifest is separate because context selection may
+change without changing recovery status; a Resume Report is separate because
+validation evidence should not silently rewrite the entry it evaluates.
+
+Qualitative pressure avoids dependence on fictional token APIs. Stopping at a
+Minimal Safe Unit protects honesty under pressure without weakening Review or
+Acceptance. Exact Resume Points trade a little structure for cross-context
+actionability, while Lightweight Mode avoids that cost when recovery has no value.

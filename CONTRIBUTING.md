@@ -95,6 +95,13 @@ fixtures, create active instances, or turn the Phase 3 static validator into a
 workflow engine. Worker, Reviewer, Supervisor, and Integrator authority boundaries
 must remain intact.
 
+Phase 4 recovery changes must keep all templates inactive, preserve `CHECKPOINT.md`
+as the single Recovery authority, and update documentation, the modular validator,
+public-entry tests, scenarios, rubric, and CI together. Do not create a real
+Checkpoint, duplicate a Ledger in the Manifest, store private reasoning, assume an
+exact token API, execute a Resume Point, reset Git, start a session, or turn static
+checks into a recovery runtime. Lightweight changes must remain low-overhead.
+
 ## Testing Documentation Changes
 
 Before submitting a change:

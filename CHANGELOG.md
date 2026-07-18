@@ -61,6 +61,12 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   commit honesty, and Checkpoint relationship rules.
 - A modular Phase 3 validator, public-entry regression fixtures, delivery-to-closure
   scenarios and rubric dimensions, and four focused Mermaid diagrams.
+- Three inactive Phase 4 templates for the authoritative Checkpoint, subordinate
+  Context Compaction Manifest, and Resume Validation Report.
+- Static qualitative context pressure, Budget Stop, Minimal Safe Unit, one exact
+  Resume Point, stale correction, supersession, and intra-/inter-Loop recovery rules.
+- A modular Phase 4 validator, 72 public-entry regression cases, 38 behavioral
+  scenarios, 26 rubric dimensions, and five focused Mermaid diagrams.
 
 ### Changed
 

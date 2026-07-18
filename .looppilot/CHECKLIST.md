@@ -47,7 +47,8 @@ Last compaction: none
 
 A human-readable projection and recovery aid, not the authoritative Task, Finding,
 or Loop state source. In Full Loop Mode, this Checklist MUST NOT override
-`LOOP-MAP.md`, `TASK-LEDGER.md`, or `FINDING-LEDGER.md`.
+`LOOP-MAP.md`, `TASK-LEDGER.md`, `FINDING-LEDGER.md`, or the current authoritative
+`CHECKPOINT.md`. It MUST NOT own Recovery status or replace the exact Resume Point.
 
 ## Stop Reason
 

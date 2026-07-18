@@ -67,6 +67,13 @@ corrected instead of silently reconciled.
 - [Finding Detail](FINDING-TEMPLATE.md) records evidence and required outcome.
 - [Rework Task](REWORK-TASK-TEMPLATE.md) scopes correction without expanding authority.
 - [Loop Closure](LOOP-CLOSURE-TEMPLATE.md) summarizes acceptance and closure evidence.
+- [Checkpoint](CHECKPOINT-TEMPLATE.md) is the inactive template for the single
+  authoritative recovery entry and one exact Resume Point.
+- [Context Compaction Manifest](CONTEXT-COMPACTION-TEMPLATE.md) selects minimal
+  Must Load, on-demand, and default-excluded context without owning status.
+- [Resume Validation Report](RESUME-VALIDATION-TEMPLATE.md) records comparison of
+  a Checkpoint with current instructions, Git, Ledgers, artifacts, capabilities,
+  and permissions before work resumes.
 
 The static relationship is:
 
@@ -93,3 +100,22 @@ These files remain static protocol templates. They do not create Agents, update
 status, integrate branches, commit, or recover context. The detailed
 [Phase 3 protocol](../../docs/full-loop-delivery-review-and-closure.md) defines the
 delivery-to-closure relationships and their static validation boundary.
+
+The Phase 4 recovery relationship is:
+
+```text
+Loop planning and execution artifacts
+        -> Authoritative Map and Ledgers
+        -> Checkpoint creation
+        -> Context Compaction Manifest
+        -> Budget Stop
+        -> Resume Validation
+        -> Corrected state
+        -> Exact Resume Point
+```
+
+`CHECKPOINT.md` remains the only Recovery authority. The Manifest only explains
+context selection and the Resume Report only records validation evidence. None of
+these templates reads tokens, compacts a model, starts a session, changes status,
+resets Git, transfers an Agent, or executes recovery. See the
+[Phase 4 recovery protocol](../../docs/full-loop-checkpoint-and-context-recovery.md).

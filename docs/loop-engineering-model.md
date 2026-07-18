@@ -203,3 +203,16 @@ acceptance from the Loop Map's `closed` projection.
 The validator checks explicit template structure and authority contradictions only.
 It does not execute transitions, infer severity, dispatch Agents, integrate work,
 accept risk, commit, or establish Checkpoint recovery.
+
+## Phase 4 Checkpoint and Context Recovery
+
+The static [Phase 4 protocol](full-loop-checkpoint-and-context-recovery.md) defines
+qualitative context pressure, Budget Stop, Minimal Safe Unit, the authoritative
+Checkpoint, a subordinate Context Compaction Manifest, and Resume Validation. A
+Checkpoint indexes observed state and one exact Resume Point; it does not duplicate
+Ledgers or history. Current instructions and observable repository reality override
+stale recovery facts.
+
+This phase adds no token service, compactor, scheduler, session switcher, Agent
+handoff runtime, Git recovery, or Project Closure. Lightweight work remains exempt
+from Full Loop recovery ceremony.

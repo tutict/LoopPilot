@@ -51,3 +51,6 @@ Resume required: false
 ## Next Action
 
 - None.
+
+In Full Loop Mode this compact snapshot may reference, but MUST NOT replace,
+the current authoritative `CHECKPOINT.md`. Inactive state is not recovery-ready.

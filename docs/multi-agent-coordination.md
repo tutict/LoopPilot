@@ -378,6 +378,21 @@ Delegation SHOULD stop or contract when:
 Stopping preserves useful reviewed work and reports exact gaps. It does not convert
 partial or approved work into parent completion.
 
+## Budget Stop and Recovery Ownership
+
+The Supervisor decides when pressure requires a Budget Stop. Workers stabilize only
+their authorized Minimal Safe Unit and cannot declare recovery-ready. Reviewers
+continue to own independent judgment and do not create the authoritative
+Checkpoint. The Integrator records supported Map and Ledger transitions, workspace
+facts, and the current Checkpoint.
+
+A resumed Supervisor validates current instructions, repository reality, Ledgers,
+artifacts, Skills, tools, Reviewer availability, and action-specific permissions
+before dispatching or integrating further work. Resume Validation may correct stale
+facts but cannot expand Scope or authority. The
+[Phase 4 protocol](full-loop-checkpoint-and-context-recovery.md) remains behavioral
+guidance, not proof of multi-Agent recovery.
+
 ## Host Capability Limits
 
 A host may provide none, some, or all of: sequential assignment, independent

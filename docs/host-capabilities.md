@@ -151,3 +151,25 @@ Before relying on a capability:
 5. downgrade gracefully when a tool or persistence feature is unavailable.
 
 Prefer a truthful Level 1 adaptation over an unsupported Level 2 or Level 3 claim.
+
+## Recovery Capability Matrix
+
+Recovery depends on separable host-native or equivalent capabilities:
+
+| Capability | Protocol adaptation |
+|---|---|
+| Context usage signal | Classify qualitative pressure; without it, use conservative observable signals |
+| Token usage signal | Record only an observed host value; without it, use `unknown` and never infer an exact balance |
+| Persistent filesystem | Store authorized recovery artifacts; without it, provide a compact non-persistent summary |
+| Git access | Observe branch, HEAD, and working tree; without it, mark those facts unverified |
+| Session continuation | Resume only after validation; absence does not imply a new session can be created |
+| New-session creation | Use only when the host exposes it; the protocol never calls or assumes it |
+| Agent handoff | Transfer concise context without transferring authority; absence requires direct continuation or user coordination |
+| Installed Skill discovery | Reconfirm required Skills; absence requires an explicit fallback or a blocker |
+| Web access | Revalidate time-sensitive facts when required; absence is acceptable for a network-independent Resume Point |
+| Independent Reviewer | Resume review only when independence is available or report the gap honestly |
+| Persistent task state | Reconcile native state with the Checkpoint; without it, the Checkpoint remains a static artifact only |
+
+No protocol step assumes `get_remaining_tokens()`, `compact_context()`,
+`start_new_session()`, or `resume_agent()` exists. Exact token signals are optional;
+the pressure and Budget Stop rules remain usable without them.

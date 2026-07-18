@@ -329,28 +329,27 @@ evidence, and no blocking conflict. Context pressure cannot skip either axis.
 
 ## 15. Token-Aware Checklist and Budget Stop
 
-For a complex parent Goal, use [CHECKLIST.md](.looppilot/CHECKLIST.md) as a compact
-index, never a second Plan or log. Only integrated items with observed evidence MAY
-be checked. At high pressure, finish the smallest verifiable unit and persist one
-exact Resume Point; at critical pressure, persist and stop. Budget stop requires
-budget-stopped and Resume required: true. Resume by rechecking instructions, native
-state, files, Git, tasks, delegation, handoff, and checked evidence. Pressure never
-weakens review, authority, evidence, or honesty.
+Use [CHECKLIST.md](.looppilot/CHECKLIST.md) only as projection. Before exhaustion,
+the Supervisor MUST Budget Stop while the Integrator persists state.
+A Checkpoint MUST record the verified boundary, authorities, unfinished work,
+evidence gaps, permissions, and exactly one actionable Resume Point; it MUST NOT
+copy complete Ledgers, Reviews, or history. Compaction MUST preserve Scope, invariants,
+permissions, open Findings, evidence gaps, and recovery boundaries. Before resume,
+validate latest instruction, Git, Ledgers, artifacts, capabilities, and
+permissions. Reality overrides stale records; correct or supersede stale
+Checkpoints and reject invalid ones. Pressure MUST NOT weaken Review, evidence,
+authority, or Closure. Recovery-ready requires references. Lightweight work
+avoids it. Only evidenced integrated items MAY be checked. At high
+pressure stabilize a safe unit; at critical persist `budget-stopped` and a Resume
+Point, stop. Details: the
+[recovery protocol](docs/full-loop-checkpoint-and-context-recovery.md).
 
 ## Progress Contract
 
-For long-running work, state the Goal and next action, report material progress or
-blockers, avoid repetitive narration, and complete as much authorized work as
-possible now. Communication MUST help the user steer the work and MUST NOT become
-an activity that sustains the loop.
+For long work, report material progress or blockers so the user can steer;
+communication MUST NOT sustain the loop by itself.
 
 ## Supporting Material
 
-Load only relevant material: [lifecycle](docs/lifecycle.md),
-[host capabilities](docs/host-capabilities.md),
-[safety and stopping](docs/safety-and-stopping.md),
-[design rationale](docs/design-rationale.md), the
-[coding](examples/coding-task.md), [research](examples/research-task.md), and
-[writing](examples/writing-task.md) examples, or
-[behavioral scenarios](tests/scenarios.md). Scenarios illustrate evaluation; they
-are not execution evidence.
+Load only relevant [supporting material](README.md#repository-guide);
+illustrations are not execution evidence.

@@ -246,6 +246,21 @@ This remains a static protocol: it does not schedule Agents, mutate Ledgers,
 integrate Git work, infer severity, create commits, or recover a Checkpoint. See the
 [Phase 3 delivery protocol](docs/full-loop-delivery-review-and-closure.md).
 
+### Full Loop Checkpoint and Context Recovery
+
+Phase 4 adds three inactive templates: Checkpoint, Context Compaction Manifest, and
+Resume Validation Report. `CHECKPOINT.md` is the only recovery authority; it records
+a verified repository boundary, unfinished work, current permissions, evidence to
+revalidate, and one exact Resume Point. The Manifest selects minimal context, and
+the Resume Report compares the record with current instructions, Git, Ledgers,
+artifacts, tools, Skills, and authority before continuation.
+
+At high context pressure the Supervisor stabilizes the smallest safe verifiable
+unit and prepares recovery state. At critical pressure new work stops after state
+is persisted. These static contracts do not count tokens, compact context, create
+Checkpoints, start sessions, transfer Agents, reset Git, or execute recovery. See
+the [Phase 4 recovery protocol](docs/full-loop-checkpoint-and-context-recovery.md).
+
 ## Example Applications
 
 - **Programming:** revise an implementation after a failing test, then run relevant
@@ -345,6 +360,8 @@ claiming results.
   Phase 2 templates, state enums, completion projection, and authority rules.
 - [Full Loop Delivery, Review, and Closure](docs/full-loop-delivery-review-and-closure.md):
   Phase 3 evidence, review, rework, and closure contracts.
+- [Full Loop Checkpoint and Context Recovery](docs/full-loop-checkpoint-and-context-recovery.md):
+  Phase 4 pressure, Budget Stop, compaction, Checkpoint, and resume-validation contracts.
 
 - [Examples](examples/coding-task.md): illustrative traces.
 - [Behavioral scenarios](tests/scenarios.md): counterexamples and evaluation cases.

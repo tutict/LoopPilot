@@ -164,8 +164,14 @@ needs rather than imposed as universal requirements.
 - The Supervisor approves risk disposition; a Worker MUST NOT close its own Finding.
 - Finding correction MUST use a scoped Rework Task and Reviewer reverification.
 - Closure MUST disclose unresolved Findings, skipped verification, and missing authority.
-- Phase 3 template changes MUST update validator, tests, and documentation together.
-- Phase 3 changes MUST NOT create active Projects, fictional Loops, or Phase 4 artifacts.
+- The Supervisor decides when to Budget Stop; the Integrator records authoritative
+  state and the current Checkpoint. Workers MUST NOT announce recovery readiness,
+  and Reviewers MUST NOT create the authoritative Checkpoint.
+- Resume Validation MAY correct stale facts from observed reality but MUST NOT
+  expand Scope, risk acceptance, severity, or permissions.
+- A Checkpoint or Handoff MUST NOT imply commit, push, release, or deploy authority.
+- Phase 4 recovery-template changes MUST update validator, tests, and documentation together.
+- Phase 4 changes MUST NOT create active Projects, fictional Loops, or Phase 5 artifacts.
 
 ## Handoff
 

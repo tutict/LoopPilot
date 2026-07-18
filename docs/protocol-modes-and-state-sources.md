@@ -107,3 +107,9 @@ Full Loop Mode MUST have one authoritative source each for Task, Finding, and
 Checkpoint state. Context recovery reads current instructions, repository facts,
 Closure and Checkpoint artifacts, and then the relevant contracts; it MUST NOT
 depend on replaying a complete conversation.
+
+The Context Compaction Manifest selects Must Load, Load On Demand, and Must Not Load
+by Default material but owns no status. The Resume Validation Report records current
+reality checks and corrections but owns no Recovery state. Handoff and Checklist
+remain projections. The [Phase 4 protocol](full-loop-checkpoint-and-context-recovery.md)
+defines how these artifacts defer to the single root `CHECKPOINT.md`.

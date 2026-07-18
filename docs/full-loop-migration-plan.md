@@ -32,9 +32,16 @@ explicit invariants without claiming a runtime engine. See the
 
 ## Phase 4: Checkpoint and Context Recovery
 
-Define the root Checkpoint, recovery ordering, stale-state reconciliation, context
-pressure behavior, and evidence revalidation. Evaluate real recovery traces
-separately from static template checks.
+Static templates now define the root Checkpoint, Context Compaction Manifest,
+Resume Validation Report, qualitative context pressure, Budget Stop, Minimal Safe
+Unit, exact Resume Point, stale-state reconciliation, and intra- versus inter-Loop
+recovery. The modular validator checks structural contradictions through the public
+CLI without implementing recovery. See the
+[Phase 4 protocol](full-loop-checkpoint-and-context-recovery.md).
+
+Real token signals, automatic compaction, Checkpoint creation, new-session or Agent
+takeover, cross-session recovery, Git conflict recovery, and recovery quality remain
+behavioral evaluation work. Phase 4 does not implement Phase 5 Project Closure.
 
 ## Phase 5: Project Closure
 

@@ -217,3 +217,8 @@ Real Worker behavior, multi-Agent integration, concurrent conflicts, reviewer
 independence, automatic severity, deduplication accuracy, revision-budget stopping,
 automatic Closure quality, recovery, Project Closure, named-host compatibility,
 and A/B behavior remain unverified.
+
+Phase 4 adds the [Checkpoint and context-recovery protocol](full-loop-checkpoint-and-context-recovery.md).
+Closure supplies accepted-outcome evidence to a Checkpoint but does not own Recovery
+status. A ready Checkpoint does not close a Loop, and an accepted Closure is not
+recovery-ready without a current actionable Checkpoint and Resume Validation.

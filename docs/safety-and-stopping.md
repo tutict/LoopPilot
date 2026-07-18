@@ -206,3 +206,20 @@ authorize more work after the stop.
 
 Static validation detects explicit structural conflicts. It does not authorize
 state changes, determine business correctness, or replace responsible-role judgment.
+
+## Checkpoint Recovery Threats
+
+| Threat | Required response |
+|---|---|
+| Forced interruption before persistence | At high pressure stabilize the smallest safe unit; at critical pressure persist and stop |
+| Stale HEAD or dirty-tree claim | Compare with observed Git and mark stale, corrected, blocked, or replan-required; never reset automatically |
+| Multiple current Checkpoints | Block recovery until one traceable authority supersedes the others |
+| Vague or competing Resume Points | Require one item, action, inputs, capability, expected observation, and stop condition |
+| Manifest omits Scope or blocker | Reject readiness and restore the missing authoritative context |
+| Manifest reloads complete history | Move historical detail to on-demand or default-excluded context |
+| Resume inherits old permission | Re-check each action-specific authority; Handoff and Checkpoint transfer none |
+| Invalid Checkpoint used to continue | Stop; correct only stale facts and supersede or reject invalid evidence |
+
+Budget pressure never authorizes skipped Reviews, hidden failures, closed Findings,
+severity changes, fabricated completion, or expanded commit, push, release, and
+deploy permissions.

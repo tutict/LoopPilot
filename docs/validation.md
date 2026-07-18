@@ -61,6 +61,11 @@ fixtures and invoke only the public validator CLI. All tests exercise the public
 python scripts/validate.py --root <fixture>
 ```
 
+The Phase 4 extension adds 72 public-entry cases for three inactive recovery
+templates, Checkpoint and Resume status rules, exact Resume Point actionability,
+compaction boundaries, current-reality and permission revalidation, single Recovery
+authority, and Budget Stop invariants. The complete suite contains 364 tests.
+
 The validator reads repository files only. It does not inspect environment
 variables, browse the web, scan host Skill directories, count tokens, or print
 credentials.
@@ -115,3 +120,11 @@ integration, concurrent conflict handling, Reviewer independence, severity
 judgment, Finding deduplication accuracy, automatic Rework creation,
 revision-budget stopping, automatic Loop Closure, commit-to-Checkpoint recovery,
 context recycling, or Project Closure.
+
+Phase 4 static checks also do not prove real token or context-pressure measurement,
+automatic compaction or Checkpoint creation, automatic session or Agent takeover,
+cross-session or cross-Agent recovery, automatic stale correction, optimal Must
+Load selection, Resume Point generation quality, Git conflict recovery, concurrent
+recovery, Commit-to-Checkpoint effectiveness, context reclamation, Project Closure,
+named-host compatibility, or A/B behavior. Five recovery diagrams and all other
+Mermaid blocks are syntax evidence only.

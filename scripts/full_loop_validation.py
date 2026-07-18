@@ -265,6 +265,9 @@ def validate_full_loop_readme(root: Path, errors: list[str]) -> None:
         "FINDING-TEMPLATE.md",
         "REWORK-TASK-TEMPLATE.md",
         "LOOP-CLOSURE-TEMPLATE.md",
+        "CHECKPOINT-TEMPLATE.md",
+        "CONTEXT-COMPACTION-TEMPLATE.md",
+        "RESUME-VALIDATION-TEMPLATE.md",
     ):
         if filename not in text:
             errors.append(f"{location}: missing template reference {filename!r}")

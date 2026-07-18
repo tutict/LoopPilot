@@ -118,6 +118,14 @@ summaries only. They do not update state, create Agents, commit, or recover cont
 the [Phase 3 protocol](../docs/full-loop-delivery-review-and-closure.md) defines
 their relationships.
 
+Phase 4 adds inactive Checkpoint, Context Compaction Manifest, and Resume Validation
+templates. In Full Loop Mode, `CHECKPOINT.md` is the only authoritative recovery
+entry; the Manifest selects context and the Resume Report records validation
+evidence. They do not read tokens, compact models, start sessions, transfer Agents,
+change Ledgers, reset Git, or execute recovery. Lightweight work is not required to
+create them. See the
+[Phase 4 protocol](../docs/full-loop-checkpoint-and-context-recovery.md).
+
 ## Source of Truth
 
 The latest user instruction is the highest source of task intent after platform and
@@ -211,7 +219,7 @@ rules or actions without independent authority.
 - [`tasks/TASK-TEMPLATE.md`](tasks/TASK-TEMPLATE.md) is copied once per real
   delegated task.
 - [`full-loop/`](full-loop/README.md) contains inactive Phase 2 authority templates
-  and Phase 3 delivery-to-closure detail templates.
+  plus Phase 3 delivery-to-closure and Phase 4 recovery detail templates.
 
 
 These committed files are inactive templates. Agents SHOULD replace template fields
