@@ -43,6 +43,12 @@ Last compaction: none
 
 - None.
 
+## Full Loop Relationship
+
+A human-readable projection and recovery aid, not the authoritative Task, Finding,
+or Loop state source. In Full Loop Mode, this Checklist MUST NOT override
+`LOOP-MAP.md`, `TASK-LEDGER.md`, or `FINDING-LEDGER.md`.
+
 ## Stop Reason
 
 - None.

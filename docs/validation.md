@@ -34,14 +34,18 @@ notes, Standards and Spec decisions, conjunctive approval, and observed evidence
 The Loop Engineering extension checks that the inactive Project template exists,
 contains every required Project Engineering Context heading, includes a blank
 Engineering Concern Matrix and Architecture Profile, remains inactive, and contains
-no obvious credential assignment. It requires the six first-stage architecture
-documents, the canonical Loop definition, both protocol modes, the Task, Finding,
-and Checkpoint sources of truth, and rejects positive named-host validation claims.
+no obvious credential assignment. It requires the architecture documents, canonical
+Loop definition, both protocol modes, state sources, and honest named-host claims.
 
-The 22 architecture regression cases mutate repository fixtures and invoke only the
-public validator CLI. These checks deliberately do not implement Loop identifiers,
-active Ledgers, Finding transitions, commit policy, or Project Closure decisions.
-All tests exercise the public entry point:
+The Phase 2 Full Loop extension checks five inactive template files; Loop Map,
+Contract, Task, and Finding enums; stable identifiers; duplicate IDs; closed-only
+checkmarks; Closure and Checkpoint evidence; honest commit exceptions; mandatory
+review axes; Task lifecycle compatibility; Finding dispositions; role authority;
+and Checklist projection discipline. It validates fixed structures and explicit
+invariants without executing transitions or changing a Ledger.
+
+The 22 Phase 1 and 65 Phase 2 regression cases mutate repository fixtures and invoke
+only the public validator CLI. All tests exercise the public entry point:
 
 ```text
 python scripts/validate.py --root <fixture>
@@ -89,3 +93,9 @@ They do not prove real network research, installed-Skill discovery on Codex, Gem
 CLI, or GitHub Copilot, automatic Skill-selection accuracy, real remaining-token
 reads, context-pressure judgment, live budget stop and resume, or actual
 dual-Reviewer independence. Those claims require observed host traces.
+
+Phase 2 static checks also do not prove real Loop grouping, Grouping Rationale
+quality, Task DAG generation, concurrent multi-Agent Ledger updates, Finding and
+Rework closure, Integration Records, Loop Closure, automatic context recovery, or
+commit and Checkpoint recovery. Project Closure, named-host compatibility, and A/B
+behavior evaluation remain unverified.

@@ -13,6 +13,7 @@ ARCHITECTURE_DOCUMENTS = (
     "docs/architecture-pattern-selection.md",
     "docs/project-closure.md",
     "docs/full-loop-migration-plan.md",
+    "docs/full-loop-contracts-and-ledgers.md",
 )
 PROJECT_HEADINGS = (
     "## Problem",
@@ -31,6 +32,8 @@ PROJECT_HEADINGS = (
     "## Team Boundaries",
     "## Architecture Profile",
     "## Engineering Concern Matrix",
+    "## Project Acceptance Criteria",
+    "## Full Loop Relationships",
 )
 PROJECT_SUBHEADINGS = (
     "### Entities",
@@ -85,6 +88,13 @@ PROJECT_SUBHEADINGS = (
     "### Dependency Injection",
     "### Performance Strategy",
     "### Explicitly Rejected Patterns",
+    "### Project Functional Acceptance",
+    "### Project Engineering Acceptance",
+    "### Project Delivery Acceptance",
+    "### Project Identifier",
+    "### Loop Map",
+    "### Current Authoritative Files",
+    "### Project Closure",
 )
 CONCERN_ROWS = (
     "Users",

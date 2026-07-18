@@ -13,17 +13,21 @@ and regression coverage.
 
 ## Phase 2: Loop Contract, Loop Map, and Ledgers
 
-Add inactive templates for Project scope, Loop Map, Loop Contract, Task Ledger, and
-Finding Ledger. Define identifiers, transitions, cross-references, and migration
-from Lightweight delegation state. Keep validators structural rather than turning
-them into a scheduler.
+**Status: implemented statically; behaviorally unverified.**
+
+Inactive Loop Map, Loop Contract, Task Ledger, and Finding Ledger templates now
+define identifiers, state enums, transition semantics, authority, completion
+projection, and compatibility with Lightweight delegation state. Static validators
+check structural invariants without scheduling work or mutating state.
 
 ## Phase 3: Finding, Rework, Integration, and Loop Closure
 
-Define Finding severity and disposition, bounded rework, Worker Delivery,
-Integration Record, review reports, acceptance decisions, and Loop Closure. Add
-static consistency checks and behavior evaluations without claiming a runtime
-engine.
+**Status: not implemented.**
+
+Add detailed Finding artifacts, bounded Rework Tasks, Worker Delivery, Integration
+Record, Review Report, acceptance decisions, and Loop Closure. Build on the Phase 2
+severity and disposition enums without redefining their authority. Add static
+consistency checks and behavior evaluations without claiming a runtime engine.
 
 ## Phase 4: Checkpoint and Context Recovery
 

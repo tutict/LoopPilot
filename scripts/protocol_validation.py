@@ -162,6 +162,7 @@ def validate_checklist(root: Path, errors: list[str]) -> None:
         "## Last Verified Evidence",
         "## Execution Budget",
         "## Resume Point",
+        "## Full Loop Relationship",
         "## Stop Reason",
     )
     lines = set(text.splitlines())

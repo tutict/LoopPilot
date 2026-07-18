@@ -199,6 +199,20 @@ A task MUST NOT skip `under-review` before `approved`, skip `approved` before
 to integrated work requires a new Task Contract. If the parent Goal changes, the
 Supervisor MUST pause, cancel, or rewrite affected contracts before work continues.
 
+### Full Loop Task Ledger Compatibility
+
+Full Loop Mode reuses this exact lifecycle in `TASK-LEDGER.md`; a detailed Task
+Contract no longer owns authoritative status. Task `under-review` remains the
+independent Task-level check, `approved` means ready for integration, and
+`integrated` means the result entered the unified Loop output. Formal Loop-level
+Review follows the Integration Barrier and may create Findings. No Task status or
+Task Review decision directly closes or checks a Loop.
+
+The responsible role supplies each decision, and only the Integrator records the
+Full Loop Ledger transition. Lightweight Mode may continue using the existing
+Task Contract protocol without creating a Ledger.
+
+
 ## Review and Correction
 
 Use [`REVIEW-TEMPLATE.md`](REVIEW-TEMPLATE.md) for an independently checkable review

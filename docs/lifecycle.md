@@ -187,3 +187,16 @@ recommended.
 
 **Exit condition:** End the current run with a Completed report. New work begins with
 INTAKE; completion does not authorize unrelated follow-up actions.
+
+## Full Loop Status Projections
+
+Phase 2 adds semantic projections around the existing lifecycle. The Supervisor
+approves a Loop Contract and decides business transitions; the Integrator records
+Loop status in the Loop Map, Task status in the Task Ledger, and Finding status in
+the Finding Ledger. Workers and Reviewers supply Deliveries, evidence, and decisions
+without editing authoritative status.
+
+Task `approved` means ready for integration, and Task `integrated` means included
+in the unified result. Neither state advances Loop completion. The Loop remains
+unchecked through review, acceptance, commit, and checkpoint states until the
+Closure Barrier passes and the Loop Map records `closed`.

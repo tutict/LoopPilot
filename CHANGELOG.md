@@ -46,6 +46,14 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   target, and six-phase Full Loop migration plan.
 - Minimal architecture validation, 22 public-CLI regression cases, four focused
   Mermaid diagrams, 15 behavior scenarios, and 14 evaluation dimensions.
+
+- Static Phase 2 templates for Project Loop Map, Loop Contract, Task Ledger, and
+  Finding Ledger with compatible status enums and single-source invariants.
+- Structural Full Loop validation, 65 public-entry regression cases, 18 behavioral
+  scenarios, 14 rubric dimensions, and two focused Mermaid diagrams.
+- Honest commit-authorization exceptions, closed-only Loop checkmarks, thin Ledger
+  projections, and explicit Supervisor decision versus Integrator recording.
+
 ### Changed
 
 - Refactored the Skill into a stronger host-native execution contract.

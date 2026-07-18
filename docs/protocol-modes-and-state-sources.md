@@ -1,9 +1,10 @@
 # Protocol Modes and State Sources
 
 Process depth MUST be proportional to task complexity, risk, and recovery needs.
-LoopPilot keeps the existing shared-state protocol as Lightweight Mode and defines
-Full Loop Mode as a later target. This phase does not migrate active state or create
-a fictional Loop instance.
+LoopPilot keeps the existing shared-state protocol as Lightweight Mode. Full Loop
+Mode remains a staged target; Phase 2 now provides inactive Contracts and Ledger
+templates without migrating active state, creating a fictional Loop, or implementing
+a workflow runtime.
 
 ## Lightweight Mode
 
@@ -51,6 +52,11 @@ Its target structure is:
 
 These are target artifact types, not current active instances. The
 [Full Loop migration plan](full-loop-migration-plan.md) stages their introduction.
+
+Phase 2 templates live under
+[`.looppilot/full-loop/`](../.looppilot/full-loop/README.md). Their status enums,
+transition semantics, completion projection, and role boundaries are defined in
+[Full Loop contracts and authoritative Ledgers](full-loop-contracts-and-ledgers.md).
 
 ## Mode Selection
 

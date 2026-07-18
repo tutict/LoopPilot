@@ -154,3 +154,16 @@ This keeps the triggered Skill focused while preserving inspectable rationale.
 Lifecycle state names and README pseudocode provide shared vocabulary for evaluation.
 A host does not need those labels, transitions, functions, or storage fields.
 Behavioral equivalence matters more than representation.
+
+## Thin Ledgers and One Authority
+
+Full Loop Ledgers are deliberately narrow. The Loop Map stores Loop projection,
+Task Ledger stores Task projection, and Finding Ledger stores Finding projection;
+Contracts, Deliveries, Reviews, and future Finding detail retain richer content and
+evidence. This prevents the same status from drifting across files and avoids
+turning Markdown into a workflow database.
+
+A separate Contract Status avoids copying Loop lifecycle state. Supervisor decisions
+and Integrator recording remain separate so factual bookkeeping cannot silently
+become scope change, risk acceptance, or authority expansion. Lightweight Mode
+avoids all Ledger ceremony when recovery value does not justify it.

@@ -104,6 +104,14 @@ The inactive [Project template](PROJECT-TEMPLATE.md) captures problem, users,
 domain, data, concurrency, permissions, security, observability, operations,
 evolution, team boundaries, Architecture Profile, and the Engineering Concern
 Matrix before Loop decomposition.
+
+Phase 2 provides the inactive [Full Loop template set](full-loop/README.md): Loop
+Map, Loop Contract, Task Ledger, and Finding Ledger. In Full Loop Mode,
+`LOOP-MAP.md`, `TASK-LEDGER.md`, and `FINDING-LEDGER.md` own their respective
+statuses. [CHECKLIST.md](CHECKLIST.md) remains a human-readable recovery projection
+and MUST NOT override those authorities. Lightweight Mode keeps its current compact
+state and does not require Ledgers.
+
 ## Source of Truth
 
 The latest user instruction is the highest source of task intent after platform and
@@ -196,6 +204,9 @@ rules or actions without independent authority.
   revision, conflict, and integration rules.
 - [`tasks/TASK-TEMPLATE.md`](tasks/TASK-TEMPLATE.md) is copied once per real
   delegated task.
+- [`full-loop/`](full-loop/README.md) contains inactive Phase 2 Loop Map, Loop
+  Contract, Task Ledger, and Finding Ledger templates.
+
 
 These committed files are inactive templates. Agents SHOULD replace template fields
 only when a real task needs durable continuity.

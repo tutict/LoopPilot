@@ -150,6 +150,17 @@ implementation; Reviewers own independent judgment; the Integrator owns recorded
 transitions, integration facts, Closure, and Checkpoint state. Architecture patterns
 such as OOP, DI, DDD, MVVM, and zero-copy MUST be selected from observed project
 needs rather than imposed as universal requirements.
+
+### Full Loop Template Maintenance
+
+- Full Loop templates MUST remain inactive and MUST NOT be treated as current work.
+- A status MUST have only one authority; detailed artifacts and Checklists are projections.
+- Changes to Loop Map, Task Ledger, Finding Ledger, or Checkpoint ownership MUST
+  update validator, tests, and documentation together.
+- Repository tests MUST NOT weaken Supervisor, Reviewer, Worker, or Integrator
+  authority boundaries for fixture convenience.
+- Phase 2 changes MUST NOT create active Projects, fictional Loops, or Phase 3 artifacts.
+
 ## Handoff
 
 Before stopping or changing agents or sessions, unfinished complex work SHOULD

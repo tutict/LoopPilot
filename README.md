@@ -221,6 +221,18 @@ Start with the [Loop Engineering model](docs/loop-engineering-model.md), the
 [pattern-selection rules](docs/architecture-pattern-selection.md), the
 [Project Closure target](docs/project-closure.md), and the
 [Full Loop migration plan](docs/full-loop-migration-plan.md).
+
+### Full Loop Contracts and Ledgers
+
+Phase 2 adds inactive [Full Loop templates](.looppilot/full-loop/README.md) for a
+Project Loop Map, Loop Contract, Task Ledger, and Finding Ledger. The Loop Map owns
+Loop status; the two Ledgers own Task and Finding status. Detailed artifacts and
+Checklists remain projections or evidence, and only a `closed` Loop may be checked.
+
+Lightweight Mode remains unchanged for small work. These templates and validators
+are static protocol structure, not a workflow runtime or evidence of real-host
+behavior. See [Full Loop contracts and Ledgers](docs/full-loop-contracts-and-ledgers.md).
+
 ## Example Applications
 
 - **Programming:** revise an implementation after a failing test, then run relevant
@@ -316,6 +328,9 @@ claiming results.
   delegation, review, conflict, and integration protocol.
 - [Design rationale](docs/design-rationale.md): design tradeoffs.
 - [Validation](docs/validation.md): repeatable maintenance checks and their boundary.
+- [Full Loop Contracts and Ledgers](docs/full-loop-contracts-and-ledgers.md):
+  Phase 2 templates, state enums, completion projection, and authority rules.
+
 - [Examples](examples/coding-task.md): illustrative traces.
 - [Behavioral scenarios](tests/scenarios.md): counterexamples and evaluation cases.
 - [Evaluation rubric](tests/evaluation-rubric.md): 0-to-3 scoring.

@@ -286,6 +286,13 @@ work and MUST choose process depth in proportion to complexity, risk, and recove
 - Recovery MUST use current evidence, Checkpoint, and Closure artifacts instead of
   replaying the full conversation.
 
+For Full Loop implementation, the Supervisor MUST approve a Loop Contract first.
+The Loop Map owns Loop status, the Task Ledger owns Task status, and the Finding
+Ledger owns Finding status. A Checklist is only a projection. Only a `closed` Loop
+MAY be checked complete; Task completion or Review approval MUST NOT close it.
+Responsible roles supply decisions and evidence, and the Integrator records the
+resulting transition. Lightweight work MUST NOT incur Full Loop Ledger overhead.
+
 Use Lightweight Mode for bounded low-risk work. Use the Full Loop target only when
 multiple Loops, a Task DAG, specialist review, Finding cycles, independent commit
 boundaries, or cross-context recovery justify it. See the

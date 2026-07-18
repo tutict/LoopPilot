@@ -180,3 +180,19 @@ After a meaningful stop condition, the agent MUST end the execution loop and MUS
 continue optional polishing, repeated verification, internal reflection, or status
 narration solely to show activity. A new user instruction may begin a new intake, but an old Plan cannot
 authorize more work after the stop.
+
+## Full Loop State Threats
+
+| Threat | Required response |
+|---|---|
+| Checked Loop before Closure | Remove the mark; only `closed` may be `[x]` |
+| Task or Review treated as Loop completion | Keep the Loop unchecked and evaluate all Barriers |
+| Contract duplicates Loop status | Use Contract Status and defer Loop status to the Loop Map |
+| Checklist conflicts with a Ledger | Recheck observable facts, correct the projection, and preserve Ledger authority |
+| Required commit lacks authority | Record not-created-not-authorized and stop at the contract-defined state |
+| Integrator accepts risk or lowers severity | Reject the transition and require a Supervisor decision |
+| Finding detail conflicts with its Ledger | Preserve evidence and correct the non-authoritative detail |
+| Full Loop artifacts added to trivial work | Return to Lightweight Mode and remove unnecessary ceremony |
+
+Static validation detects explicit structural conflicts. It does not authorize
+state changes, determine business correctness, or replace responsible-role judgment.

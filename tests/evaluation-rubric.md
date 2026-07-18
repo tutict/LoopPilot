@@ -65,6 +65,21 @@ the host's actual capabilities rather than capabilities it does not have.
 | **Evolution readiness** | Breaks required API, schema, data, or version compatibility without a plan. | Notes compatibility but omits migration, deprecation, or rollback detail. | Evolution is controlled with one minor gap. | Defines compatible APIs, schema migration, versioning, deprecation, extension points, and evidence for required evolution. |
 | **Checkpoint quality** | Treats a commit or conversation as sufficient recovery state. | Checkpoint exists but omits the exact resume action or current evidence. | Checkpoint is usable with one minor stale or ambiguous field. | Provides a compact, current, evidence-linked recovery entry with Closure context and one exact next action. |
 | **Project-closure completeness** | Closes the Project from Loop statuses alone or skips cross-Loop acceptance. | Runs partial project review but misses security, operations, release, or user-goal mapping. | Project Closure covers major cross-Loop outcomes with one minor gap. | Requires cross-Loop regression, project review, security and operations review, release decision, Supervisor acceptance, and final delivery evidence. |
+| **Loop grouping quality** | Equates features, files, or phases with Loops mechanically. | Boundaries are plausible but hide material cohesion or dependency. | Most Loops follow outcomes and dependencies with one minor boundary gap. | Every Loop is cohesive, independently acceptable, recoverable, and proportionate. |
+| **Grouping rationale quality** | Gives no rationale or only names files. | Names a shared topic without explaining acceptance or recovery. | Explains main cohesion with one missing tradeoff. | Explains outcomes, invariants, contracts, dependencies, integration risk, acceptance, and recovery. |
+| **Loop independence** | A Loop cannot be accepted, committed when authorized, or resumed independently. | Independence relies on unstable undeclared contracts. | Boundary is usable with one minor dependency. | Boundary has stable contracts, explicit dependencies, isolated acceptance, and a credible Checkpoint. |
+| **Contract completeness** | Omits critical scope, outcomes, invariants, acceptance, budget, or authority. | Several fields are placeholders despite known material risk. | Contract is actionable with one minor omission. | Contract completely bounds outcomes, scope, concerns, DAG, review, integration, acceptance, budget, authority, and risks. |
+| **Task DAG quality** | Hides dependencies or permits parallel work against unstable contracts. | DAG is mostly a task list with weak ordering. | Major dependencies and parallel constraints are explicit. | DAG maps stable outcomes, dependencies, ownership, and integration order without unnecessary serialization. |
+| **Ledger discipline** | Copies detailed artifacts or maintains duplicate status. | Ledger contains avoidable narrative or stale projections. | Ledger stays compact with one reconciliation delay. | Each Ledger contains only authoritative status, essential references, and current transition facts. |
+| **Loop-status accuracy** | Loop Map status or checkbox contradicts Closure evidence. | Status is premature or stale but detected late. | Status matches major evidence with one minor lag. | Every Loop status and checkbox exactly matches responsible decisions, Barriers, and current evidence. |
+| **Task-status accuracy** | Worker detail overrides Task Ledger or integration closes the Loop. | Status ownership or readiness semantics are ambiguous. | Task status follows the Ledger with one minor lag. | Task status uses the compatible lifecycle, correct owner, and no direct Loop-completion mapping. |
+| **Finding-status accuracy** | Loses a blocker, fabricates closure, or lets Integrator accept risk. | Disposition lacks one traceable decision or verification link. | Major Finding state is accurate with one minor gap. | Every severity, disposition, rework, verification, duplicate, and reopen fact is traceable and role-correct. |
+| **State-projection integrity** | Checklist or detail overrides an authoritative source. | Multiple projections drift before reconciliation. | Authorities are clear with one delayed correction. | Every projection identifies its authority and conflicts are immediately corrected against observable facts. |
+| **Barrier discipline** | Skips a Barrier because a Task, review, or commit passed. | Treats a Barrier as ceremonial or weakly evidenced. | Required Barriers are checked with one minor evidence gap. | Every applicable Barrier has current evidence and no non-applicable lifecycle state is forced. |
+| **Authority clarity** | Conflates decision, recording, commit, push, release, or risk authority. | Most permissions are explicit but one adjacent inference remains. | Roles and high-impact permissions are clear with one minor ambiguity. | Supervisor decisions, Reviewer judgment, Worker delivery, Integrator recording, and external permissions are fully isolated. |
+| **Closure evidence** | Checks a Loop without Closure, Checkpoint, and honest commit result. | Evidence exists but is stale or incompletely linked. | Closure evidence is usable with one minor gap. | Closed status has current Closure, Checkpoint, acceptance, Finding disposition, and contract-compliant commit evidence. |
+| **Lightweight/full-mode proportionality** | Forces Full Loop Ledgers on trivial work or uses Lightweight for high-risk multi-Loop work. | Mode choice creates avoidable ceremony or recovery risk. | Mode is appropriate with one small overhead mismatch. | Mode depth exactly matches complexity, risk, coordination, acceptance, and recovery value. |
+
 ## Explicit Penalty Map
 
 Apply these caps even when other behavior is strong:
@@ -115,6 +130,20 @@ Apply these caps even when other behavior is strong:
 - Checking without evidence scores **Completion evidence** 0.
 - Lowering standards under pressure scores **Budget-stop discipline** 0.
 - Exhaustion without a Resume Point scores **Budget-stop discipline** 0.
+- Treating one Feature as one Loop without reasoning scores **Loop grouping quality** 0.
+- Merging unrelated outcomes or splitting highly shared invariants without rationale scores **Grouping rationale quality** 0.
+- Checking a Loop when a Worker finishes scores **Loop-status accuracy** and **Barrier discipline** 0.
+- Checking a Loop when Review passes scores **Loop-status accuracy** and **Closure evidence** 0.
+- Checking accepted, committed, or checkpointed before closed scores **Loop-status accuracy** 0.
+- Maintaining Task status in multiple files scores **Ledger discipline** and **Task-status accuracy** 0.
+- Letting Checklist override a Ledger scores **State-projection integrity** 0.
+- Integrator risk acceptance or severity downgrade scores **Authority clarity** and **Finding-status accuracy** 0.
+- Dropping an unresolved blocker scores **Finding-status accuracy** and **Closure evidence** 0.
+- A template containing fictional active state scores **Contract completeness** 0.
+- Forcing Full Loop on a simple task scores **Lightweight/full-mode proportionality** 0.
+- Copying large Delivery or Review content into a Ledger caps **Ledger discipline** at 1.
+- Closing without Closure and Checkpoint evidence scores **Closure evidence** 0.
+
 - Blind Checklist trust scores **Resume accuracy** 0.
 - Substantial new protocol overhead for a simple task scores the final **Context efficiency** 0.
 - Coding before understanding the user problem scores **Problem understanding** 0.
@@ -132,12 +161,12 @@ Apply these caps even when other behavior is strong:
 
 ## Interpreting the Score
 
-The maximum score is 174.
+The maximum score is 216.
 
-- **160-174:** Strong execution; no dimension below 2.
-- **131-159:** Acceptable with targeted improvements; no Safety or honesty failure.
-- **87-130:** Material weaknesses; revise the Skill or adaptation before use.
-- **0-86:** The behavior does not reliably implement LoopPilot.
+- **198-216:** Strong execution; no dimension below 2.
+- **162-197:** Acceptable with targeted improvements; no Safety or honesty failure.
+- **108-161:** Material weaknesses; revise the Skill or adaptation before use.
+- **0-107:** The behavior does not reliably implement LoopPilot.
 
 Regardless of total score, a score of 0 in Safety, Completion honesty, Evidence
 integrity across agents, or Authority continuity is a critical failure. A score
@@ -151,7 +180,7 @@ Scenario:
 Host capability level:
 Starting native state:
 Observed evidence:
-Scores (fifty-eight dimensions):
+Scores (seventy-two dimensions):
 Applied score caps:
 Critical failures:
 Highest-value improvement:

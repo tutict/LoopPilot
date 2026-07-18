@@ -153,3 +153,21 @@ Status: inactive
 | Operations | | | |
 | Version Evolution | | | |
 | Team Collaboration | | | |
+
+## Project Acceptance Criteria
+
+### Project Functional Acceptance
+
+### Project Engineering Acceptance
+
+### Project Delivery Acceptance
+
+## Full Loop Relationships
+
+### Project Identifier
+
+### Loop Map
+
+### Current Authoritative Files
+
+### Project Closure

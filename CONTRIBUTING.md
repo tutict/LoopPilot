@@ -80,6 +80,19 @@ When changing the Project template, modes, object model, role boundaries, Review
 Matrix, Barriers, acceptance, or migration plan, update public-CLI regression tests
 and validation documentation. Do not turn structural validation into a scheduler,
 Finding engine, commit gate, or host-compatibility claim.
+
+## Full Loop Template Changes
+
+Changes to Loop Map, Loop Contract, Task Ledger, Finding Ledger, state enums, or
+authority rules must update `scripts/full_loop_validation.py`, public-entry tests,
+and protocol documentation together. Templates must remain inactive and must not
+contain real users, Loops, Tasks, Findings, evidence, or authority.
+
+Keep Ledgers as compact status projections. Do not duplicate Delivery or Review
+content, make Checklist authoritative in Full Loop Mode, weaken role boundaries for
+fixtures, create active instances, or implement Phase 3 behavior inside Phase 2
+validation.
+
 ## Testing Documentation Changes
 
 Before submitting a change:

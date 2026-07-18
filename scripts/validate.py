@@ -14,6 +14,7 @@ from urllib.parse import unquote, urlsplit
 import yaml
 from yaml.constructor import ConstructorError
 from engineering_validation import validate_loop_engineering
+from full_loop_validation import FULL_LOOP_FILES, validate_full_loop
 from protocol_validation import (
     validate_repository_extensions,
     validate_review_protocol,
@@ -45,6 +46,7 @@ REQUIRED_FILES = (
     "scripts/validate.py",
     "scripts/protocol_validation.py",
     "scripts/engineering_validation.py",
+    "scripts/full_loop_validation.py",
     "docs/validation.md",
     "docs/loop-engineering-model.md",
     "docs/project-engineering-context.md",
@@ -52,6 +54,7 @@ REQUIRED_FILES = (
     "docs/architecture-pattern-selection.md",
     "docs/project-closure.md",
     "docs/full-loop-migration-plan.md",
+    "docs/full-loop-contracts-and-ledgers.md",
     "evaluations/README.md",
     "docs/host-capabilities.md",
     "evaluations/codex/README.md",
@@ -65,6 +68,8 @@ REQUIRED_FILES = (
     "tests/evaluation-rubric.md",
     "tests/scenarios.md",
     "tests/test_loop_engineering_architecture.py",
+    "tests/test_full_loop_templates.py",
+    *FULL_LOOP_FILES,
 )
 SKILL_WORD_RANGE = range(1500, 2501)
 FRONTMATTER_PATTERN = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
@@ -1109,6 +1114,7 @@ def validate_repository(root: Path, extract_directory: Path | None = None) -> li
     validate_shared_state(root, errors)
     validate_repository_extensions(root, errors)
     validate_loop_engineering(root, errors)
+    validate_full_loop(root, errors, TASK_STATUSES)
     validate_yaml_files(root, errors)
     validate_skill_frontmatter(root, errors)
     validate_openai_yaml(root, errors)
@@ -1135,6 +1141,7 @@ def validate_repository(root: Path, extract_directory: Path | None = None) -> li
         "docs/loop-engineering-model.md",
         "docs/protocol-modes-and-state-sources.md",
         "docs/project-closure.md",
+        "docs/full-loop-contracts-and-ledgers.md",
     ):
         if required_source not in sources:
             errors.append(f"{required_source}: expected at least one Mermaid block")

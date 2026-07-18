@@ -178,3 +178,15 @@ conversation.
 The target Full Loop artifacts are specified in
 [protocol modes and state sources](protocol-modes-and-state-sources.md). Their
 implementation is staged by the [migration plan](full-loop-migration-plan.md).
+
+## Phase 2 Contracts and Ledgers
+
+The static [Full Loop templates](../.looppilot/full-loop/README.md) now define a
+Project Loop Map, one Contract per Loop, and authoritative Task and Finding Ledgers.
+The Loop Map alone owns Loop status. Task and Finding detail remains separate from
+Ledger status, and only a `closed` Loop may be checked complete. Task completion,
+integration, Review approval, or commit alone does not pass the Closure Barrier.
+
+The [Phase 2 protocol](full-loop-contracts-and-ledgers.md) defines enums, grouping,
+Task DAG, Reviewer Matrix, budget, commit authorization exceptions, role decisions,
+and Integrator recording. It is static structure, not an executing state machine.
