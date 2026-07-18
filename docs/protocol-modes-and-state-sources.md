@@ -113,3 +113,14 @@ by Default material but owns no status. The Resume Validation Report records cur
 reality checks and corrections but owns no Recovery state. Handoff and Checklist
 remain projections. The [Phase 4 protocol](full-loop-checkpoint-and-context-recovery.md)
 defines how these artifacts defer to the single root `CHECKPOINT.md`.
+
+## Project Closure Evidence Sources
+
+Phase 5 keeps Project Scope and Project status in `PROJECT.md`. Cross-Loop
+Validation stores integrated evidence, Project Acceptance stores the Supervisor's
+decision, Release Readiness stores preparation evidence, and the Final Delivery
+Report summarizes the result for recipients. Project Findings route to a target
+Loop `FINDING-LEDGER.md`; `CHECKPOINT.md` remains the Recovery authority. These
+artifacts are inactive templates and projections, not status owners or runtime
+operations. Lightweight work does not incur them. See the
+[Phase 5 protocol](project-closure-and-final-delivery.md).

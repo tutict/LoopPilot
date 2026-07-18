@@ -235,3 +235,13 @@ Budget Stop fields, recovery-authority discipline, and obvious permission or
 readiness contradictions. It does not calculate tokens, select optimal context,
 create or correct a Checkpoint, inspect Git, load files, rerun tests, switch
 sessions, transfer Agents, or execute recovery.
+
+## Final Project Checkpoint
+
+Phase 5 reuses the same authoritative `CHECKPOINT.md` for the final Project
+boundary. It records actual HEAD or artifact boundary, working tree, deferred work,
+accepted risks, Final Delivery Report, and real release/deployment facts. A closed
+Project uses `PROJECT-CLOSED` with an exact instruction-validation reopen action.
+Project Acceptance cannot make a stale Checkpoint ready, and a Final Report cannot
+become Recovery authority. See the
+[Project Closure protocol](project-closure-and-final-delivery.md).

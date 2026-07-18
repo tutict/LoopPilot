@@ -219,3 +219,13 @@ instruction, observed Git and working tree, Map and Ledgers, referenced artifact
 capabilities, evidence, and authority. The decision is resume, corrected resume,
 replan, block, invalidate, or cancel. No lifecycle label implies an automatic
 session transition or runtime operation.
+
+## Project Closure Gate
+
+After mandatory Loops are authoritatively closed, Phase 5 adds a Project-level Gate
+for Cross-Loop Validation, Project Spec and Standards Review, all three acceptance
+layers, Finding disposition, release obligations, Final Checkpoint, Final Delivery
+Report, and an authorized `PROJECT.md` projection. This is not a lifecycle state
+engine or a sixth Loop Barrier. Accepted, closed, release-ready, authorized,
+released, deployed, and acknowledged remain distinct facts. See the
+[Phase 5 protocol](project-closure-and-final-delivery.md).

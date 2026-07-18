@@ -49,6 +49,8 @@ A human-readable projection and recovery aid, not the authoritative Task, Findin
 or Loop state source. In Full Loop Mode, this Checklist MUST NOT override
 `LOOP-MAP.md`, `TASK-LEDGER.md`, `FINDING-LEDGER.md`, or the current authoritative
 `CHECKPOINT.md`. It MUST NOT own Recovery status or replace the exact Resume Point.
+It also MUST NOT own Project Acceptance or Project status. Only integrated evidence
+may support the Project Closure Gate, and `PROJECT.md` remains authoritative.
 
 ## Stop Reason
 

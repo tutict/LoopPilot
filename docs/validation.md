@@ -66,6 +66,12 @@ templates, Checkpoint and Resume status rules, exact Resume Point actionability,
 compaction boundaries, current-reality and permission revalidation, single Recovery
 authority, and Budget Stop invariants. The complete suite contains 364 tests.
 
+The Phase 5 extension adds 130 public-entry cases for four inactive Project Closure
+templates, Goal-to-Evidence structure, Cross-Loop Validation, Project-level Review,
+three-layer Project Acceptance, remediation Loop routing, Release Readiness,
+independent execution authority, the Final Checkpoint, the Final Delivery Report,
+and Project status-source discipline. The complete suite contains 494 tests.
+
 The validator reads repository files only. It does not inspect environment
 variables, browse the web, scan host Skill directories, count tokens, or print
 credentials.
@@ -128,3 +134,13 @@ Load selection, Resume Point generation quality, Git conflict recovery, concurre
 recovery, Commit-to-Checkpoint effectiveness, context reclamation, Project Closure,
 named-host compatibility, or A/B behavior. Five recovery diagrams and all other
 Mermaid blocks are syntax evidence only.
+
+Phase 5 static checks also do not prove real Project Closure, automatic mandatory
+Loop judgment, automatic Goal-to-Evidence Mapping or Requirement coverage,
+cross-Loop test execution, Finding creation or routing, remediation Loop creation,
+Project Reviewer independence, Project Acceptance generation quality, Release
+Readiness judgment, version selection, tag or release creation, deployment,
+migration, gray traffic, rollback, Final Delivery Report generation or recipient
+usability, user acknowledgement, Final Checkpoint recovery effectiveness,
+named-host compatibility, remote workflow results, or Phase 6 A/B behavior. Five
+Phase 5 diagrams and all 24 Mermaid blocks are syntax evidence only.

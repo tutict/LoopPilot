@@ -173,3 +173,13 @@ Recovery depends on separable host-native or equivalent capabilities:
 No protocol step assumes `get_remaining_tokens()`, `compact_context()`,
 `start_new_session()`, or `resume_agent()` exists. Exact token signals are optional;
 the pressure and Budget Stop rules remain usable without them.
+
+## Project Closure Capability Boundary
+
+A host may help prepare Cross-Loop Validation, Project Acceptance, Release
+Readiness, a Final Checkpoint, and a Final Delivery Report only through capabilities
+actually observed. The templates do not prove that a host can discover all Loops,
+map goals, run end-to-end tests, create remediation Loops, select a version,
+release, deploy, migrate, roll back, send a report, or obtain user acknowledgement.
+Those are Phase 6 behavioral claims requiring dated traces and action-specific
+authority.

@@ -31,6 +31,12 @@ separate authorities. Review approval does not grant any of them.
 
 ## Later Artifacts
 
-A later phase may define a Project Closure template, final delivery report,
-cross-Loop integration record, and release review contract. Those artifacts MUST
-reference Loop Closures and observed facts rather than duplicating Loop status.
+Phase 5 now statically defines Cross-Loop Validation, Project Acceptance, Release
+Readiness, the Final Delivery Report, and the Project Closure Gate. They reference
+Loop Closures and observed facts without duplicating Loop or Project status. The
+complete contract and its runtime boundary are in
+[Project Closure and Final Delivery](project-closure-and-final-delivery.md).
+
+Real Project Closure, automatic validation and Finding routing, release and
+deployment execution, recipient delivery, user acknowledgement, and named-host
+behavior remain unverified Phase 6 work.

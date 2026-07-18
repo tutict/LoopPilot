@@ -222,3 +222,11 @@ Phase 4 adds the [Checkpoint and context-recovery protocol](full-loop-checkpoint
 Closure supplies accepted-outcome evidence to a Checkpoint but does not own Recovery
 status. A ready Checkpoint does not close a Loop, and an accepted Closure is not
 recovery-ready without a current actionable Checkpoint and Resume Validation.
+
+Phase 5 extends the same Review Report with `Review Level: loop | project`.
+Project-level Review uses a Project ID, `Loop ID: not-applicable`, the Cross-Loop
+Validation, Goal-to-Evidence Mapping, and integrated Project boundary. Spec and
+Standards remain separate mandatory axes; specialists contribute without replacing
+them. Findings still require a normal remediation Loop, Rework, reverification, and
+Loop Closure before Project revalidation. See the
+[Phase 5 protocol](project-closure-and-final-delivery.md).

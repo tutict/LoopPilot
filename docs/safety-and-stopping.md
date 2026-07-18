@@ -223,3 +223,17 @@ state changes, determine business correctness, or replace responsible-role judgm
 Budget pressure never authorizes skipped Reviews, hidden failures, closed Findings,
 severity changes, fabricated completion, or expanded commit, push, release, and
 deploy permissions.
+
+## Project Closure Threats
+
+| Threat | Required response |
+|---|---|
+| Closed Loops are treated as Project complete | Require the full Project Closure Gate and integrated evidence |
+| Project Acceptance owns status | Keep `PROJECT.md` authoritative and require Integrator projection |
+| Project Finding has a parallel Ledger | Route it to a remediation Loop `FINDING-LEDGER.md` |
+| Release ready is treated as authorized or executed | Re-check tag, release, deploy, migrate, traffic, and rollback separately |
+| Final Report hides deferred work, risks, limits, or unverified facts | Reject readiness and disclose each item |
+| User acknowledgement is inferred | Record unknown until direct evidence exists |
+
+Project closure never expands permissions, and a Delivery-only Contract must not be
+forced to release while a Release-required Contract must not close unfulfilled.

@@ -126,6 +126,14 @@ change Ledgers, reset Git, or execute recovery. Lightweight work is not required
 create them. See the
 [Phase 4 protocol](../docs/full-loop-checkpoint-and-context-recovery.md).
 
+Phase 5 adds inactive Cross-Loop Validation, Project Acceptance, Release Readiness,
+and Final Delivery Report templates. `PROJECT.md` alone owns Project status;
+Project Findings route to a Loop `FINDING-LEDGER.md`, and `CHECKPOINT.md` remains
+the only Recovery authority. The templates do not run validation, create
+remediation Loops, authorize release or deployment, send reports, or add overhead
+to Lightweight work. See the
+[Phase 5 protocol](../docs/project-closure-and-final-delivery.md).
+
 ## Source of Truth
 
 The latest user instruction is the highest source of task intent after platform and
@@ -218,8 +226,9 @@ rules or actions without independent authority.
   revision, conflict, and integration rules.
 - [`tasks/TASK-TEMPLATE.md`](tasks/TASK-TEMPLATE.md) is copied once per real
   delegated task.
-- [`full-loop/`](full-loop/README.md) contains inactive Phase 2 authority templates
-  plus Phase 3 delivery-to-closure and Phase 4 recovery detail templates.
+- [`full-loop/`](full-loop/README.md) contains inactive Phase 2 authority
+  templates, Phase 3 delivery-to-closure details, Phase 4 recovery details, and
+  Phase 5 Project Closure evidence templates.
 
 
 These committed files are inactive templates. Agents SHOULD replace template fields

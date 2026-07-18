@@ -214,5 +214,14 @@ Ledgers or history. Current instructions and observable repository reality overr
 stale recovery facts.
 
 This phase adds no token service, compactor, scheduler, session switcher, Agent
-handoff runtime, Git recovery, or Project Closure. Lightweight work remains exempt
-from Full Loop recovery ceremony.
+handoff runtime, Git recovery, or automatic Project Closure. Lightweight work
+remains exempt from Full Loop recovery ceremony.
+
+## Phase 5 Project Closure and Final Delivery
+
+The static [Phase 5 protocol](project-closure-and-final-delivery.md) composes closed
+mandatory Loops through Cross-Loop Validation, Project-level dual review,
+three-layer acceptance, remediation Loop routing, Release Readiness, the Final
+Checkpoint, and the Final Delivery Report. It adds a Project Closure Gate without
+changing the five Loop Barriers. `PROJECT.md` remains the only Project status
+authority; no template or validator executes closure, release, or deployment.

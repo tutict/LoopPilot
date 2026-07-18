@@ -54,3 +54,7 @@ Resume required: false
 
 In Full Loop Mode this compact snapshot may reference, but MUST NOT replace,
 the current authoritative `CHECKPOINT.md`. Inactive state is not recovery-ready.
+
+Project Acceptance, Cross-Loop Validation, Release Readiness, and Final Delivery
+Reports are detailed Phase 5 evidence artifacts; none may replace `PROJECT.md` or
+activate this shared-state template.

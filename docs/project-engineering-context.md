@@ -117,3 +117,12 @@ Loop-level review starts after the Integration Barrier and examines the unified
 result. It runs both permanent axes, activates required specialists, creates
 Findings, drives bounded rework, and supplies evidence for the Supervisor's
 three-layer acceptance decision.
+
+## Project Closure Preparation
+
+The Project Engineering Context also declares the delivery mode, original
+Project-level acceptance criteria, mandatory Loop relationships, release
+requirement, and relevant cross-Loop risks. Phase 5 uses that current Context for
+Goal-to-Evidence Mapping and Project Review; it does not turn the Context into a
+Requirements system or a second Project status source. See
+[Project Closure and Final Delivery](project-closure-and-final-delivery.md).

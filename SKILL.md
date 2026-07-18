@@ -157,38 +157,21 @@ unchanged-failure Loop invariant before retrying.
 
 ## 7. Stop
 
-Choose one primary outcome based on why the current run ends.
+Choose one primary outcome.
 
-### Completed
+- **Completed**: every deliverable exists, all success criteria are satisfied or
+  explicitly waived, relevant evidence supports them, and no known critical
+  omission or regression remains.
+- **Partially Completed**: useful work exists but the Goal remains incomplete.
+  Name the completed subset and every unfinished or unverified criterion.
+- **Blocked**: no useful action can proceed without a missing prerequisite or
+  authority. Preserve useful work and
+  identify the smallest unblocker.
+- **Budget Stop**: an explicit resource limit was reached or further improvement is
+  not worth its cost. Do not present this as Completed or as an external blocker.
 
-Use **Completed** only when every required deliverable exists, all success criteria
-are satisfied or explicitly waived, relevant evidence supports them, and no known
-critical omission or regression remains.
-
-### Partially Completed
-
-Use **Partially Completed** when the run produced valuable, usable work but one or
-more known gaps remain and the full Goal was not achieved. Name the completed subset
-and unverified or unfinished criteria. The agent MUST NOT shorten this status to Completed.
-
-### Blocked
-
-Use **Blocked** when no useful next action can proceed without missing permission,
-credentials, essential input, unavailable tools or environment capability, an
-unauthorized destructive or external action, or an irreplaceable user decision.
-Preserve useful partial work and identify the smallest unblocker.
-
-### Budget Stop
-
-Use **Budget Stop** when an explicit resource limit is reached or the expected value
-of further improvement is lower than its cost. The agent MUST NOT represent a budget decision
-as Completed or as an external blocker.
-
-Select the status consistently: use Completed only for the full verified Goal; use
-Budget Stop when budget is the reason for stopping; use Blocked when a missing
-prerequisite prevents progress; otherwise use Partially Completed for useful but
-incomplete results. A Blocked or Budget Stop report MAY still list partial work, but
-its primary status MUST reflect the stop reason.
+Blocked and Budget Stop MAY report partial work, but their primary status MUST match
+the reason the run ended.
 
 Every stop report MUST contain:
 
@@ -198,11 +181,10 @@ Every stop report MUST contain:
 - **stop reason**; and
 - **best next action**, or state that none is required.
 
-The agent MUST stop promptly after a meaningful stop condition and MUST NOT continue
-with optional polishing, repeated checking, or reflection solely to keep the loop
-active. Read
-[safety and stopping](docs/safety-and-stopping.md) when the classification or
-authority boundary is unclear.
+Stop promptly after a meaningful stop condition. Do not continue optional polishing
+or repeated checking solely to keep the loop active. Read
+[safety and stopping](docs/safety-and-stopping.md) when classification or authority
+is unclear.
 
 ## 8. Safety and Authority
 
@@ -303,6 +285,20 @@ justify its cost. See the
 [Loop Engineering model](docs/loop-engineering-model.md) and
 [mode and state-source rules](docs/protocol-modes-and-state-sources.md).
 
+Closed Loops MUST NOT be treated as sufficient evidence of Project completion.
+Project Acceptance MUST map original user goals to delivered outcomes and evidence;
+Cross-Loop Validation MUST examine integrated behavior across mandatory Loops.
+Project Spec Review and Project Standards Review MUST both pass, and Project
+Functional, Engineering, and Delivery Acceptance MUST all pass. Project-level
+Findings MUST be routed to an authoritative Loop Finding Ledger; a Project Blocker
+MUST prevent acceptance. Project Acceptance MUST NOT authorize release or
+deployment, and Release Readiness MUST NOT imply authorization or execution. A
+Final Delivery Report MUST disclose excluded, cancelled, deferred, risky, limited,
+and unverified work. A Final Checkpoint MUST identify the terminal recovery boundary
+or explicit reopen condition. `PROJECT.md` MUST remain the only Project status
+authority. Lightweight tasks MUST NOT incur Project Closure protocol overhead. See
+the [Project Closure protocol](docs/project-closure-and-final-delivery.md).
+
 ## 12. Supervised Delegation
 
 Delegate only when supported and beneficial. The Supervisor remains accountable;
@@ -330,18 +326,16 @@ evidence, and no blocking conflict. Context pressure cannot skip either axis.
 ## 15. Token-Aware Checklist and Budget Stop
 
 Use [CHECKLIST.md](.looppilot/CHECKLIST.md) only as projection. Before exhaustion,
-the Supervisor MUST Budget Stop while the Integrator persists state.
-A Checkpoint MUST record the verified boundary, authorities, unfinished work,
-evidence gaps, permissions, and exactly one actionable Resume Point; it MUST NOT
-copy complete Ledgers, Reviews, or history. Compaction MUST preserve Scope, invariants,
-permissions, open Findings, evidence gaps, and recovery boundaries. Before resume,
-validate latest instruction, Git, Ledgers, artifacts, capabilities, and
-permissions. Reality overrides stale records; correct or supersede stale
-Checkpoints and reject invalid ones. Pressure MUST NOT weaken Review, evidence,
-authority, or Closure. Recovery-ready requires references. Lightweight work
-avoids it. Only evidenced integrated items MAY be checked. At high
-pressure stabilize a safe unit; at critical persist `budget-stopped` and a Resume
-Point, stop. Details: the
+the Supervisor MUST Budget Stop and the Integrator persist authoritative state.
+A Checkpoint records the verified boundary, authority, unfinished work, evidence
+gaps, permissions, and exactly one actionable Resume Point; it never copies whole
+Ledgers, Reviews, or history. Compaction preserves Scope, invariants, permissions,
+open Findings, evidence gaps, and recovery boundaries. Resume validates
+instructions, Git, Ledgers, artifacts, capabilities, and permissions; reality
+corrects or supersedes stale records. Pressure never weakens Review, evidence,
+authority, or Closure. Only evidenced integrated items MAY be checked. At critical
+pressure persist `budget-stopped` and a Resume Point, then stop. Lightweight work
+avoids this overhead. Details: the
 [recovery protocol](docs/full-loop-checkpoint-and-context-recovery.md).
 
 ## Progress Contract

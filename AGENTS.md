@@ -171,7 +171,16 @@ needs rather than imposed as universal requirements.
   expand Scope, risk acceptance, severity, or permissions.
 - A Checkpoint or Handoff MUST NOT imply commit, push, release, or deploy authority.
 - Phase 4 recovery-template changes MUST update validator, tests, and documentation together.
-- Phase 4 changes MUST NOT create active Projects, fictional Loops, or Phase 5 artifacts.
+- Project Closure changes MUST update templates, validator, tests, scenarios,
+  rubric, and documentation together.
+- Closed Loops MUST NOT be treated as sufficient evidence of Project completion.
+- The Supervisor owns Project Acceptance and Project Finding triage; the Reviewer
+  owns independent Project-level judgment; the Integrator records an authorized
+  Project status projection; and Workers repair only through remediation Loops.
+- Release Readiness MUST NOT authorize release, deployment, migration, traffic
+  change, or rollback. Final Delivery Reports MUST NOT own status.
+- Phase 5 changes MUST NOT create active Projects, fictional Loops, releases,
+  deployments, or Phase 6 evaluation artifacts.
 
 ## Handoff
 

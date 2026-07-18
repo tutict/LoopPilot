@@ -102,6 +102,14 @@ Checkpoint, duplicate a Ledger in the Manifest, store private reasoning, assume 
 exact token API, execute a Resume Point, reset Git, start a session, or turn static
 checks into a recovery runtime. Lightweight changes must remain low-overhead.
 
+Phase 5 Project Closure changes must keep all templates inactive, preserve
+`PROJECT.md` as the only Project status authority, route Project Findings to a
+Loop `FINDING-LEDGER.md`, and keep release, deployment, migration, traffic, and
+rollback permissions independent. Update templates, the modular validator,
+public-entry tests, scenarios, rubric, Mermaid, CI, and protocol docs together.
+Do not create active Projects or remediation Loops, execute release or deployment,
+send a Final Delivery Report, or claim Phase 6 behavior.
+
 ## Testing Documentation Changes
 
 Before submitting a change:

@@ -171,8 +171,10 @@ def _template_has_content(text: str) -> bool:
         if (
             not line
             or line == "Status: inactive"
+            or line == "`PROJECT.md` is the only authority for Project status."
             or line.startswith("#")
             or line.startswith("|")
+            or (line.startswith("- ") and line.endswith(": none"))
         ):
             continue
         return True

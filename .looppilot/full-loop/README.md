@@ -74,6 +74,14 @@ corrected instead of silently reconciled.
 - [Resume Validation Report](RESUME-VALIDATION-TEMPLATE.md) records comparison of
   a Checkpoint with current instructions, Git, Ledgers, artifacts, capabilities,
   and permissions before work resumes.
+- [Cross-Loop Validation](CROSS-LOOP-VALIDATION-TEMPLATE.md) records integrated
+  behavior across closed mandatory Loops.
+- [Project Acceptance](PROJECT-ACCEPTANCE-TEMPLATE.md) maps user goals to outcomes,
+  evidence, dual review, three-layer acceptance, and Finding disposition.
+- [Release Readiness](RELEASE-READINESS-TEMPLATE.md) records release preparation
+  and independent authority without executing a release.
+- [Final Delivery Report](FINAL-DELIVERY-REPORT-TEMPLATE.md) gives recipients a
+  concise, honest Project outcome and recovery summary.
 
 The static relationship is:
 
@@ -119,3 +127,22 @@ context selection and the Resume Report only records validation evidence. None o
 these templates reads tokens, compacts a model, starts a session, changes status,
 resets Git, transfers an Agent, or executes recovery. See the
 [Phase 4 recovery protocol](../../docs/full-loop-checkpoint-and-context-recovery.md).
+
+The Phase 5 Project relationship is:
+
+```text
+Closed mandatory Loops
+        -> Cross-Loop Validation
+        -> Project Spec + Standards Review
+        -> Project Findings routed to remediation Loops
+        -> Functional + Engineering + Delivery Acceptance
+        -> Release Readiness
+        -> Final Checkpoint
+        -> Final Delivery Report
+        -> authorized PROJECT.md status projection
+```
+
+This static protocol does not run validation, mutate Project status, create a
+remediation Loop, release, deploy, or send a report. `PROJECT.md` remains the only
+Project status authority and `CHECKPOINT.md` the only Recovery authority. See the
+[Phase 5 protocol](../../docs/project-closure-and-final-delivery.md).

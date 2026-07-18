@@ -67,6 +67,13 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Resume Point, stale correction, supersession, and intra-/inter-Loop recovery rules.
 - A modular Phase 4 validator, 72 public-entry regression cases, 38 behavioral
   scenarios, 26 rubric dimensions, and five focused Mermaid diagrams.
+- Four inactive Phase 5 templates for Cross-Loop Validation, Project Acceptance,
+  Release Readiness, and the Final Delivery Report.
+- Static Goal-to-Evidence Mapping, project-level dual review and three-layer
+  acceptance, remediation Loop routing, independent release authority, a Project
+  Closure Gate, and a terminal Final Checkpoint boundary.
+- A modular Phase 5 validator with 130 public-entry regression cases, 40 behavioral
+  scenarios, 35 rubric dimensions, and five focused Mermaid diagrams.
 
 ### Changed
 

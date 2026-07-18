@@ -404,3 +404,13 @@ The repository's static checks verify document structure, enums, transitions,
 authority fields, links, and diagram syntax. They do not prove real multi-Agent
 creation, scheduling, Reviewer independence, concurrent isolation, cancellation,
 cross-session recovery, automatic merging, or behavior on a named host.
+
+## Project-Level Role Boundaries
+
+For Phase 5, the Supervisor owns Project Acceptance, Scope decisions, Project
+Finding triage, and risk disposition. Project Reviewers independently judge the
+integrated boundary and never edit implementation or Project status. Workers repair
+only within remediation Loop Contracts. The Integrator preserves Reviewer judgment,
+verifies recordability, and records an authorized `PROJECT.md` projection. No
+role inherits release or deployment authority from its protocol role. These static
+rules do not prove real Reviewer independence or multi-Agent Project Closure.

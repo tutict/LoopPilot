@@ -261,6 +261,21 @@ is persisted. These static contracts do not count tokens, compact context, creat
 Checkpoints, start sessions, transfer Agents, reset Git, or execute recovery. See
 the [Phase 4 recovery protocol](docs/full-loop-checkpoint-and-context-recovery.md).
 
+### Project Closure and Final Delivery
+
+Phase 5 adds four inactive templates for Cross-Loop Validation, Project Acceptance,
+Release Readiness, and the Final Delivery Report. Closed mandatory Loops are only
+inputs: the integrated Project outcome still requires Goal-to-Evidence Mapping,
+Project Spec and Standards Review, Functional/Engineering/Delivery Acceptance,
+Project Finding routing through remediation Loops, an honest release relationship,
+a Final Checkpoint, and a user-readable report.
+
+`PROJECT.md` remains the only Project status authority. Readiness does not grant
+tag, release, deploy, migrate, rollback, or traffic-change authority, and acceptance
+does not imply release execution or user acknowledgement. These templates and their
+validator are static protocol checks, not a Project Closure or release runtime. See
+the [Phase 5 protocol](docs/project-closure-and-final-delivery.md).
+
 ## Example Applications
 
 - **Programming:** revise an implementation after a failing test, then run relevant
@@ -362,6 +377,9 @@ claiming results.
   Phase 3 evidence, review, rework, and closure contracts.
 - [Full Loop Checkpoint and Context Recovery](docs/full-loop-checkpoint-and-context-recovery.md):
   Phase 4 pressure, Budget Stop, compaction, Checkpoint, and resume-validation contracts.
+- [Project Closure and Final Delivery](docs/project-closure-and-final-delivery.md):
+  Phase 5 cross-Loop evidence, Project acceptance, release readiness, final recovery,
+  and recipient-facing delivery reporting.
 
 - [Examples](examples/coding-task.md): illustrative traces.
 - [Behavioral scenarios](tests/scenarios.md): counterexamples and evaluation cases.

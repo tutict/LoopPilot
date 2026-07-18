@@ -162,6 +162,42 @@ Status: inactive
 
 ### Project Delivery Acceptance
 
+## Delivery Mode
+
+- Mode: none
+- Release required: none
+- Deployment required: none
+
+## Project Closure Relationships
+
+### Mandatory Loops
+
+### Cross-Loop Validation
+
+- Validation reference: none
+
+### Release Requirement
+
+- Release Readiness reference: none
+- Authorization evidence: none
+- Execution evidence: none
+
+### Final Checkpoint
+
+- Checkpoint reference: none
+- Terminal Resume Point or reopen condition: none
+
+### Final Delivery Report
+
+- Report reference: none
+- Required report status: none
+
+### Project Status Authority
+
+`PROJECT.md` is the only authority for Project status.
+
+### Project Closure Gate
+
 ## Full Loop Relationships
 
 ### Project Identifier

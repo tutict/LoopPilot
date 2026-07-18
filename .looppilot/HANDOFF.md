@@ -65,3 +65,5 @@ Level: unknown
   Worker, Reviewer, or Integrator responsibility.
 - In Full Loop Mode, a handoff MAY reference the current Checkpoint but MUST NOT
   become a second Recovery authority or override its exact Resume Point.
+- A handoff MAY reference Project Acceptance or a Final Delivery Report but MUST
+  NOT imply Project closure, release authority, deployment, or user acknowledgement.

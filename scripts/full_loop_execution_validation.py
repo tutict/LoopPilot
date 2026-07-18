@@ -86,6 +86,7 @@ REVIEW_STATUSES = {
     "superseded",
 }
 REVIEW_VERDICTS = {"pass", "pass-with-findings", "rework-required", "blocked"}
+REVIEW_LEVELS = {"loop", "project"}
 CLOSURE_STATUSES = {
     "inactive",
     "draft",
@@ -320,7 +321,19 @@ def validate_review_report(root: Path, errors: list[str]) -> None:
     _require_lines(text, REVIEW_HEADINGS, location, errors)
     _require_fields(
         text,
-        ("Review ID", "Loop ID", "Reviewer", "Reviewer Type", "Status", "Verdict"),
+        (
+            "Review ID",
+            "Review Level",
+            "Project ID",
+            "Loop ID",
+            "Reviewer",
+            "Reviewer Type",
+            "Reviewed Cross-Loop Validation",
+            "Reviewed Goal Mapping",
+            "Reviewed Boundary",
+            "Status",
+            "Verdict",
+        ),
         location,
         errors,
     )
@@ -336,9 +349,37 @@ def validate_review_report(root: Path, errors: list[str]) -> None:
     _require_declared_values(text, REVIEW_VERDICTS, "Reviewer Verdict", location, errors)
     if verdict != "none" and verdict not in REVIEW_VERDICTS:
         errors.append(f"{location}: invalid Reviewer Verdict {verdict!r}")
-    for field in ("Review ID", "Loop ID", "Reviewer"):
-        if not _placeholder(_field(text, field, bullet=True)):
-            errors.append(f"{location}: inactive template contains a real {field}")
+    level = _field(text, "Review Level", bullet=True)
+    if level != "none" and level not in REVIEW_LEVELS:
+        errors.append(f"{location}: invalid Review Level {level!r}")
+    if status != "inactive" and level not in REVIEW_LEVELS:
+        errors.append(f"{location}: active Review requires Review Level")
+    if status == "inactive":
+        for field in ("Review ID", "Project ID", "Loop ID", "Reviewer"):
+            if not _placeholder(_field(text, field, bullet=True)):
+                errors.append(f"{location}: inactive template contains a real {field}")
+    elif level == "loop":
+        loop_id = _field(text, "Loop ID", bullet=True)
+        if loop_id is None or not LOOP_ID_PATTERN.fullmatch(loop_id):
+            errors.append(f"{location}: Loop-level Review requires a valid Loop ID")
+    elif level == "project":
+        project_id = _field(text, "Project ID", bullet=True)
+        if _placeholder(project_id):
+            errors.append(f"{location}: Project-level Review requires Project ID")
+        if _field(text, "Loop ID", bullet=True) != "not-applicable":
+            errors.append(f"{location}: Project-level Review Loop ID must be not-applicable")
+        if _placeholder(_field(text, "Reviewed Cross-Loop Validation", bullet=True)):
+            errors.append(f"{location}: Project-level Review requires Cross-Loop Validation")
+        if _placeholder(_field(text, "Reviewed Goal Mapping", bullet=True)):
+            errors.append(f"{location}: Project-level Review requires Goal-to-Evidence Mapping")
+        if _placeholder(_field(text, "Reviewed Boundary", bullet=True)):
+            errors.append(f"{location}: Project-level Review requires reviewed boundary")
+        if reviewer_type not in {"spec", "standards"} and re.search(
+            r"specialist[^\n]{0,80}(?:replaces?|substitutes?)[^\n]{0,80}(?:both axes|Spec|Standards)",
+            text,
+            re.I,
+        ):
+            errors.append(f"{location}: Project specialist Review must not replace mandatory axes")
     if re.search(r"Reviewer (?:may|can|is authorized to) modify implementation", text, re.I):
         errors.append(f"{location}: Reviewer must not modify implementation")
     if re.search(r"Reviewer (?:may|can|is authorized to) accept risk", text, re.I):
@@ -349,6 +390,10 @@ def validate_review_report(root: Path, errors: list[str]) -> None:
         errors.append(f"{location}: specialist Review must not automatically pass both axes")
     if "`FINDING-LEDGER.md` remains authoritative." not in _normalized(text):
         errors.append(f"{location}: Review Report must not own Finding status")
+    if "`PROJECT.md` remains the only Project status authority." not in _normalized(text):
+        errors.append(f"{location}: Project Review must not own Project status")
+    if re.search(r"Project-level Review (?:owns|is|becomes).{0,40}Project status", text, re.I):
+        errors.append(f"{location}: Project Review must not own Project status")
 
 
 def validate_finding_detail(root: Path, errors: list[str]) -> None:

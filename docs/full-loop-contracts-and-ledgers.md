@@ -195,3 +195,10 @@ Phase 4 does not change these authorities. The
 uses the Map and Ledgers as required recovery inputs while keeping `CHECKPOINT.md`
 as the one recovery entry. Its Manifest and Resume Report are context-selection and
 validation evidence, not additional status sources.
+
+Phase 5 also preserves these authorities. Project-level Findings are routed into an
+existing, reopened, or new remediation Loop and then use that Loop's
+`FINDING-LEDGER.md`; Project Acceptance does not create a parallel Ledger.
+Closed Loop status is only an input to Cross-Loop Validation and never sufficient
+for Project acceptance or closure. See the
+[Project Closure protocol](project-closure-and-final-delivery.md).

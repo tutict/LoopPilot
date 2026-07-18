@@ -186,3 +186,13 @@ Qualitative pressure avoids dependence on fictional token APIs. Stopping at a
 Minimal Safe Unit protects honesty under pressure without weakening Review or
 Acceptance. Exact Resume Points trade a little structure for cross-context
 actionability, while Lightweight Mode avoids that cost when recovery has no value.
+
+## Project Evidence Before Final Status
+
+Closed Loops are intentionally separated from Project Acceptance because component
+closure cannot prove integrated user value. Cross-Loop Validation, Goal-to-Evidence
+Mapping, dual review, and three acceptance layers expose different failure modes.
+Release Readiness is separate from authority and execution, while the Final
+Checkpoint and recipient-facing report serve recovery and communication without
+owning status. This structure costs more than Lightweight Mode, so Phase 5 applies
+only when a real multi-Loop Project justifies it.

@@ -6,6 +6,8 @@ active Project or Loop is created.
 
 ## Phase 1: Architecture Model and Templates
 
+**Status: implemented statically; behaviorally unverified.**
+
 Define the Loop object model, Project Engineering Context, protocol modes, sources
 of truth, role boundaries, review model, Barriers, acceptance layers, pattern
 selection, Project Closure target, inactive Project template, minimal validation,
@@ -32,6 +34,8 @@ explicit invariants without claiming a runtime engine. See the
 
 ## Phase 4: Checkpoint and Context Recovery
 
+**Status: implemented statically; behaviorally unverified.**
+
 Static templates now define the root Checkpoint, Context Compaction Manifest,
 Resume Validation Report, qualitative context pressure, Budget Stop, Minimal Safe
 Unit, exact Resume Point, stale-state reconciliation, and intra- versus inter-Loop
@@ -41,15 +45,23 @@ CLI without implementing recovery. See the
 
 Real token signals, automatic compaction, Checkpoint creation, new-session or Agent
 takeover, cross-session recovery, Git conflict recovery, and recovery quality remain
-behavioral evaluation work. Phase 4 does not implement Phase 5 Project Closure.
+behavioral evaluation work.
 
 ## Phase 5: Project Closure
 
-Add project-level acceptance, cross-Loop integration evidence, security and
-operations review, final delivery reporting, and explicit release authorities.
-Project Release automation remains separate.
+**Status: implemented statically; behaviorally unverified.**
+
+Inactive Cross-Loop Validation, Project Acceptance, Release Readiness, and Final
+Delivery Report templates now define Goal-to-Evidence Mapping, Project-level dual
+review, three-layer acceptance, remediation Loop routing, the Project Closure Gate,
+independent release authorities, and the terminal recovery boundary. The modular
+validator checks structural contradictions without accepting, closing, releasing,
+deploying, or modifying Project state. See the
+[Phase 5 protocol](project-closure-and-final-delivery.md).
 
 ## Phase 6: Real-Host Behavioral Evaluation
+
+**Status: not implemented.**
 
 Run observed evaluations on each named host for mode selection, Loop decomposition,
 Reviewer Matrix fitness, multi-Agent coordination, Checkpoint recovery, and
