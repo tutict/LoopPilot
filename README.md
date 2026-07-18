@@ -233,6 +233,19 @@ Lightweight Mode remains unchanged for small work. These templates and validator
 are static protocol structure, not a workflow runtime or evidence of real-host
 behavior. See [Full Loop contracts and Ledgers](docs/full-loop-contracts-and-ledgers.md).
 
+### Full Loop Delivery, Review, and Closure
+
+Phase 3 adds six inactive templates for Worker Delivery, Integration Record, Review
+Report, Finding Detail, Rework Task, and Loop Closure. Task-level Readiness gates a
+Delivery into integration; Loop-level Spec and Standards reviews judge the unified
+outcome. Findings enter the Finding Ledger before scoped rework, Reviewer
+reverification precedes closure, and Loop Closure projects `closed` only through
+the Loop Map after all acceptance layers and Barriers pass.
+
+This remains a static protocol: it does not schedule Agents, mutate Ledgers,
+integrate Git work, infer severity, create commits, or recover a Checkpoint. See the
+[Phase 3 delivery protocol](docs/full-loop-delivery-review-and-closure.md).
+
 ## Example Applications
 
 - **Programming:** revise an implementation after a failing test, then run relevant
@@ -330,6 +343,8 @@ claiming results.
 - [Validation](docs/validation.md): repeatable maintenance checks and their boundary.
 - [Full Loop Contracts and Ledgers](docs/full-loop-contracts-and-ledgers.md):
   Phase 2 templates, state enums, completion projection, and authority rules.
+- [Full Loop Delivery, Review, and Closure](docs/full-loop-delivery-review-and-closure.md):
+  Phase 3 evidence, review, rework, and closure contracts.
 
 - [Examples](examples/coding-task.md): illustrative traces.
 - [Behavioral scenarios](tests/scenarios.md): counterexamples and evaluation cases.

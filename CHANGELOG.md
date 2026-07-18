@@ -54,6 +54,14 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Honest commit-authorization exceptions, closed-only Loop checkmarks, thin Ledger
   projections, and explicit Supervisor decision versus Integrator recording.
 
+- Six inactive Phase 3 templates covering Worker Delivery, Integration Record,
+  Review Report, Finding Detail, Rework Task, and Loop Closure.
+- Static Task-level Readiness, integrated-outcome review, Finding triage and
+  deduplication, scoped Rework, Reviewer reverification, three-layer Acceptance,
+  commit honesty, and Checkpoint relationship rules.
+- A modular Phase 3 validator, public-entry regression fixtures, delivery-to-closure
+  scenarios and rubric dimensions, and four focused Mermaid diagrams.
+
 ### Changed
 
 - Refactored the Skill into a stronger host-native execution contract.

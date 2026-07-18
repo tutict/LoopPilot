@@ -259,6 +259,12 @@ def validate_full_loop_readme(root: Path, errors: list[str]) -> None:
         "LOOP-CONTRACT-TEMPLATE.md",
         "TASK-LEDGER-TEMPLATE.md",
         "FINDING-LEDGER-TEMPLATE.md",
+        "WORKER-DELIVERY-TEMPLATE.md",
+        "INTEGRATION-RECORD-TEMPLATE.md",
+        "REVIEW-REPORT-TEMPLATE.md",
+        "FINDING-TEMPLATE.md",
+        "REWORK-TASK-TEMPLATE.md",
+        "LOOP-CLOSURE-TEMPLATE.md",
     ):
         if filename not in text:
             errors.append(f"{location}: missing template reference {filename!r}")
@@ -628,16 +634,16 @@ def validate_state_source_discipline(root: Path, errors: list[str]) -> None:
                 )
 
 
-def validate_no_active_phase_two_instances(root: Path, errors: list[str]) -> None:
+def validate_no_active_full_loop_instances(root: Path, errors: list[str]) -> None:
     for relative in (
         ".looppilot/PROJECT.md",
         ".looppilot/LOOP-MAP.md",
         ".looppilot/CHECKPOINT.md",
     ):
         if (root / relative).exists():
-            errors.append(f"{relative}: Phase 2 must not create an active instance")
+            errors.append(f"{relative}: Full Loop template phases must not create an active instance")
     if (root / ".looppilot/loops").exists():
-        errors.append(".looppilot/loops: Phase 2 must not create active Loop instances")
+        errors.append(".looppilot/loops: Full Loop template phases must not create active Loop instances")
 
 
 def validate_full_loop(
@@ -651,4 +657,4 @@ def validate_full_loop(
     validate_task_ledger(root, errors, task_statuses)
     validate_finding_ledger(root, errors)
     validate_state_source_discipline(root, errors)
-    validate_no_active_phase_two_instances(root, errors)
+    validate_no_active_full_loop_instances(root, errors)

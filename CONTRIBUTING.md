@@ -83,15 +83,17 @@ Finding engine, commit gate, or host-compatibility claim.
 
 ## Full Loop Template Changes
 
-Changes to Loop Map, Loop Contract, Task Ledger, Finding Ledger, state enums, or
-authority rules must update `scripts/full_loop_validation.py`, public-entry tests,
-and protocol documentation together. Templates must remain inactive and must not
-contain real users, Loops, Tasks, Findings, evidence, or authority.
+Changes to Loop Map, Loop Contract, Task Ledger, Finding Ledger, Phase 3 detail
+templates, state enums, or authority rules must update the relevant modular
+validator, public-entry tests, and protocol documentation together. Templates must
+remain inactive and must not contain real users, Loops, Tasks, Findings, evidence,
+or authority.
 
 Keep Ledgers as compact status projections. Do not duplicate Delivery or Review
 content, make Checklist authoritative in Full Loop Mode, weaken role boundaries for
-fixtures, create active instances, or implement Phase 3 behavior inside Phase 2
-validation.
+fixtures, create active instances, or turn the Phase 3 static validator into a
+workflow engine. Worker, Reviewer, Supervisor, and Integrator authority boundaries
+must remain intact.
 
 ## Testing Documentation Changes
 

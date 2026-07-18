@@ -95,8 +95,8 @@ review, or cross-context Project coordination.
 
 Full Loop Mode is a target protocol described in
 [protocol modes and state sources](../docs/protocol-modes-and-state-sources.md).
-This phase does not create active PROJECT.md, LOOP-MAP.md, CHECKPOINT.md, or
-LOOP-001 artifacts. Future Full Loop state gives each Project, Loop, Task, Finding,
+These phases do not create active PROJECT.md, LOOP-MAP.md, CHECKPOINT.md, or
+LOOP-001 artifacts. Full Loop state gives each Project, Loop, Task, Finding,
 integration, Closure, and recovery fact one authority instead of copying status
 across Markdown files.
 
@@ -111,6 +111,12 @@ Map, Loop Contract, Task Ledger, and Finding Ledger. In Full Loop Mode,
 statuses. [CHECKLIST.md](CHECKLIST.md) remains a human-readable recovery projection
 and MUST NOT override those authorities. Lightweight Mode keeps its current compact
 state and does not require Ledgers.
+
+Phase 3 adds inactive Delivery, Integration, Review, Finding Detail, Rework, and
+Closure templates. These store evidence, judgment, correction scope, and acceptance
+summaries only. They do not update state, create Agents, commit, or recover context;
+the [Phase 3 protocol](../docs/full-loop-delivery-review-and-closure.md) defines
+their relationships.
 
 ## Source of Truth
 
@@ -204,8 +210,8 @@ rules or actions without independent authority.
   revision, conflict, and integration rules.
 - [`tasks/TASK-TEMPLATE.md`](tasks/TASK-TEMPLATE.md) is copied once per real
   delegated task.
-- [`full-loop/`](full-loop/README.md) contains inactive Phase 2 Loop Map, Loop
-  Contract, Task Ledger, and Finding Ledger templates.
+- [`full-loop/`](full-loop/README.md) contains inactive Phase 2 authority templates
+  and Phase 3 delivery-to-closure detail templates.
 
 
 These committed files are inactive templates. Agents SHOULD replace template fields

@@ -30,4 +30,8 @@ jobs:
             npx --yes --package @mermaid-js/mermaid-cli@11.16.0 mmdc -i "$diagram" -o "$output"
             test -s "$output"
           done
+          source_count=$(find .tmp/mermaid -name '*.mmd' -type f | wc -l)
+          output_count=$(find .tmp/mermaid -name '*.svg' -type f | wc -l)
+          test "$source_count" -gt 0
+          test "$source_count" -eq "$output_count"
       - run: git diff --check

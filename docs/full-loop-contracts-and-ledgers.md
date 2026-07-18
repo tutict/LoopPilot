@@ -168,8 +168,10 @@ an unresolved Finding without the responsible decision.
 
 An unresolved `blocker` prevents Closure. Every `major` must be closed, deferred,
 risk-accepted, or linked to an explicit Supervisor decision. Minor and suggestion
-policy is defined by the Loop Contract. Phase 3 will add detailed Finding, Rework,
-Review Report, Integration Record, and Loop Closure artifacts.
+policy is defined by the Loop Contract. The
+[Phase 3 protocol](full-loop-delivery-review-and-closure.md) adds the detailed
+Finding, Rework, Review Report, Integration Record, and Loop Closure artifacts while
+leaving these Ledger authorities unchanged.
 
 ## State-Source Invariants
 

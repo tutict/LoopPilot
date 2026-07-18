@@ -200,3 +200,9 @@ Task `approved` means ready for integration, and Task `integrated` means include
 in the unified result. Neither state advances Loop completion. The Loop remains
 unchecked through review, acceptance, commit, and checkpoint states until the
 Closure Barrier passes and the Loop Map records `closed`.
+
+Phase 3 fills in the evidence path: Worker Delivery, Task-level Readiness,
+Integration Record, integrated-outcome Review, Finding and scoped Rework,
+reverification, three-layer Acceptance, and Loop Closure. Detailed artifacts do not
+own status. A Closure decision of `accepted` still requires the Integrator to record
+the separately supported `closed` transition in `LOOP-MAP.md`.

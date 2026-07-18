@@ -190,3 +190,16 @@ integration, Review approval, or commit alone does not pass the Closure Barrier.
 The [Phase 2 protocol](full-loop-contracts-and-ledgers.md) defines enums, grouping,
 Task DAG, Reviewer Matrix, budget, commit authorization exceptions, role decisions,
 and Integrator recording. It is static structure, not an executing state machine.
+
+## Phase 3 Delivery, Review, and Closure
+
+The static [Phase 3 protocol](full-loop-delivery-review-and-closure.md) adds Worker
+Delivery, Task-level Readiness, Integration Record, Review Report, Finding Detail,
+Rework Task, Reviewer reverification, and Loop Closure templates. It preserves the
+Phase 2 status sources and distinguishes mechanical integration facts from semantic
+Supervisor decisions, Task entry readiness from Loop-level Review, and Closure
+acceptance from the Loop Map's `closed` projection.
+
+The validator checks explicit template structure and authority contradictions only.
+It does not execute transitions, infer severity, dispatch Agents, integrate work,
+accept risk, commit, or establish Checkpoint recovery.

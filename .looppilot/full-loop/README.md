@@ -26,7 +26,7 @@ Project copies them into the authoritative instance names defined below. A templ
 MUST NOT be treated as active state, and placeholder identifiers MUST NOT be treated
 as real Projects, Loops, Tasks, Findings, evidence, or authority.
 
-This phase does not create `PROJECT.md`, `LOOP-MAP.md`, `CHECKPOINT.md`, a
+These phases do not create `PROJECT.md`, `LOOP-MAP.md`, `CHECKPOINT.md`, a
 `.looppilot/loops/` directory, or a fictional `LOOP-001`.
 
 ## Authoritative State Sources
@@ -60,6 +60,36 @@ corrected instead of silently reconciled.
 - [Loop Contract](LOOP-CONTRACT-TEMPLATE.md) defines one Loop's stable delivery contract.
 - [Task Ledger](TASK-LEDGER-TEMPLATE.md) owns Task status within one Full Loop.
 - [Finding Ledger](FINDING-LEDGER-TEMPLATE.md) owns Finding status within one Full Loop.
+- [Worker Delivery](WORKER-DELIVERY-TEMPLATE.md) reports Task-scoped output and evidence.
+- [Integration Record](INTEGRATION-RECORD-TEMPLATE.md) records selected Deliveries,
+  conflicts, and integration facts.
+- [Review Report](REVIEW-REPORT-TEMPLATE.md) records Reviewer judgment and limitations.
+- [Finding Detail](FINDING-TEMPLATE.md) records evidence and required outcome.
+- [Rework Task](REWORK-TASK-TEMPLATE.md) scopes correction without expanding authority.
+- [Loop Closure](LOOP-CLOSURE-TEMPLATE.md) summarizes acceptance and closure evidence.
 
-Worker Delivery, detailed Finding, Review Report, Integration Record, Loop Closure,
-and operational Checkpoint templates remain Phase 3 or later work.
+The static relationship is:
+
+```text
+LOOP-CONTRACT
+    -> TASK-LEDGER + Task Contracts
+    -> WORKER DELIVERIES
+    -> INTEGRATION RECORD
+    -> REVIEW REPORTS
+    -> FINDING DETAILS + FINDING LEDGER
+    -> REWORK TASKS
+    -> REVERIFICATION
+    -> LOOP CLOSURE
+    -> LOOP-MAP closed projection
+```
+
+Task-level Readiness permits a Delivery to enter integration; it is not Loop-level
+Review. Worker self-report does not satisfy Integration, and integrated status does
+not satisfy Review. Spec and Standards must both pass, conditional Reviewers
+contribute where the Matrix requires them, and Reviewer reverification precedes
+Finding closure.
+
+These files remain static protocol templates. They do not create Agents, update
+status, integrate branches, commit, or recover context. The detailed
+[Phase 3 protocol](../../docs/full-loop-delivery-review-and-closure.md) defines the
+delivery-to-closure relationships and their static validation boundary.

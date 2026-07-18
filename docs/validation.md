@@ -44,8 +44,18 @@ review axes; Task lifecycle compatibility; Finding dispositions; role authority;
 and Checklist projection discipline. It validates fixed structures and explicit
 invariants without executing transitions or changing a Ledger.
 
-The 22 Phase 1 and 65 Phase 2 regression cases mutate repository fixtures and invoke
-only the public validator CLI. All tests exercise the public entry point:
+The Phase 3 extension checks six inactive detail templates and their protocol:
+Worker Delivery scope and evidence honesty, Task-level Readiness vocabulary,
+included and excluded integration inputs, mechanical versus semantic conflict
+authority, Review types and dual-axis boundaries, Finding evidence and status-source
+discipline, scoped Rework and revision budgets, Reviewer reverification, three-layer
+Acceptance, five Barriers, commit authorization, Checkpoint honesty, and Closure
+projection. It rejects explicit contradictions without deduplicating Findings,
+inferring severity, assigning work, executing review, merging, committing, or
+changing authoritative state.
+
+The 22 Phase 1, 65 Phase 2, and 113 Phase 3 regression cases mutate repository
+fixtures and invoke only the public validator CLI. All tests exercise the public entry point:
 
 ```text
 python scripts/validate.py --root <fixture>
@@ -99,3 +109,9 @@ quality, Task DAG generation, concurrent multi-Agent Ledger updates, Finding and
 Rework closure, Integration Records, Loop Closure, automatic context recovery, or
 commit and Checkpoint recovery. Project Closure, named-host compatibility, and A/B
 behavior evaluation remain unverified.
+
+Phase 3 static checks also do not prove real Worker Delivery behavior, multi-Agent
+integration, concurrent conflict handling, Reviewer independence, severity
+judgment, Finding deduplication accuracy, automatic Rework creation,
+revision-budget stopping, automatic Loop Closure, commit-to-Checkpoint recovery,
+context recycling, or Project Closure.

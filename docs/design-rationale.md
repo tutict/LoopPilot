@@ -159,9 +159,14 @@ Behavioral equivalence matters more than representation.
 
 Full Loop Ledgers are deliberately narrow. The Loop Map stores Loop projection,
 Task Ledger stores Task projection, and Finding Ledger stores Finding projection;
-Contracts, Deliveries, Reviews, and future Finding detail retain richer content and
+Contracts, Deliveries, Reviews, Finding Detail, Rework Tasks, and Closure retain richer content and
 evidence. This prevents the same status from drifting across files and avoids
 turning Markdown into a workflow database.
+
+Task-level Readiness is deliberately narrower than Loop-level Review. Integration
+records what was combined and which checks ran; it does not prove the outcome meets
+the Spec or Standards. Likewise, Closure summarizes acceptance but cannot own Loop
+status. These separations keep bookkeeping from becoming business judgment.
 
 A separate Contract Status avoids copying Loop lifecycle state. Supervisor decisions
 and Integrator recording remain separate so factual bookkeeping cannot silently

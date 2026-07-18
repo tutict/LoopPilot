@@ -351,6 +351,17 @@ parent-level checks pass, no critical conflict remains, and one accountable fina
 owner accepts the result. Otherwise the correct outcome is partially completed,
 blocked, cancelled, or budget-stopped.
 
+### Full Loop Delivery and Rework Boundary
+
+In Full Loop Mode, a Worker reports actual scope and checks in a Worker Delivery;
+self-report does not pass integration. Readiness admits selected Deliveries, and the
+Integrator records mechanical combination while escalating semantic conflicts. Loop
+Review normally judges the integrated outcome. Reviewers create evidence-backed
+Findings without editing implementation; the Supervisor scopes Rework Tasks and
+approves disposition; the original or authorized equivalent Reviewer reverifies;
+the Integrator records the supported Ledger transition. See the
+[Phase 3 protocol](full-loop-delivery-review-and-closure.md).
+
 ## Stop Conditions
 
 Delegation SHOULD stop or contract when:

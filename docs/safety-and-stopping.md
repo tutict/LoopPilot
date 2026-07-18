@@ -143,6 +143,11 @@ A Reviewer identifies and evidences Findings; the Supervisor decides disposition
 and risk acceptance; the Integrator records the authorized transition. Review
 approval cannot create commit, push, release, or deployment authority. A commit
 without the required Closure and Checkpoint is not sufficient recovery evidence.
+
+A Worker Delivery must retain failed and skipped checks. Rework begins only from a
+registered Finding and scoped Rework Task, and Worker completion cannot verify or
+close that Finding. Loop Closure must expose residual risk and unavailable checks;
+without a valid Checkpoint it must record recovery readiness as false.
 ## Verification Gaps
 
 If required verification is unavailable:
@@ -192,6 +197,11 @@ authorize more work after the stop.
 | Required commit lacks authority | Record not-created-not-authorized and stop at the contract-defined state |
 | Integrator accepts risk or lowers severity | Reject the transition and require a Supervisor decision |
 | Finding detail conflicts with its Ledger | Preserve evidence and correct the non-authoritative detail |
+| Worker self-approves Delivery | Require Task-level Readiness before integration |
+| Integrator resolves semantic conflict | Stop integration and request a Supervisor decision |
+| Rework repeats the failed strategy | Require material strategy change or Supervisor escalation |
+| Closure hides skipped verification | Reject readiness until the omission is disclosed and dispositioned |
+| Closure claims recovery without Checkpoint | Record recovery readiness as false; recovery is Phase 4 work |
 | Full Loop artifacts added to trivial work | Return to Lightweight Mode and remove unnecessary ceremony |
 
 Static validation detects explicit structural conflicts. It does not authorize

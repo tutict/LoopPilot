@@ -159,7 +159,13 @@ needs rather than imposed as universal requirements.
   update validator, tests, and documentation together.
 - Repository tests MUST NOT weaken Supervisor, Reviewer, Worker, or Integrator
   authority boundaries for fixture convenience.
-- Phase 2 changes MUST NOT create active Projects, fictional Loops, or Phase 3 artifacts.
+- Workers MUST NOT modify authoritative Ledgers, and Reviewers MUST NOT modify implementation.
+- Integrators MUST preserve original Reviewer judgment and MUST NOT alter semantic scope.
+- The Supervisor approves risk disposition; a Worker MUST NOT close its own Finding.
+- Finding correction MUST use a scoped Rework Task and Reviewer reverification.
+- Closure MUST disclose unresolved Findings, skipped verification, and missing authority.
+- Phase 3 template changes MUST update validator, tests, and documentation together.
+- Phase 3 changes MUST NOT create active Projects, fictional Loops, or Phase 4 artifacts.
 
 ## Handoff
 

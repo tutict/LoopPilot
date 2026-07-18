@@ -22,12 +22,13 @@ check structural invariants without scheduling work or mutating state.
 
 ## Phase 3: Finding, Rework, Integration, and Loop Closure
 
-**Status: not implemented.**
+**Status: implemented statically; behaviorally unverified.**
 
-Add detailed Finding artifacts, bounded Rework Tasks, Worker Delivery, Integration
-Record, Review Report, acceptance decisions, and Loop Closure. Build on the Phase 2
-severity and disposition enums without redefining their authority. Add static
-consistency checks and behavior evaluations without claiming a runtime engine.
+Inactive detailed Finding, bounded Rework Task, Worker Delivery, Integration Record,
+Review Report, and Loop Closure templates now build on the Phase 2 enums without
+redefining their authority. Static consistency checks and public-CLI fixtures cover
+explicit invariants without claiming a runtime engine. See the
+[Phase 3 protocol](full-loop-delivery-review-and-closure.md).
 
 ## Phase 4: Checkpoint and Context Recovery
 

@@ -277,48 +277,48 @@ work and MUST choose process depth in proportion to complexity, risk, and recove
 - Architecture patterns MUST follow actual needs. DDD MUST NOT be required without
   sufficient domain complexity; MVVM primarily applies to presentation.
 - Zero-copy MUST be justified by measurable performance evidence.
-- Functionally correct work MUST NOT pass final review when unsafe,
-  operationally unrecoverable, or incompatible with required evolution.
-- Every Full Loop MUST have one source of truth for Task, Finding, and Checkpoint
-  state. A Checklist is not a second Plan or Ledger.
-- One Supervisor owns scope and acceptance decisions. One Integrator owns recorded
-  transitions, final integration facts, Closure, and recovery state.
-- Recovery MUST use current evidence, Checkpoint, and Closure artifacts instead of
-  replaying the full conversation.
+- Worker Delivery MUST disclose actual scope, failed checks, skipped checks, and evidence.
+- Worker self-report MUST NOT satisfy the Integration Barrier.
+- Integration success MUST NOT satisfy the Review Barrier.
+- Review MUST normally examine the integrated Loop outcome.
+- Findings MUST be registered before Rework begins.
+- Rework MUST use a scoped Rework Task and MUST NOT repeat the same failed approach
+  without a material strategy change.
+- Reviewer verification MUST precede Finding closure.
+- The Integrator MUST NOT accept risk, alter semantic scope, or rewrite Reviewer judgment.
+- Loop Closure MUST disclose unresolved Findings and skipped verification.
+- Loop Closure MUST NOT imply recovery readiness without a valid Checkpoint.
+- A Loop with unresolved Blocker Findings MUST NOT close.
+- Functional correctness alone MUST NOT satisfy final Loop Acceptance; Engineering
+  and Delivery Acceptance also apply.
+- Full Loop Task, Finding, Loop, and recovery state MUST retain one authority each;
+  detailed artifacts and Checklists are projections.
 
-For Full Loop implementation, the Supervisor MUST approve a Loop Contract first.
-The Loop Map owns Loop status, the Task Ledger owns Task status, and the Finding
-Ledger owns Finding status. A Checklist is only a projection. Only a `closed` Loop
-MAY be checked complete; Task completion or Review approval MUST NOT close it.
-Responsible roles supply decisions and evidence, and the Integrator records the
-resulting transition. Lightweight work MUST NOT incur Full Loop Ledger overhead.
-
-Use Lightweight Mode for bounded low-risk work. Use the Full Loop target only when
-multiple Loops, a Task DAG, specialist review, Finding cycles, independent commit
-boundaries, or cross-context recovery justify it. See the
+The Supervisor MUST approve a Full Loop Contract first. Loop Map, Task Ledger, and
+Finding Ledger own their respective statuses; only a recorded `closed` Loop may be
+checked. Responsible roles provide decisions or evidence and the Integrator records
+them. Use Lightweight Mode for bounded low-risk work and Full Loop only when
+multiple Loops, specialist review, Finding cycles, commit boundaries, or recovery
+justify its cost. See the
 [Loop Engineering model](docs/loop-engineering-model.md) and
 [mode and state-source rules](docs/protocol-modes-and-state-sources.md).
 
 ## 12. Supervised Delegation
 
-Delegate only when the host supports assignment and the benefit exceeds
-coordination cost. The Supervisor remains accountable; each Worker receives a
-scoped [Task Contract](.looppilot/tasks/TASK-TEMPLATE.md), stays in scope, and does
-not claim parent completion. Submitted work needs independent review and
-parent-level integration evidence. Approved means reviewed; integrated additionally
-means combined and verified. Preserve authority boundaries, resolve conflicts
-explicitly, avoid concurrent writes to one core file, and name one final Integrator.
-The [coordination protocol](docs/multi-agent-coordination.md) does not create
-runtime capabilities the host lacks.
+Delegate only when supported and beneficial. The Supervisor remains accountable;
+each Worker receives a scoped [Task Contract](.looppilot/tasks/TASK-TEMPLATE.md),
+stays in scope, and does not claim parent completion. Require independent review,
+parent integration evidence, explicit conflict resolution, and one Integrator.
+Approved means reviewed; integrated also means combined and verified. The
+[coordination protocol](docs/multi-agent-coordination.md) creates no host capability.
 
 ## 13. Research and Skill Routing
 
-Before delegation, decide whether current external facts can change the work. When
-they can, use an available research capability and a traceable
-[Research Brief](.looppilot/RESEARCH-TEMPLATE.md); otherwise use repository
-evidence. Select only host-confirmed, relevant Skills, record unavailable or
-forbidden choices and a base-host fallback, and never treat Skill assignment as
-authority.
+Before delegation, decide whether current external facts can change the work. If
+so, use an available capability and a traceable
+[Research Brief](.looppilot/RESEARCH-TEMPLATE.md); otherwise use repository evidence.
+Select only confirmed relevant Skills, retain a fallback, and never treat Skill
+assignment as authority.
 
 ## 14. Dual-Axis Review
 

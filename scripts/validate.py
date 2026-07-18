@@ -14,6 +14,10 @@ from urllib.parse import unquote, urlsplit
 import yaml
 from yaml.constructor import ConstructorError
 from engineering_validation import validate_loop_engineering
+from full_loop_execution_validation import (
+    FULL_LOOP_EXECUTION_FILES,
+    validate_full_loop_execution,
+)
 from full_loop_validation import FULL_LOOP_FILES, validate_full_loop
 from protocol_validation import (
     validate_repository_extensions,
@@ -47,6 +51,7 @@ REQUIRED_FILES = (
     "scripts/protocol_validation.py",
     "scripts/engineering_validation.py",
     "scripts/full_loop_validation.py",
+    "scripts/full_loop_execution_validation.py",
     "docs/validation.md",
     "docs/loop-engineering-model.md",
     "docs/project-engineering-context.md",
@@ -69,7 +74,9 @@ REQUIRED_FILES = (
     "tests/scenarios.md",
     "tests/test_loop_engineering_architecture.py",
     "tests/test_full_loop_templates.py",
+    "tests/test_full_loop_delivery_review_closure.py",
     *FULL_LOOP_FILES,
+    *FULL_LOOP_EXECUTION_FILES,
 )
 SKILL_WORD_RANGE = range(1500, 2501)
 FRONTMATTER_PATTERN = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
@@ -1115,6 +1122,7 @@ def validate_repository(root: Path, extract_directory: Path | None = None) -> li
     validate_repository_extensions(root, errors)
     validate_loop_engineering(root, errors)
     validate_full_loop(root, errors, TASK_STATUSES)
+    validate_full_loop_execution(root, errors)
     validate_yaml_files(root, errors)
     validate_skill_frontmatter(root, errors)
     validate_openai_yaml(root, errors)
@@ -1142,6 +1150,7 @@ def validate_repository(root: Path, extract_directory: Path | None = None) -> li
         "docs/protocol-modes-and-state-sources.md",
         "docs/project-closure.md",
         "docs/full-loop-contracts-and-ledgers.md",
+        "docs/full-loop-delivery-review-and-closure.md",
     ):
         if required_source not in sources:
             errors.append(f"{required_source}: expected at least one Mermaid block")
