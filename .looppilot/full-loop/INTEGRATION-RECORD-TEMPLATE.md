@@ -81,6 +81,14 @@ Allowed Status values are `inactive`, `collecting`, `integrating`, `blocked`,
 
 - None.
 
+## Execution Infrastructure Incidents
+
+- None.
+
+Record Agent, tool, host, dependency, CI, or packaging failures that affected
+integration evidence. Classify a Product or Protocol Finding separately only
+when the evidence proves that defect.
+
 ## Integration Barrier Assessment
 
 - Contract references complete: not-evaluated

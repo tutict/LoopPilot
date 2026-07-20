@@ -59,14 +59,29 @@ validator checks structural contradictions without accepting, closing, releasing
 deploying, or modifying Project state. See the
 [Phase 5 protocol](project-closure-and-final-delivery.md).
 
-## Phase 6: Real-Host Behavioral Evaluation
+## Phase 6: Real-Project Behavioral Evaluation
+
+**Status: partially observed through MMGH EXP-001 to EXP-004; not generally validated.**
+
+The four bounded experiments are evidence only. They do not prove every host,
+automatic mode selection, Reviewer independence, or strict A/B behavior.
+
+## Phase 7: Evidence Synthesis and Protocol Calibration
+
+**Status: implemented statically.**
+
+Phase 7 adds evidence levels, the Mode Selection Gate, Lightweight escalation and
+artifact-budget guidance, incident classification, risk-loaded specialist Review,
+load profiles, and static validation. It adds no role, status, Ledger, severity,
+Barrier, acceptance layer, recovery authority, runtime, or Project instance.
+
+## Phase 8: Cross-Project Replication and Controlled Comparison
 
 **Status: not implemented.**
 
-Run observed evaluations on each named host for mode selection, Loop decomposition,
-Reviewer Matrix fitness, multi-Agent coordination, Checkpoint recovery, and
-authority boundaries. Publish only host and version claims supported by dated
-traces.
+Future work may include a second real project, a same-task Baseline/Lightweight/
+Full Loop comparison, cross-host recovery and Reviewer observation, or long-term
+maintenance and regression observation.
 
 ## Migration Rules
 

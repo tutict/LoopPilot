@@ -110,6 +110,15 @@ public-entry tests, scenarios, rubric, Mermaid, CI, and protocol docs together.
 Do not create active Projects or remediation Loops, execute release or deployment,
 send a Final Delivery Report, or claim Phase 6 behavior.
 
+Phase 7 calibration changes must update mode guidance, load profiles, templates,
+the public validator, tests, scenarios, rubric, Mermaid, CI, and migration status
+together. Preserve the frozen roles, Ledgers, status and severity enums, Barriers,
+acceptance layers, and Checkpoint authority. Do not turn artifact budgets into
+states, infrastructure incidents into Product Findings, specialist Reviewers into
+defaults, or static checks into automatic selection. Keep SKILL.md plus AGENTS.md
+within the documented prompt-size budget unless Standards Review records a
+specific justification.
+
 ## Testing Documentation Changes
 
 Before submitting a change:

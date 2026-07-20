@@ -32,6 +32,23 @@ No active objective.
 
 No active grouping.
 
+## Mode Decision Context
+
+- Candidate mode: Full Loop
+- Why Full Loop: none
+- Rejected Lightweight rationale: none
+- Expected protocol cost: none
+- Artifact Budget target or explanation: none
+- Mode evidence and hard triggers: none
+- Supervisor decision: none
+- Integrator record: none
+- Active specialist Reviewers: none
+- Recovery implications: none
+
+The Full Loop Contract Barrier is evaluated before implementation. These fields
+record a Supervisor decision; they do not add a mode status, acceptance layer, or
+authority to the template.
+
 ## Engineering Context References
 
 - Project context: none

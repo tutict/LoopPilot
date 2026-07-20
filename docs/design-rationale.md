@@ -196,3 +196,13 @@ Release Readiness is separate from authority and execution, while the Final
 Checkpoint and recipient-facing report serve recovery and communication without
 owning status. This structure costs more than Lightweight Mode, so Phase 5 applies
 only when a real multi-Loop Project justifies it.
+
+## Calibration Instead of More State
+
+Phase 7 adds decision guidance rather than another lifecycle. Four MMGH
+experiments support proportional loading and an artifact-budget heuristic, but do
+not establish strict A/B or cross-project generality. Mode has no status owner;
+the Supervisor decides and the Integrator records. Infrastructure incidents are
+classified separately so tool reliability cannot masquerade as product quality.
+OOP, DDD, DI, MVVM, and zero-copy remain evidence-selected rather than Full Loop
+defaults.

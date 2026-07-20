@@ -183,3 +183,12 @@ map goals, run end-to-end tests, create remediation Loops, select a version,
 release, deploy, migrate, roll back, send a report, or obtain user acknowledgement.
 Those are Phase 6 behavioral claims requiring dated traces and action-specific
 authority.
+
+## Mode and Incident Capability Boundary
+
+Mode selection is a Supervisor judgment based on evidence, not a host runtime.
+A host need not calculate risk scores, count tokens, schedule Reviewers, or create
+Loops automatically. When an Agent, tool, host, dependency, CI service, or
+packaging facility fails, record an Execution Infrastructure Incident and disclose
+missing verification. Do not infer a Product Finding or Reviewer independence
+from host labels alone.

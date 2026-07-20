@@ -72,6 +72,12 @@ three-layer Project Acceptance, remediation Loop routing, Release Readiness,
 independent execution authority, the Final Checkpoint, the Final Delivery Report,
 and Project status-source discipline. The complete suite contains 494 tests.
 
+The Phase 7 extension adds at least 76 distinct public-entry cases for evidence
+levels, Mode Selection, Artifact Budget, escalation, incident classification,
+risk-loaded specialist Review, load profiles, architecture proportionality, and
+freeze invariants. The current Phase 7 focused suite contains 89 tests and the
+observed full repository suite contains 583 tests.
+
 The validator reads repository files only. It does not inspect environment
 variables, browse the web, scan host Skill directories, count tokens, or print
 credentials.
@@ -144,3 +150,15 @@ migration, gray traffic, rollback, Final Delivery Report generation or recipient
 usability, user acknowledgement, Final Checkpoint recovery effectiveness,
 named-host compatibility, remote workflow results, or Phase 6 A/B behavior. Five
 Phase 5 diagrams and all 24 Mermaid blocks are syntax evidence only.
+
+## Phase 7 Validation Boundary
+
+Phase 7 adds public static checks for evidence levels, the Mode Gate, Lightweight
+Artifact Budget, escalation, Execution Infrastructure Incidents, risk-loaded
+specialists, load profiles, migration status, and freeze invariants. The checks
+do not select a mode, score runtime risk, create a Loop or Finding, schedule a
+Reviewer, read MMGH, analyze Git history, calculate tokens, accept risk, or prove
+Full Loop superiority. Mermaid rendering and YAML parsing are evidence of syntax
+only. Strict A/B comparison, second-project replication, production behavior,
+automatic selection, all-host compatibility, and security or data certification
+remain unverified.

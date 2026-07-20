@@ -14,6 +14,10 @@ from urllib.parse import unquote, urlsplit
 import yaml
 from yaml.constructor import ConstructorError
 from engineering_validation import validate_loop_engineering
+from evaluation_calibration_validation import (
+    EVALUATION_CALIBRATION_FILES,
+    validate_evaluation_calibration,
+)
 from full_loop_execution_validation import (
     FULL_LOOP_EXECUTION_FILES,
     validate_full_loop_execution,
@@ -62,6 +66,7 @@ REQUIRED_FILES = (
     "scripts/full_loop_execution_validation.py",
     "scripts/full_loop_recovery_validation.py",
     "scripts/project_closure_validation.py",
+    *EVALUATION_CALIBRATION_FILES,
     "docs/validation.md",
     "docs/loop-engineering-model.md",
     "docs/project-engineering-context.md",
@@ -1139,6 +1144,7 @@ def validate_repository(root: Path, extract_directory: Path | None = None) -> li
     validate_full_loop_execution(root, errors)
     validate_full_loop_recovery(root, errors)
     validate_project_closure(root, errors)
+    validate_evaluation_calibration(root, errors, LOGICAL_ROLES, TASK_STATUSES)
     validate_yaml_files(root, errors)
     validate_skill_frontmatter(root, errors)
     validate_openai_yaml(root, errors)
@@ -1169,6 +1175,9 @@ def validate_repository(root: Path, extract_directory: Path | None = None) -> li
         "docs/full-loop-delivery-review-and-closure.md",
         "docs/full-loop-checkpoint-and-context-recovery.md",
         "docs/project-closure-and-final-delivery.md",
+        "docs/evaluation-synthesis-and-protocol-calibration.md",
+        "docs/mode-selection-and-escalation.md",
+        "docs/protocol-load-profiles.md",
     ):
         if required_source not in sources:
             errors.append(f"{required_source}: expected at least one Mermaid block")

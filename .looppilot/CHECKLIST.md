@@ -16,6 +16,17 @@ No active parent Goal.
 
 - [ ] None.
 
+## Mode Gate
+
+- [ ] Problem and Scope understood.
+- [ ] Risk and boundary evidence checked.
+- [ ] Supervisor mode decision recorded by Integrator before implementation.
+- [ ] Artifact Budget and escalation conditions recorded when Lightweight.
+- [ ] Contract Barrier passed when Full Loop.
+
+These inactive items are a projection, not a status source. File count alone is
+not a mode decision.
+
 ## Work Items
 
 - [ ] None.

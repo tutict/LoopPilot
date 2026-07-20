@@ -414,3 +414,12 @@ only within remediation Loop Contracts. The Integrator preserves Reviewer judgme
 verifies recordability, and records an authorized `PROJECT.md` projection. No
 role inherits release or deployment authority from its protocol role. These static
 rules do not prove real Reviewer independence or multi-Agent Project Closure.
+
+## Proportional Delegation and Specialist Review
+
+Lightweight work normally has one owner and must escalate before it requires two
+or more Workers, independent integration proof, or a specialist Reviewer. Full
+Loop does not auto-load every specialist: Security, Data, Compatibility,
+Operations, and Accessibility are selected only for matching risk. Worker 429,
+timeout, or no output is an Execution Infrastructure Incident; it never permits a
+fabricated Delivery or self-review and may block verification.

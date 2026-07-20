@@ -12,6 +12,18 @@ No active shared task.
 
 - None.
 
+## Mode Selection
+
+- Candidate mode: none
+- Evidence and hard triggers: none
+- Artifact Budget target: none
+- Escalation conditions: none
+- Supervisor decision: none
+- Integrator record: none
+
+Mode is decided before implementation. This compact projection does not own
+Project or Loop Status.
+
 ## Current Progress
 
 - None.

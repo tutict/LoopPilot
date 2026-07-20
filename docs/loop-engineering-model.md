@@ -225,3 +225,15 @@ three-layer acceptance, remediation Loop routing, Release Readiness, the Final
 Checkpoint, and the Final Delivery Report. It adds a Project Closure Gate without
 changing the five Loop Barriers. `PROJECT.md` remains the only Project status
 authority; no template or validator executes closure, release, or deployment.
+
+## Phase 7 Evidence-Calibrated Selection
+
+Before decomposition, the Supervisor uses observed risk and boundary evidence to
+choose Lightweight, Full Loop, or No Implementation; the Integrator records the
+decision. Lightweight targets four to seven artifacts as a provisional cost
+heuristic and escalates on Major or Blocker Findings, hard triggers, repeated
+correction, contract drift, or material context growth. Specialist Reviewers are
+risk-loaded. Execution Infrastructure Incidents remain separate from Product and
+Protocol Findings unless defect evidence proves otherwise. See
+[mode selection](mode-selection-and-escalation.md) and
+[load profiles](protocol-load-profiles.md).

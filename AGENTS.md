@@ -151,6 +151,20 @@ transitions, integration facts, Closure, and Checkpoint state. Architecture patt
 such as OOP, DI, DDD, MVVM, and zero-copy MUST be selected from observed project
 needs rather than imposed as universal requirements.
 
+Before implementation, the Supervisor MUST decide Lightweight, Full Loop, or No
+Implementation from problem, scope, risk, and boundary evidence; the Integrator
+records the decision without owning Project or Loop status. File count is only
+supporting evidence. Lightweight targets four to seven artifacts as a provisional
+cost heuristic and MUST stop or escalate for a Major or Blocker, hard trigger,
+repeated correction, contract drift, or material context growth. Project Closure
+and Release artifacts are not default Lightweight context.
+
+Agent, tool, host, dependency, CI, and packaging failures are Execution
+Infrastructure Incidents unless evidence proves a Product or Protocol Finding.
+They add no role, status, severity, Ledger, Barrier, acceptance layer, or recovery
+authority. Spec and Standards remain permanent; specialist Reviewers are selected
+only for matching risk and never modify implementation.
+
 ### Full Loop Template Maintenance
 
 - Full Loop templates MUST remain inactive and MUST NOT be treated as current work.

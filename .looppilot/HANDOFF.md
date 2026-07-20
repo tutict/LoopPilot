@@ -29,6 +29,16 @@ No active handoff.
 
 - None.
 
+## Current Mode and Incidents
+
+- Current mode: none
+- Load profile: none
+- Execution Infrastructure Incidents affecting resume: none
+
+Load only current-mode context. Do not import Full Loop history into a
+Lightweight handoff by default, and do not relabel an incident as a Product
+Finding without evidence.
+
 ## Checklist Status
 
 Status: inactive

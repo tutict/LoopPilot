@@ -276,6 +276,22 @@ does not imply release execution or user acknowledgement. These templates and th
 validator are static protocol checks, not a Project Closure or release runtime. See
 the [Phase 5 protocol](docs/project-closure-and-final-delivery.md).
 
+### Evidence-Calibrated Protocol Selection
+
+Phase 7 synthesizes four bounded, read-only MMGH experiments into documentation
+labels and proportional defaults. The Supervisor selects Lightweight, Full Loop,
+or No Implementation before implementation; the Integrator records the decision.
+Lightweight targets four to seven artifacts as a provisional heuristic and
+escalates when risk or scope outgrows its contract. Tool, Agent, and host failures
+are Execution Infrastructure Incidents unless evidence proves a Product or
+Protocol Finding. Specialist Reviewers are loaded by risk, and Project Finalization
+is not loaded for an ordinary single change.
+
+See [evidence synthesis](docs/evaluation-synthesis-and-protocol-calibration.md),
+[mode selection](docs/mode-selection-and-escalation.md),
+[load profiles](docs/protocol-load-profiles.md), and the
+[MMGH evidence boundary](docs/mmgh-behavioral-evidence.md).
+
 ## Example Applications
 
 - **Programming:** revise an implementation after a failing test, then run relevant
@@ -337,6 +353,10 @@ multi-Agent creation and delegation, Checkpoint recovery, Project Closure,
 concurrent file isolation, and A/B traces with rubric scores remain unverified. The
 [evaluation templates](evaluations/README.md) prepare that future work without
 claiming results.
+
+Phase 6 is partially observed through MMGH EXP-001 to EXP-004 but not generally
+validated. Phase 7 is statically implemented. Phase 8 cross-project replication
+and controlled comparison is not implemented.
 
 ## Current Limitations
 

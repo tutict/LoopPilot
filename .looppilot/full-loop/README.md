@@ -9,15 +9,24 @@ active Project, or prove host compatibility.
 
 ## When to Use
 
-Use Full Loop Mode when work justifies multiple independent Loops, a Task DAG,
-multiple Workers or Reviewers, Finding and rework cycles, cross-context recovery,
-independent acceptance, or a Commit Boundary.
+Use Full Loop Mode after the Supervisor evaluates the evidence-backed Mode Gate.
+Hard triggers include cross-language or cross-runtime contracts, security or
+network trust, sensitive data, transactions or partial success, multiple Workers
+with real parallel value, specialist Review, formal Finding and rework, or active
+Checkpoint recovery. A hard trigger is a tendency, not an automatic runtime.
 
 ## When Not to Use
 
 Do not use these templates for a one-line edit, a small single-file change,
 low-risk work that can finish in one context, or any task where protocol cost is
 greater than delivery and recovery value. Such work remains in Lightweight Mode.
+One to four changed product files is supporting evidence only. The default
+Lightweight Artifact Budget is a provisional target of four to seven protocol or
+experiment artifacts; excess requires explanation and reassessment, not an
+automatic state change.
+
+See [mode selection and escalation](../../docs/mode-selection-and-escalation.md)
+and [protocol load profiles](../../docs/protocol-load-profiles.md).
 
 ## Template Versus Instance
 
@@ -103,6 +112,11 @@ Review. Worker self-report does not satisfy Integration, and integrated status d
 not satisfy Review. Spec and Standards must both pass, conditional Reviewers
 contribute where the Matrix requires them, and Reviewer reverification precedes
 Finding closure.
+
+Security, Data, Compatibility, Operations, and Accessibility Reviewers are
+loaded only when the Contract identifies their risk. An Execution Infrastructure
+Incident may be cited as evidence but does not automatically create a Product or
+Protocol Finding.
 
 These files remain static protocol templates. They do not create Agents, update
 status, integrate branches, commit, or recover context. The detailed

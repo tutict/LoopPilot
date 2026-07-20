@@ -37,6 +37,7 @@ and `invalid`. Active IDs use `CHECKPOINT-NNN` with at least three digits.
 
 ## Current Execution State
 
+- Current mode: none
 - Current Loop: none
 - Loop status observed in Loop Map: none
 - Current Barrier: none
@@ -63,6 +64,14 @@ Context Pressure values are `unknown`, `normal`, `elevated`, `high`, and
 ## Open Blockers
 
 - None.
+
+## Execution Infrastructure Incidents Affecting Recovery
+
+- None.
+
+Only incidents that affect recovery, verification required to resume, or the Exact
+Resume Point belong in Checkpoint Must Load. Current mode identifies the profile;
+it does not own Project or Loop Status.
 
 ## Open Major Findings
 

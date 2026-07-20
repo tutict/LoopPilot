@@ -33,6 +33,7 @@ Allowed Reviewer Type values are `spec`, `standards`, `domain`, `data`,
 ## Evidence Reviewed
 
 - Integration Record: none
+- Execution Infrastructure Incident evidence: none
 - Diff or artifact boundary: none
 - Tests: none
 - Logs: none
@@ -55,6 +56,11 @@ Allowed Reviewer Type values are `spec`, `standards`, `domain`, `data`,
 ## Coverage Limitations
 
 - None.
+
+Review may cite an Execution Infrastructure Incident and disclose missing
+verification. An incident is not automatically a Finding; a Product or Protocol
+Finding requires evidence of that defect. The Reviewer does not modify the
+implementation.
 
 ## Standards Review Contribution
 

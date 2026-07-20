@@ -6,6 +6,11 @@ Mode remains a staged target; Phase 2 now provides inactive Contracts and Ledger
 templates without migrating active state, creating a fictional Loop, or implementing
 a workflow runtime.
 
+Phase 7 calibrates selection with [Mode Selection and Escalation](mode-selection-and-escalation.md)
+and [Protocol Load Profiles](protocol-load-profiles.md). The Supervisor decides
+before implementation; the Integrator records. Mode Selection owns neither
+Project Status nor Loop Status.
+
 ## Lightweight Mode
 
 Lightweight Mode is appropriate for a simple task or one small Loop, a clear and
@@ -21,6 +26,9 @@ finish in one or a few contexts. It continues to use:
 
 A simple task MUST NOT be escalated merely because Full Loop artifacts exist in the
 specification. Protocol overhead MUST remain lower than its engineering value.
+The provisional Lightweight target is four to seven artifacts. File count is
+supporting evidence only. A Major or Blocker, hard risk trigger, contract drift,
+or material budget growth requires stop or Full Loop reassessment.
 
 ## Full Loop Mode
 
@@ -107,6 +115,10 @@ Full Loop Mode MUST have one authoritative source each for Task, Finding, and
 Checkpoint state. Context recovery reads current instructions, repository facts,
 Closure and Checkpoint artifacts, and then the relevant contracts; it MUST NOT
 depend on replaying a complete conversation.
+
+Execution Infrastructure Incidents such as 429, timeout, no-output Worker,
+dependency outage, host compaction, or packaging failure are recorded separately
+from Product or Protocol Findings unless defect evidence proves otherwise.
 
 The Context Compaction Manifest selects Must Load, Load On Demand, and Must Not Load
 by Default material but owns no status. The Resume Validation Report records current

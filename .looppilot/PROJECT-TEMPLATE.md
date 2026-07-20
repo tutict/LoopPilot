@@ -162,9 +162,19 @@ Status: inactive
 
 ### Project Delivery Acceptance
 
-## Delivery Mode
+## Mode Selection
 
 - Mode: none
+- Candidate mode: none
+- Mode evidence: none
+- Full Loop hard triggers considered: none
+- Lightweight conditions considered: none
+- Artifact Budget target: none
+- Escalation conditions: none
+- Mode decision by Supervisor: none
+- Mode decision recorded by Integrator: none
+
+## Delivery Mode
 - Release required: none
 - Deployment required: none
 

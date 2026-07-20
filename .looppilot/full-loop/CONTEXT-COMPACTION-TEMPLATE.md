@@ -19,6 +19,16 @@ and `invalid`.
 
 - None.
 
+## Current Mode and Load Profile
+
+- Current mode: none
+- Load profile: none
+
+Load only artifacts required by the current mode. Lightweight recovery does not
+load Full Loop history by default. An Execution Infrastructure Incident enters
+Must Load only when it affects recovery, verification required to resume, or the
+Exact Resume Point.
+
 ## Must Load
 
 | Artifact | Source | Reason | Revalidate |

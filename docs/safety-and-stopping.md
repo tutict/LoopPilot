@@ -237,3 +237,15 @@ deploy permissions.
 
 Project closure never expands permissions, and a Delivery-only Contract must not be
 forced to release while a Release-required Contract must not close unfulfilled.
+
+## Mode and Incident Threats
+
+| Threat | Required response |
+|---|---|
+| File count used as mode authority | Re-evaluate problem, risk, boundaries, and recovery value |
+| Lightweight reaches a Major or Blocker | Stop and create a Full Loop Contract before more implementation |
+| Artifact Budget treated as a hard state | Restore its provisional heuristic meaning and explain excess |
+| 429 or timeout labeled Product Finding | Record an Execution Infrastructure Incident unless product evidence exists |
+| No-output Worker marked complete | Reject the claim; no Delivery exists without observable output |
+| Full Loop loads every specialist | Retain Spec and Standards, then load specialists only for matching risk |
+| No real implementation gap | Stop at the Mode Gate and record No Implementation |

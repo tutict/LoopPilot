@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- Calibrated Lightweight and Full Loop selection from four bounded MMGH
+  experiments using explicit evidence levels and cross-project limitations.
+- Added the pre-implementation Mode Gate, Lightweight Artifact Budget and
+  escalation, Execution Infrastructure Incident classification, risk-loaded
+  specialist Review, four load profiles, and evidence-selected architecture
+  guidance without adding runtime state or authority.
+- Added Phase 7 public validation, 76 distinct regressions, 40 scenarios, rubric
+  dimensions, five Mermaid diagrams, and explicit Phase 6 through Phase 8 status.
+
 All notable changes to this project will be documented in this file.
 
 The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).

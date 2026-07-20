@@ -23,6 +23,12 @@ jobs:
         run: python -m unittest tests.test_full_loop_checkpoint_recovery -v
       - name: Run Phase 5 Project closure regressions
         run: python -m unittest tests.test_project_closure_final_delivery -v
+      - name: Run Phase 7 evaluation calibration regressions
+        run: python -m unittest tests.test_evaluation_calibration -v
+      - name: Run public validator and YAML rejection checks
+        run: |
+          python scripts/validate.py
+          python -m unittest tests.test_validation_failures -v
       - run: python scripts/validate.py --extract-mermaid .tmp/mermaid
       - uses: actions/setup-node@v4
         with:

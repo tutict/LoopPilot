@@ -95,6 +95,15 @@ No implementation submitted.
 
 - None.
 
+## Execution Infrastructure Incidents
+
+- None.
+
+Incidents such as rate limits, timeouts, no-output Workers, host compaction, or
+tool failures are recorded here when observed. They are not automatically
+Product Findings, new severity, or a new Ledger. Missing verification is
+disclosed and may block Review.
+
 ## Risks Introduced
 
 - None.

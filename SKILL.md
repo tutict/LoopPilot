@@ -285,19 +285,20 @@ justify its cost. See the
 [Loop Engineering model](docs/loop-engineering-model.md) and
 [mode and state-source rules](docs/protocol-modes-and-state-sources.md).
 
-Closed Loops MUST NOT be treated as sufficient evidence of Project completion.
-Project Acceptance MUST map original user goals to delivered outcomes and evidence;
-Cross-Loop Validation MUST examine integrated behavior across mandatory Loops.
-Project Spec Review and Project Standards Review MUST both pass, and Project
-Functional, Engineering, and Delivery Acceptance MUST all pass. Project-level
-Findings MUST be routed to an authoritative Loop Finding Ledger; a Project Blocker
-MUST prevent acceptance. Project Acceptance MUST NOT authorize release or
-deployment, and Release Readiness MUST NOT imply authorization or execution. A
-Final Delivery Report MUST disclose excluded, cancelled, deferred, risky, limited,
-and unverified work. A Final Checkpoint MUST identify the terminal recovery boundary
-or explicit reopen condition. `PROJECT.md` MUST remain the only Project status
-authority. Lightweight tasks MUST NOT incur Project Closure protocol overhead. See
-the [Project Closure protocol](docs/project-closure-and-final-delivery.md).
+Before implementation the Supervisor MUST choose Lightweight, Full Loop, or No
+Implementation from evidence; the Integrator records but owns no status. File
+count alone MUST NOT decide mode. Lightweight's four-to-seven artifact target is
+provisional and MUST escalate for Major or Blocker Findings, hard triggers,
+repeated correction, or contract drift. Specialists are risk-loaded. Execution
+Infrastructure Incidents remain separate from Product or Protocol Findings. See
+[mode selection](docs/mode-selection-and-escalation.md) and
+[load profiles](docs/protocol-load-profiles.md).
+
+Closed Loops alone MUST NOT complete a Project. Project Closure requires mapped
+goals, cross-Loop evidence, dual Review, three acceptance layers, routed Findings,
+honest release authority, a Final Checkpoint, and disclosed limits. `PROJECT.md`
+remains the only Project status authority; Lightweight MUST NOT incur this
+overhead. See the [Project Closure protocol](docs/project-closure-and-final-delivery.md).
 
 ## 12. Supervised Delegation
 

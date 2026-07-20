@@ -93,6 +93,12 @@ The files in this directory are the backward-compatible Lightweight Mode. They a
 appropriate for bounded work that does not justify Loop Maps, Ledgers, specialist
 review, or cross-context Project coordination.
 
+The Supervisor selects mode before implementation from problem, scope, risk, and
+boundary evidence; the Integrator records it without owning Project or Loop
+status. Lightweight targets four to seven artifacts as a provisional heuristic.
+It stops or escalates on a Major or Blocker, hard trigger, repeated correction,
+contract drift, or material context growth. File count alone is not authority.
+
 Full Loop Mode is a target protocol described in
 [protocol modes and state sources](../docs/protocol-modes-and-state-sources.md).
 These phases do not create active PROJECT.md, LOOP-MAP.md, CHECKPOINT.md, or
@@ -133,6 +139,12 @@ the only Recovery authority. The templates do not run validation, create
 remediation Loops, authorize release or deployment, send reports, or add overhead
 to Lightweight work. See the
 [Phase 5 protocol](../docs/project-closure-and-final-delivery.md).
+
+Phase 7 defines [mode selection](../docs/mode-selection-and-escalation.md) and
+[load profiles](../docs/protocol-load-profiles.md). Execution Infrastructure
+Incidents record Agent, tool, host, dependency, CI, or packaging failures without
+adding a status, severity, Ledger, or automatic Product Finding. Spec and
+Standards remain permanent axes; specialists are loaded only for matching risk.
 
 ## Source of Truth
 
