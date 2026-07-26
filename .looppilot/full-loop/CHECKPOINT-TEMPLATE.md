@@ -38,6 +38,9 @@ and `invalid`. Active IDs use `CHECKPOINT-NNN` with at least three digits.
 ## Current Execution State
 
 - Current mode: none
+- Successful Deliveries: none
+- Failed delegation attempts: none
+- Current implementation owner: none
 - Current Loop: none
 - Loop status observed in Loop Map: none
 - Current Barrier: none

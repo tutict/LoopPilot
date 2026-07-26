@@ -162,11 +162,29 @@ Status: inactive
 
 ### Project Delivery Acceptance
 
+## Baseline Evidence
+
+- Repository Baseline: none
+- Environment-Corrected Baseline: none
+- Scope-Focused Baseline: none
+- Pre-existing failures: none
+- Environment incidents: none
+
+## Verification Surface
+
+- Default test command: none
+- Actual discovery: none
+- Unreached tests: none
+- Focused validation: none
+- Full validation: none
+
 ## Mode Selection
 
 - Mode: none
 - Candidate mode: none
 - Mode evidence: none
+- Product Risk: none
+- Coordination Necessity: none
 - Full Loop hard triggers considered: none
 - Lightweight conditions considered: none
 - Artifact Budget target: none

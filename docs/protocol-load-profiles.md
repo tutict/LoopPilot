@@ -23,6 +23,8 @@ Load for every task:
 - applicable host and repository instructions;
 - `SKILL.md` and the current user instruction;
 - current Git and observable workspace state;
+- baseline attribution and Verification Surface when validation is relevant;
+- Product Risk and Coordination Necessity before selecting a mode; and
 - the active host-native Goal and Plan, if any; and
 - `.looppilot/STATE.md` and `.looppilot/HANDOFF.md` only when continuity is
   relevant.
@@ -35,9 +37,14 @@ Load Core plus a short Change Contract or State entry, a compact Checklist when
 needed, direct verification evidence, and a bounded Review or Results/Handoff.
 Load Resume Validation only when recovery actually occurred.
 
-The default target is four to seven protocol or experiment artifacts. This is a
-Provisional Heuristic, not a hard limit or state. Explain and reassess work above
+The default target is four to seven Governance Artifacts. Product and Evaluation /
+Research Artifacts are reported separately and do not consume that target. This is
+a Provisional Heuristic, not a hard limit or state. Explain and reassess work above
 the target.
+
+Lightweight MAY add a risk-matched Security, Data, Compatibility, Accessibility, or
+Operations Reviewer. This adds review depth, not a mode; Spec and Standards remain
+the permanent axes.
 
 Lightweight does not default to Full Loop history, Loop Map entries, full Loop
 Contracts, Task or Finding Ledgers, multiple Worker Deliveries, Integration
@@ -48,8 +55,9 @@ Acceptance, Release Readiness, or Final Delivery Reports.
 
 Load Core plus the active Project engineering context, Loop Map entry, Loop
 Contract, Task and Finding Ledgers, scoped Task Contracts, relevant Worker
-Deliveries, Review Reports, Integration Record, Closure requirements, and the
-current Checkpoint only when recovery is active.
+Deliveries, Review Reports, Integration Record, Closure requirements, coordination
+necessity, delegation failure budget, ownership fallback, verifiable claims, and
+the current Checkpoint only when recovery is active.
 
 Always retain independent Spec and Standards Review. Add Security, Data,
 Compatibility, Operations, Accessibility, or another specialist only when the

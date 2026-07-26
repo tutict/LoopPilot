@@ -281,7 +281,7 @@ the [Phase 5 protocol](docs/project-closure-and-final-delivery.md).
 Phase 7 synthesizes four bounded, read-only MMGH experiments into documentation
 labels and proportional defaults. The Supervisor selects Lightweight, Full Loop,
 or No Implementation before implementation; the Integrator records the decision.
-Lightweight targets four to seven artifacts as a provisional heuristic and
+Lightweight targets four to seven Governance Artifacts as a provisional heuristic and
 escalates when risk or scope outgrows its contract. Tool, Agent, and host failures
 are Execution Infrastructure Incidents unless evidence proves a Product or
 Protocol Finding. Specialist Reviewers are loaded by risk, and Project Finalization
@@ -291,6 +291,21 @@ See [evidence synthesis](docs/evaluation-synthesis-and-protocol-calibration.md),
 [mode selection](docs/mode-selection-and-escalation.md),
 [load profiles](docs/protocol-load-profiles.md), and the
 [MMGH evidence boundary](docs/mmgh-behavioral-evidence.md).
+
+### Second Evidence-Backed Calibration
+
+Phase 9 incorporates bounded Final-Assignment evidence. Product Risk sets review,
+validation, and evidence depth; Coordination Necessity decides whether Full Loop is
+needed. Lightweight may use risk-matched specialists without becoming a third mode.
+The calibration adds red-baseline attribution, Verification Surface inventory,
+verifiable Worker claims, delegation fallback, and separate product, governance, and
+evaluation artifact accounting. EXP-006 comparative scoring remains unverified where
+the committed control archive is incomplete.
+
+See [Phase 9 calibration](docs/phase9-second-protocol-calibration.md),
+[baseline evidence](docs/baseline-evidence-and-verification-surface.md),
+[coordination necessity](docs/coordination-necessity-and-delegation-fallback.md), and
+[Final-Assignment evidence](docs/final-assignment-behavioral-evidence.md).
 
 ## Example Applications
 
@@ -355,8 +370,10 @@ concurrent file isolation, and A/B traces with rubric scores remain unverified. 
 claiming results.
 
 Phase 6 is partially observed through MMGH EXP-001 to EXP-004 but not generally
-validated. Phase 7 is statically implemented. Phase 8 cross-project replication
-and controlled comparison is not implemented.
+validated. Phase 7 is statically implemented. Phase 8-A is observed through
+Final-Assignment EXP-005. EXP-006 arm execution is observed, while its dynamic
+holdout is partially unverified and the inspected control archive lacks final
+comparative scoring. Phase 9 is statically implemented.
 
 ## Current Limitations
 

@@ -20,6 +20,18 @@ flowchart LR
 No Implementation is correct when investigation finds no real gap. An Agent must
 not implement first and backfill a rationale later.
 
+## Product Risk and Coordination Necessity
+
+Product Risk includes security, data, transaction, idempotency, sensitive-data,
+compatibility, partial-success, and production-impact concerns. It determines the
+required Review Depth, Validation Depth, and Evidence Depth.
+
+Coordination Necessity asks whether delivery needs multiple implementation owners,
+independently useful Deliveries, non-trivial integration ordering, formal Rework,
+or active recovery. It determines whether Full Loop is warranted. High product risk
+does not by itself prove that multiple Workers are required. See
+[coordination necessity](coordination-necessity-and-delegation-fallback.md).
+
 ## Lightweight Tendency
 
 Prefer Lightweight when most of these conditions hold:
@@ -30,8 +42,7 @@ Prefer Lightweight when most of these conditions hold:
   permission, security-boundary, or network-trust change;
 - no partial-success, duplicate-mutation, corruption, or unrecoverable-state
   risk;
-- no useful need for multiple Workers, independent integration proof, or a
-  Security, Data, or Operations Reviewer;
+- no useful need for multiple Workers or independent integration proof;
 - completion is realistic in one session with direct characterization tests;
 - the change affects a small cohesive product surface;
 - rollback is ordinary code reversion; and
@@ -52,8 +63,8 @@ Evaluate Full Loop first when any hard trigger is present:
   duplicate writes, or unrecoverable state;
 - multiple Workers with real parallel value, high-conflict files, or correctness
   demonstrable only after integration;
-- a need for Security, Data, Compatibility, Operations, or another specialist
-  Reviewer;
+- coordination that cannot be safely expressed through a single owner plus bounded
+  specialist review;
 - active Checkpoint recovery or formal Finding, Rework, and reverification;
 - scope too large for a stable short Change Contract;
 - failure impact spanning domains or Loops; or
@@ -71,8 +82,8 @@ Stop or escalate a Lightweight change when any of these occurs:
 - scope expands into another language or runtime;
 - SQLite, transaction, migration, sensitive-data, security, permission,
   partial-success, or duplicate-mutation impact appears;
-- two or more Workers, an independent Integration Record, or a specialist
-  Reviewer becomes necessary;
+- multiple implementation owners or an independent Integration Record becomes
+  necessary;
 - the same problem needs more than one correction;
 - context cannot safely complete in the current session;
 - the artifact budget expands materially; or
@@ -93,13 +104,19 @@ Escalation records the reason, preserves existing evidence, and creates the
 formal Full Loop Contract. Lightweight self-review does not become Full Loop
 Review, and an earlier correction is not automatically relabeled as Rework.
 
-## Lightweight Artifact Budget
+## Lightweight Artifact Budget and Accounting
 
-The default target is four to seven protocol or experiment artifacts. This is a
-Provisional Heuristic for cost control, not a hard limit, lifecycle state,
-severity, Ledger, or acceptance rule. A Supervisor may retain Lightweight above
-seven with a recorded explanation and mode reassessment; continued growth or
-contract drift requires escalation.
+The default target is four to seven Governance Artifacts. This is a Provisional
+Heuristic for cost control, not a hard limit, lifecycle state, severity, Ledger,
+or acceptance rule. A Supervisor may retain Lightweight above seven with a recorded
+explanation and mode reassessment; continued growth or contract drift requires
+escalation.
+
+Product Artifacts (source, tests, allowed schema, and product configuration) and
+Evaluation / Research Artifacts (plans, scorecards, baselines, manifests, and
+comparative reports) do not consume this governance target. Report the artifact and
+line counts for all three categories; do not hide experimental cost by calling it
+governance.
 
 A typical set contains State or Change Contract, Checklist, Review, Results or
 Handoff, and only necessary recovery or test evidence. Lightweight does not
@@ -150,7 +167,7 @@ risk-loaded and do not replace those axes or create a new authority:
 | --- | --- |
 | Security | API keys, SSRF, credentials, permissions, authentication, network trust, redirects, sensitive logs or data, import/export, hostile input, or Tauri capabilities |
 | Data | SQLite, transactions, migrations, partial success, data preservation, rollback, foreign keys, concurrency, consistency, corruption, or durable mutations |
-| Compatibility | TypeScript/Rust or Web/Tauri contracts, Provider DTOs, serialization, API/schema/version evolution, host boundaries, or backward compatibility |
+| Compatibility | Language or runtime boundary, DTOs, serialization, API/schema/version evolution, host boundaries, or backward compatibility. Examples: TypeScript/Rust or Web/Tauri. |
 | Operations | deployment, rollback, observability, runbooks, alerting, production delivery, or operational recovery |
 | Accessibility | UI focus, keyboard use, screen readers, or mobile accessibility |
 
@@ -158,6 +175,13 @@ Full Loop does not automatically load every specialist. A Reviewer may cite an
 Execution Infrastructure Incident as evidence, but must not turn it into a
 Finding without product or protocol proof. Reviewers do not modify the
 implementation under review.
+
+## Baseline and Verification Surface
+
+Record Repository, Environment-Corrected, and Scope-Focused Baselines before
+claiming a regression. A passing command proves only the tests it actually selected;
+record its includes, excludes, unreached tests, prerequisites, and focused versus
+full validation. See [baseline evidence](baseline-evidence-and-verification-surface.md).
 
 ## Architecture Selection
 

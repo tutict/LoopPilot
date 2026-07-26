@@ -154,9 +154,11 @@ needs rather than imposed as universal requirements.
 Before implementation, the Supervisor MUST decide Lightweight, Full Loop, or No
 Implementation from problem, scope, risk, and boundary evidence; the Integrator
 records the decision without owning Project or Loop status. File count is only
-supporting evidence. Lightweight targets four to seven artifacts as a provisional
-cost heuristic and MUST stop or escalate for a Major or Blocker, hard trigger,
-repeated correction, contract drift, or material context growth. Project Closure
+supporting evidence. Product Risk determines review, validation, and evidence depth;
+Coordination Necessity determines whether Full Loop governance is needed. Lightweight
+targets four to seven Governance Artifacts as a provisional cost heuristic and MUST
+stop or escalate for a Major or Blocker, hard trigger, repeated correction, contract
+drift, or material context growth. Project Closure
 and Release artifacts are not default Lightweight context.
 
 Agent, tool, host, dependency, CI, and packaging failures are Execution

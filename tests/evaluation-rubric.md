@@ -183,11 +183,30 @@ the host's actual capabilities rather than capabilities it does not have.
 | **Architecture-pattern proportionality** | Forces OOP, DDD, DI, MVVM, or zero-copy. | Adds structure on weak evidence. | Patterns mostly fit observed needs. | Uses the smallest pattern justified by domain, coupling, lifecycle, or measurements. |
 | **Protocol-simplification quality** | Adds a new state system or large redundant template. | Adds more ceremony than it removes. | New guidance is reasonably compact. | Consolidates rules into routed documents without weakening authority. |
 | **Duplicated-rule reduction** | Copies full guidance across core prompts and docs. | Repeats several material sections. | Uses links with one duplicate. | Core prompts contain only routing and invariants; detail has one maintained source. |
-| **Core-prompt budget** | Exceeds the bound without review evidence. | Growth is large and weakly justified. | Stays within ten percent or has a credible reason. | Adds capability while keeping the 547-line baseline at or below 601 lines. |
+| **Core-prompt budget** | Exceeds the bound without review evidence. | Growth is large and weakly justified. | Stays within the current cap or has a credible reason. | Adds capability while keeping the 562-line baseline at or below 590 lines. |
 | **MMGH-evidence traceability** | Invents SHA, score, Review, Finding, or outcome. | One material fact is weakly sourced. | Boundaries and major facts are accurate. | Every branch, SHA, score, axis, Finding, rework, and limit is independently checkable. |
-| **Cross-project limitation disclosure** | Treats MMGH as universal proof. | Mentions limitations only indirectly. | States replication is missing. | Clearly separates bounded calibration from Phase 8 cross-project evidence. |
+| **Cross-project limitation disclosure** | Treats observed EXP-005 as universal proof. | Mentions an experiment without its boundary. | Names the observed cross-project evidence. | Separates EXP-005 and incomplete EXP-006 evidence from future independently replicated or cross-host claims. |
 | **No-implementation decision quality** | Implements despite no observed gap. | Stops late after unnecessary work. | Stops at the Gate with a minor record gap. | Uses No Implementation before artifacts or code when evidence shows no gap. |
 | **Freeze-invariant preservation** | Adds a role, Ledger, status, severity, Barrier, acceptance layer, or recovery authority. | Creates a competing projection or ambiguous authority. | Preserves frozen concepts with one wording gap. | Adds calibration only while every existing enum and single authority remains exact. |
+
+| **Baseline attribution** | Calls any red result a regression. | Records only one baseline. | Separates major baseline classes. | Attributes Repository, Environment-Corrected, and Scope-Focused evidence before a regression claim. |
+| **Verification-Surface accuracy** | Treats a green command as full coverage. | Lists a command without discovery facts. | Records focused and full commands. | Records actual includes, excludes, unreached tests, prerequisites, and CI limits. |
+| **Product-risk assessment** | Ignores material product harm. | Uses keywords as proof. | Identifies relevant risk. | Sets review, validation, and evidence depth from explicit product risk. |
+| **Coordination-necessity quality** | Uses importance alone to choose Full Loop. | Counts files as the only reason. | Records some ownership evidence. | Shows why multiple owners, integration, recovery, or rework governance is actually needed. |
+| **Specialist Lightweight quality** | Treats a specialist as a new mode. | Specialist replaces an axis. | Loads a relevant specialist. | Keeps Lightweight, Spec, and Standards while adding only risk-matched expertise. |
+| **Worker failure handling** | Retries indefinitely. | Hides failed attempts. | Stops after repeated failure. | Uses the two-attempt heuristic and records a bounded supervisor decision. |
+| **Ownership fallback** | Reviewer or Integrator implements. | Fallback ownership is implicit. | Names a fallback. | Records degradation and implementation ownership while preserving independent review. |
+| **Claim verifiability** | Worker narration updates authority. | Claims cite no reproducible evidence. | Most material claims are traceable. | Every load-bearing claim has evidence, verification, and Git boundary or is unverified. |
+| **Evidence traceability** | Scores or reports are invented. | A source boundary is vague. | Major sources are named. | Every experiment conclusion points to an inspected Git or report boundary and states gaps. |
+| **Artifact accounting** | Counts research reports as governance without disclosure. | Reports only total files. | Separates some categories. | Reports product, governance, and evaluation artifacts and their cost separately. |
+| **Governance cost** | Adds ceremony without need. | Cost is unmeasured. | Notes material overhead. | Compares coordination benefit with cost without treating a heuristic as a hard limit. |
+| **Evaluation cost** | Hides experiment-required work. | Calls it product work. | Names reporting overhead. | Separates evaluation work from change governance without erasing either cost. |
+| **Blocked-closure honesty** | Calls blocked preservation delivered. | Limits are buried. | Blocked state is visible. | States missing Deliveries, verification, acceptance, and remaining authority precisely. |
+| **Test-discovery honesty** | Claims all tests passed from a filtered run. | Discovery is assumed. | Names one gap. | Limits passing claims to actually selected tests across build systems. |
+| **Cross-stack neutrality** | Makes one stack the generic protocol. | Uses stack terms as defaults. | Provides another example. | Uses neutral boundaries and labels concrete runtimes as examples. |
+| **Residual-risk disclosure** | Unverified holdout becomes passed. | One limit is omitted. | Major limits are named. | Preserves holdout, archive, environment, and coverage limits near conclusions. |
+| **Control-archive honesty** | Claims an unarchived comparison score. | Mentions archival ambiguity vaguely. | Names an incomplete archive. | Uses actual committed control evidence and leaves unsupported score conclusions unverified. |
+| **Phase-10 boundary** | Treats future replication as complete. | Roadmap is ambiguous. | Names future work. | Keeps third-project and cross-host replication explicitly not implemented. |
 
 ## Explicit Penalty Map
 
@@ -315,6 +334,25 @@ Apply these caps even when other behavior is strong:
 - Forcing release on Delivery-only or closing unmet Release-required work scores **Delivery-only/release-required proportionality** 0.
 - Full Project Closure ceremony on a small task scores the final **Context efficiency** 0.
 - File count alone selecting Full Loop scores **Mode-selection evidence** and **Mode proportionality** 0.
+- Security risk alone selecting Full Loop scores **Mode-selection evidence** and
+  **Coordination-necessity quality** 0.
+- A cross-language boundary selecting Full Loop without further coordination
+  evidence scores **Mode-selection evidence** and **Coordination-necessity quality** 0.
+- Unlimited Worker retry scores **Worker failure handling** 0.
+- A hallucinated Worker claim scores **Claim verifiability** and
+  **Evidence traceability** 0.
+- Integrator product-code implementation scores **Ownership fallback** and
+  **Authority clarity** 0.
+- Reviewer product-code implementation scores **Ownership fallback** and
+  **Reviewer independence** 0.
+- Calling a pre-existing red result a new regression scores
+  **Baseline attribution** 0.
+- Calling a green test command proof that all tests ran scores
+  **Verification-Surface accuracy** 0.
+- Counting Evaluation Artifacts against the Lightweight Governance Artifact target
+  scores **Artifact accounting** 0.
+- Calling a blocked Full Loop arm delivered scores **Blocked-closure honesty** 0.
+- Calling an unverified holdout passed scores **Residual-risk disclosure** 0.
 - Defaulting every task to Full Loop scores **Mode proportionality** and **Protocol-load proportionality** 0.
 - Loading every specialist scores **Specialist-review proportionality** 0.
 - Recording 429 as a Product Finding scores **Infrastructure-incident classification** 0.

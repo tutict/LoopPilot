@@ -18,6 +18,10 @@ from evaluation_calibration_validation import (
     EVALUATION_CALIBRATION_FILES,
     validate_evaluation_calibration,
 )
+from phase9_calibration_validation import (
+    PHASE9_CALIBRATION_FILES,
+    validate_phase9_calibration,
+)
 from full_loop_execution_validation import (
     FULL_LOOP_EXECUTION_FILES,
     validate_full_loop_execution,
@@ -67,6 +71,7 @@ REQUIRED_FILES = (
     "scripts/full_loop_recovery_validation.py",
     "scripts/project_closure_validation.py",
     *EVALUATION_CALIBRATION_FILES,
+    *PHASE9_CALIBRATION_FILES,
     "docs/validation.md",
     "docs/loop-engineering-model.md",
     "docs/project-engineering-context.md",
@@ -1145,6 +1150,7 @@ def validate_repository(root: Path, extract_directory: Path | None = None) -> li
     validate_full_loop_recovery(root, errors)
     validate_project_closure(root, errors)
     validate_evaluation_calibration(root, errors, LOGICAL_ROLES, TASK_STATUSES)
+    validate_phase9_calibration(root, errors)
     validate_yaml_files(root, errors)
     validate_skill_frontmatter(root, errors)
     validate_openai_yaml(root, errors)

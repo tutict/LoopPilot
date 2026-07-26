@@ -65,6 +65,15 @@ No implementation submitted.
 
 - None.
 
+## Verifiable Claims
+
+| Claim | Evidence | Verification | Git Boundary |
+| --- | --- | --- | --- |
+
+## Unverified Claims
+
+- None.
+
 ## Evidence
 
 ### Tests

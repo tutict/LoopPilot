@@ -40,6 +40,9 @@ No active grouping.
 - Expected protocol cost: none
 - Artifact Budget target or explanation: none
 - Mode evidence and hard triggers: none
+- Product Risk and required review depth: none
+- Coordination Necessity: none
+- Why multiple Workers are required: none
 - Supervisor decision: none
 - Integrator record: none
 - Active specialist Reviewers: none
@@ -48,6 +51,18 @@ No active grouping.
 The Full Loop Contract Barrier is evaluated before implementation. These fields
 record a Supervisor decision; they do not add a mode status, acceptance layer, or
 authority to the template.
+
+## Coordination Necessity
+
+- Work ownership boundaries: none
+- Independent Delivery value: none
+- Integration dependency: none
+- Dedicated Integration Record required: none
+- Active recovery required: none
+- Formal Rework likely: none
+- Fallback Worker: none
+- Worker failure budget: none
+- Ownership-collapse condition: none
 
 ## Engineering Context References
 

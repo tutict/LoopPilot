@@ -31,6 +31,15 @@ Allowed Status values are `inactive`, `collecting`, `integrating`, `blocked`,
 
 - None.
 
+## Delegation Health
+
+- Worker attempts: none
+- Unsuccessful attempts: none
+- Failure budget: none
+- Ownership collapsed: no
+- Fallback Worker: none
+- Impact on delivery: none
+
 ## File Ownership and Conflict Groups
 
 | Path or Artifact | Owner Task | Other Tasks | Resolution |

@@ -279,18 +279,20 @@ work and MUST choose process depth in proportion to complexity, risk, and recove
 The Supervisor MUST approve a Full Loop Contract first. Loop Map, Task Ledger, and
 Finding Ledger own their respective statuses; only a recorded `closed` Loop may be
 checked. Responsible roles provide decisions or evidence and the Integrator records
-them. Use Lightweight Mode for bounded low-risk work and Full Loop only when
-multiple Loops, specialist review, Finding cycles, commit boundaries, or recovery
-justify its cost. See the
+them. Use Lightweight for bounded work and Full Loop when coordination, repeated
+Findings, or recovery justify its cost. High product risk may load deeper Review. See
+the
 [Loop Engineering model](docs/loop-engineering-model.md) and
 [mode and state-source rules](docs/protocol-modes-and-state-sources.md).
 
 Before implementation the Supervisor MUST choose Lightweight, Full Loop, or No
 Implementation from evidence; the Integrator records but owns no status. File
-count alone MUST NOT decide mode. Lightweight's four-to-seven artifact target is
-provisional and MUST escalate for Major or Blocker Findings, hard triggers,
-repeated correction, or contract drift. Specialists are risk-loaded. Execution
-Infrastructure Incidents remain separate from Product or Protocol Findings. See
+count MUST NOT decide mode. Product Risk sets Review depth; Coordination
+Necessity governs Full Loop. Lightweight's four-to-seven Governance Artifact target
+is provisional and escalates for Major or Blocker Findings, hard triggers, repeated correction, or
+contract drift. Specialists are risk-loaded. Passing commands prove only selected
+tests; Worker claims need verifiable evidence.
+Execution Infrastructure Incidents remain separate from Product or Protocol Findings. See
 [mode selection](docs/mode-selection-and-escalation.md) and
 [load profiles](docs/protocol-load-profiles.md).
 

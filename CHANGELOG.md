@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Added Phase 9 baseline attribution, Verification Surface inventory, Product Risk
+  versus Coordination Necessity, specialist-reviewed Lightweight, delegation
+  fallback, verifiable Worker claims, and artifact-category accounting.
+- Added read-only Final-Assignment evidence with explicit EXP-006 control-archive
+  and dynamic-holdout limitations, without claiming comparative completion.
+- Added four Phase 9 documents, inactive template fields, static validation, more
+  than 76 public-entry fixture cases, 30 scenarios, rubric dimensions, and four
+  Mermaid diagrams without adding runtime state or authority.
 - Calibrated Lightweight and Full Loop selection from four bounded MMGH
   experiments using explicit evidence levels and cross-project limitations.
 - Added the pre-implementation Mode Gate, Lightweight Artifact Budget and

@@ -75,8 +75,12 @@ and Project status-source discipline. The complete suite contains 494 tests.
 The Phase 7 extension adds at least 76 distinct public-entry cases for evidence
 levels, Mode Selection, Artifact Budget, escalation, incident classification,
 risk-loaded specialist Review, load profiles, architecture proportionality, and
-freeze invariants. The current Phase 7 focused suite contains 89 tests and the
-observed full repository suite contains 583 tests.
+freeze invariants. At its implementation boundary, the Phase 7 focused suite
+contained 89 tests and the observed full repository suite contained 583 tests.
+
+The Phase 9 extension adds 175 public-entry cases, including an explicit 76-case
+behavior matrix. The focused suite contains 175
+tests, and the observed full repository suite contains 758 tests.
 
 The validator reads repository files only. It does not inspect environment
 variables, browse the web, scan host Skill directories, count tokens, or print
@@ -148,17 +152,30 @@ Project Reviewer independence, Project Acceptance generation quality, Release
 Readiness judgment, version selection, tag or release creation, deployment,
 migration, gray traffic, rollback, Final Delivery Report generation or recipient
 usability, user acknowledgement, Final Checkpoint recovery effectiveness,
-named-host compatibility, remote workflow results, or Phase 6 A/B behavior. Five
-Phase 5 diagrams and all 24 Mermaid blocks are syntax evidence only.
+named-host compatibility, remote workflow results, or Phase 6 A/B behavior. Phase 5
+and later diagrams, including every repository Mermaid block, are syntax evidence
+only.
 
 ## Phase 7 Validation Boundary
 
 Phase 7 adds public static checks for evidence levels, the Mode Gate, Lightweight
 Artifact Budget, escalation, Execution Infrastructure Incidents, risk-loaded
-specialists, load profiles, migration status, and freeze invariants. The checks
+specialists, load profiles, migration status, and freeze invariants. At the Phase 7
+boundary, the checks did not inspect later EXP-005 or EXP-006 evidence. The checks
 do not select a mode, score runtime risk, create a Loop or Finding, schedule a
 Reviewer, read MMGH, analyze Git history, calculate tokens, accept risk, or prove
 Full Loop superiority. Mermaid rendering and YAML parsing are evidence of syntax
-only. Strict A/B comparison, second-project replication, production behavior,
-automatic selection, all-host compatibility, and security or data certification
-remain unverified.
+only. Phase 9 records observed EXP-005 and incomplete EXP-006 evidence; strict A/B
+comparison with archived final scoring, production behavior, automatic selection,
+all-host compatibility, and security or data certification remain unverified.
+
+## Phase 9 Validation Boundary
+
+Phase 9 adds at least 76 public-entry fixture cases for baseline attribution,
+Verification Surface inventory, Product Risk and Coordination Necessity,
+specialist-reviewed Lightweight, delegation fallback, verifiable claims, artifact
+accounting, technology-neutral examples, Final-Assignment evidence limits, and
+freeze preservation. The checks inspect repository structure only. They do not
+select a mode, execute Workers, verify a product baseline, run experiment arms,
+infer test discovery, validate a dynamic holdout, score a comparison, or turn an
+incomplete control archive into evidence.

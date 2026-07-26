@@ -75,13 +75,38 @@ artifact-budget guidance, incident classification, risk-loaded specialist Review
 load profiles, and static validation. It adds no role, status, Ledger, severity,
 Barrier, acceptance layer, recovery authority, runtime, or Project instance.
 
-## Phase 8: Cross-Project Replication and Controlled Comparison
+## Phase 8-A: Cross-Project Replication
+
+**Status: observed through Final-Assignment EXP-005.**
+
+EXP-005 is a bounded Spring Boot and Flutter replication. It supports calibration
+without providing universal or production evidence.
+
+## Phase 8-B: Controlled Three-Mode Comparison
+
+**Status: executed through EXP-006 arms; comparative archive incomplete.**
+
+The Baseline, Lightweight, and Full Loop arm heads are observed. The Full Loop arm
+is blocked and not delivered. The dynamic holdout remains partially unverified, and
+the inspected control archive retains pre-registration and incidents rather than a
+final comparative score report. See
+[Final-Assignment evidence](final-assignment-behavioral-evidence.md).
+
+## Phase 9: Second Evidence-Backed Protocol Calibration
+
+**Status: implemented statically.**
+
+Phase 9 adds baseline attribution, Verification Surface inventory, Product Risk
+versus Coordination Necessity, bounded specialist-reviewed Lightweight, delegation
+fallback, verifiable claims, and artifact-category accounting. It adds no runtime,
+role, status, Ledger, or authority.
+
+## Phase 10: Third-Project and/or Cross-Host Replication
 
 **Status: not implemented.**
 
-Future work may include a second real project, a same-task Baseline/Lightweight/
-Full Loop comparison, cross-host recovery and Reviewer observation, or long-term
-maintenance and regression observation.
+Future work may include another project or host, a fully archived control comparison,
+dynamic holdout observation, and further recovery or Reviewer evidence.
 
 ## Migration Rules
 

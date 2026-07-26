@@ -4,8 +4,8 @@
 
 This document calibrates LoopPilot from four bounded MMGH experiments.
 It distinguishes direct evidence from reusable guidance without claiming a
-strict A/B comparison, cross-project replication, production certification, or
-universal superiority for either protocol mode.
+strict A/B comparison with archived scoring, replication beyond the separately
+recorded EXP-005 evidence, production certification, or universal superiority.
 
 The five evidence labels below are documentation labels. They are not lifecycle
 states, Finding severities, Ledgers, Barriers, or new authority.
@@ -40,16 +40,18 @@ Repeated patterns in the MMGH series include:
 
 Guidance supported by multiple observations and no known direct counterexample,
 but not yet validated through controlled comparison or cross-project
-replication.
+replication beyond the separately recorded EXP-005 evidence.
 
 - Prefer Lightweight for a bounded, single-owner, local change with direct
   characterization tests and no data, security, cross-runtime, or partial-success
   boundary.
-- Prefer evaluating Full Loop for cross-language or cross-runtime contracts,
-  sensitive data, transactions, partial success, useful multi-Worker work, or
-  specialist Review.
-- Target four to seven Lightweight protocol or experiment artifacts as a
-  cost-control heuristic, then explain the excess and reassess the mode.
+- Use Product Risk to set review, validation, and evidence depth, then assess
+  Coordination Necessity before selecting Full Loop.
+- Lightweight may use bounded specialist review when one owner can safely deliver
+  and verify the work.
+- Target four to seven Lightweight Governance Artifacts as a cost-control heuristic;
+  report Evaluation / Research Artifacts separately, then explain excess and
+  reassess the mode.
 
 These are decision aids for the Supervisor, not an automatic mode-selection
 runtime.
@@ -74,11 +76,11 @@ because an experiment happened to support it.
 ### Unverified
 
 Claims not established by this evaluation include strict same-task
-Baseline/Lightweight/Full Loop A/B results, replication in a second project,
-production deployment, exact token cost, automatic mode or Reviewer selection,
-compatibility with every host, long-term maintenance benefit, resistance to real
-security attacks, production data reliability, and overall MMGH
-re-architecture.
+Baseline/Lightweight/Full Loop A/B results with archived final scoring, independent
+replication beyond the observed EXP-005 project, production deployment, exact token
+cost, automatic mode or Reviewer selection, compatibility with every host,
+long-term maintenance benefit, resistance to real security attacks, production data
+reliability, and overall MMGH re-architecture.
 
 ## Evidence Progression
 
@@ -128,9 +130,9 @@ zero-copy changes without measurement.
   EXP-001 to EXP-004 and not generally validated.
 - Phase 7, Evidence synthesis and protocol calibration: statically implemented
   by this repository revision.
-- Phase 8, Cross-project Replication and Controlled Comparison: not implemented.
-
-Phase 8 should include at least one second-project replication, a controlled
-same-task comparison, cross-host recovery and Reviewer observation, or long-term
-maintenance and regression observation. This Phase 7 change does not execute
-Phase 8.
+- Phase 8-A, Cross-project Replication: observed through Final-Assignment EXP-005.
+- Phase 8-B, Controlled three-mode comparison: executed through EXP-006 arm
+  worktrees, but the dynamic holdout is partially unverified and the observed control
+  archive does not contain final comparative scoring.
+- Phase 9, Second evidence-backed calibration: statically implemented by this
+  repository revision.
