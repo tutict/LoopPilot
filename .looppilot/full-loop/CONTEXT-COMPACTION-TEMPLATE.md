@@ -85,6 +85,8 @@ This exclusion is a default context choice, not deletion or loss of evidence.
 
 Only observable or explicitly decided facts may be compacted. Every fact requires
 a Source, does not replace its original evidence, and cannot redefine status.
+Mutable lifecycle values stay in their authority; use a pointer or an explicitly
+boundary-labelled derived projection instead of preserving a second state set.
 
 ## Discarded or Archived Context
 

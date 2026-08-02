@@ -87,8 +87,8 @@ automatic response to file count.
 |---|---|
 | Project Scope | PROJECT.md |
 | Loop list and Loop status | LOOP-MAP.md |
-| Task status | Current Loop TASK-LEDGER.md |
-| Finding status | Current Loop FINDING-LEDGER.md |
+| Task status, owner, and revision | Current Loop TASK-LEDGER.md |
+| Finding status and severity | Current Loop FINDING-LEDGER.md |
 | Current recovery entry | Root CHECKPOINT.md |
 | Detailed Task content | tasks/TASK-XXX.md |
 | Worker Delivery content | deliveries/* |
@@ -98,8 +98,9 @@ automatic response to file count.
 | Architecture decisions | decisions/ADR-XXX.md |
 
 Detailed artifacts MUST NOT independently maintain authoritative state owned by a
-Ledger or map. A Checklist is a human-readable projection, not a second Task or
-Finding state source.
+Ledger or map. A Checklist is a procedure projection, not a second Task or Finding
+state source. A necessary copied value is a derived projection that records its
+authority and Git boundary; otherwise supporting artifacts reference authority.
 
 ## Native Plan and Persisted State
 

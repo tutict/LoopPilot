@@ -1,7 +1,9 @@
 # Observed Trace
 
 - Evaluation ID:
+- Scenario ID:
 - Variant: LoopPilot loaded | control
+- Evidence links:
 
 Record only user-visible or tool-visible events in order:
 
@@ -15,3 +17,7 @@ Record only user-visible or tool-visible events in order:
 
 Evaluators MUST NOT request, reconstruct, or record private chain-of-thought. If an
 event is not observable, they MUST mark it unavailable rather than infer it.
+
+`Evidence links` point to the preserved artifacts behind this trace, such as
+transcript files, command output, or diffs. A claim whose evidence link is
+missing MUST be recorded as unavailable rather than scored as observed.

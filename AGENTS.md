@@ -170,7 +170,10 @@ only for matching risk and never modify implementation.
 ### Full Loop Template Maintenance
 
 - Full Loop templates MUST remain inactive and MUST NOT be treated as current work.
-- A status MUST have only one authority; detailed artifacts and Checklists are projections.
+- Each lifecycle fact MUST have one authority; supporting copies are
+  boundary-labelled derived projections checked against authoritative assertions
+  before Full Loop Closure. Drift uses the existing Process Finding flow;
+  authority wins.
 - Changes to Loop Map, Task Ledger, Finding Ledger, or Checkpoint ownership MUST
   update validator, tests, and documentation together.
 - Repository tests MUST NOT weaken Supervisor, Reviewer, Worker, or Integrator

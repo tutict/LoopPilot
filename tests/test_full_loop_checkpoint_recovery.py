@@ -87,7 +87,7 @@ class FullLoopCheckpointRecoveryTests(unittest.TestCase):
         self.mark_checkpoint_ready(fixture)
         path = fixture / CHECKPOINT
         self.replace_once(path, "- Checkpoint Status: ready", "- Checkpoint Status: budget-stopped")
-        self.replace_once(path, "## Unfinished Work\n\n- None.", "## Unfinished Work\n\n- TASK-004-R1 still requires integration verification.")
+        self.replace_once(path, "## Unfinished Work\n\n- Reference current Task or Finding entries and the exact Resume Point.", "## Unfinished Work\n\n- TASK-004-R1 still requires integration verification.")
         self.replace_once(path, "- Trigger: none", "- Trigger: critical context pressure")
         self.replace_once(path, "- Persisted state: none", "- Persisted state: Task and Finding Ledgers saved")
         self.replace_once(path, "- Authoritative state updated: none", "- Authoritative state updated: yes")
@@ -282,7 +282,7 @@ def _resume_status_test(name: str, status: str, safe: str, message: str):
     return test
 
 
-def test_head_conflict(self: FullLoopCheckpointRecoveryTests) -> None:
+def _head_conflict_case(self: FullLoopCheckpointRecoveryTests) -> None:
     def mutate(fixture: Path) -> None:
         path = fixture / RESUME
         self.replace_once(path, "- Actual HEAD: none", "- Actual HEAD: abc1234")
@@ -290,7 +290,7 @@ def test_head_conflict(self: FullLoopCheckpointRecoveryTests) -> None:
     self.assert_rejected(mutate, "actual HEAD conflicts with expected HEAD")
 
 
-def test_scope_change_reuses_old_point(self: FullLoopCheckpointRecoveryTests) -> None:
+def _scope_change_reuses_old_point_case(self: FullLoopCheckpointRecoveryTests) -> None:
     def mutate(fixture: Path) -> None:
         path = fixture / RESUME
         self.replace_once(path, "- Scope changed: unknown", "- Scope changed: yes")
@@ -298,7 +298,7 @@ def test_scope_change_reuses_old_point(self: FullLoopCheckpointRecoveryTests) ->
     self.assert_rejected(mutate, "changed Scope cannot unconditionally reuse")
 
 
-def test_commit_authority_inherited(self: FullLoopCheckpointRecoveryTests) -> None:
+def _commit_authority_inherited_case(self: FullLoopCheckpointRecoveryTests) -> None:
     def mutate(fixture: Path) -> None:
         path = fixture / RESUME
         self.replace_once(path, "- Commit authority unchanged: unknown", "- Commit authority unchanged: no")
@@ -318,9 +318,9 @@ for _case in (
 ):
     setattr(FullLoopCheckpointRecoveryTests, f"test_{_case[0]}_is_rejected", _resume_status_test(*_case))
 
-FullLoopCheckpointRecoveryTests.test_head_conflict_without_resolution_is_rejected = test_head_conflict
-FullLoopCheckpointRecoveryTests.test_scope_change_reuses_old_point_is_rejected = test_scope_change_reuses_old_point
-FullLoopCheckpointRecoveryTests.test_commit_authority_inherited_is_rejected = test_commit_authority_inherited
+FullLoopCheckpointRecoveryTests.test_head_conflict_without_resolution_is_rejected = _head_conflict_case
+FullLoopCheckpointRecoveryTests.test_scope_change_reuses_old_point_is_rejected = _scope_change_reuses_old_point_case
+FullLoopCheckpointRecoveryTests.test_commit_authority_inherited_is_rejected = _commit_authority_inherited_case
 
 
 if __name__ == "__main__":

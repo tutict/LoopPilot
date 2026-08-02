@@ -256,9 +256,8 @@ work and MUST choose process depth in proportion to complexity, risk, and recove
 - Every Loop MUST map deliverables to explicit user or system outcomes.
 - Business invariants MUST be identified before dependent parallel work.
 - Relevant engineering concerns MUST be assessed before contract approval.
-- Architecture patterns MUST follow actual needs. DDD MUST NOT be required without
-  sufficient domain complexity; MVVM primarily applies to presentation.
-- Zero-copy MUST be justified by measurable performance evidence.
+- Architecture patterns, including DDD, MVVM, and zero-copy, MUST follow observed
+  needs and measurable evidence.
 - Worker Delivery MUST disclose actual scope, failed checks, skipped checks, and evidence.
 - Worker self-report MUST NOT satisfy the Integration Barrier.
 - Integration success MUST NOT satisfy the Review Barrier.
@@ -273,13 +272,16 @@ work and MUST choose process depth in proportion to complexity, risk, and recove
 - A Loop with unresolved Blocker Findings MUST NOT close.
 - Functional correctness alone MUST NOT satisfy final Loop Acceptance; Engineering
   and Delivery Acceptance also apply.
-- Full Loop Task, Finding, Loop, and recovery state MUST retain one authority each;
-  detailed artifacts and Checklists are projections.
+- Each lifecycle fact MUST have one authoritative source.
+- Supporting artifacts SHOULD reference authority; copies are derived
+  projections with a Git boundary.
+- Before Full Loop Closure, authoritative lifecycle assertions MUST be checked
+  against projections.
+- Lifecycle drift is a Process Finding; projections MUST NOT override authority.
 
-The Supervisor MUST approve a Full Loop Contract first. Loop Map, Task Ledger, and
-Finding Ledger own their respective statuses; only a recorded `closed` Loop may be
-checked. Responsible roles provide decisions or evidence and the Integrator records
-them. Use Lightweight for bounded work and Full Loop when coordination, repeated
+The Supervisor MUST approve a Full Loop Contract. Responsible roles provide
+decisions or evidence; the Integrator records them. Only a recorded `closed` Loop
+may be checked. Use Lightweight for bounded work and Full Loop when coordination, repeated
 Findings, or recovery justify its cost. High product risk may load deeper Review. See
 the
 [Loop Engineering model](docs/loop-engineering-model.md) and

@@ -9,6 +9,14 @@ To: next available agent
 
 No active handoff.
 
+## Authority Pointers
+
+- Project: see `PROJECT.md`.
+- Loop: see `LOOP-MAP.md`.
+- Current Task status, owner, and revision: see the current `TASK-LEDGER.md`.
+- Finding status and severity: see the current `FINDING-LEDGER.md`.
+- Recovery boundary and exact Resume Point: see root `CHECKPOINT.md`.
+
 ## Completed
 
 - None.
@@ -41,15 +49,15 @@ Finding without evidence.
 
 ## Checklist Status
 
-Status: inactive
+- Procedure projection only; see `CHECKLIST.md`.
 
 ## Resume Point
 
-- None.
+- See the exact Resume Point in root `CHECKPOINT.md` when recovery is active.
 
 ## Context Pressure
 
-Level: unknown
+- See root `CHECKPOINT.md` when recovery is active.
 
 ## Active Research Brief
 
@@ -77,3 +85,5 @@ Level: unknown
   become a second Recovery authority or override its exact Resume Point.
 - A handoff MAY reference Project Acceptance or a Final Delivery Report but MUST
   NOT imply Project closure, release authority, deployment, or user acknowledgement.
+- A necessary copied lifecycle value MUST be labelled as a derived projection with
+  its authority and observed Git boundary; otherwise use an authority pointer.

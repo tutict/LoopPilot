@@ -232,7 +232,7 @@ def validate_phase9_calibration(root: Path, errors: list[str]) -> None:
     if scenarios.is_file():
         _require(
             scenarios.read_text(encoding="utf-8"),
-            ("## 234. High Product Risk With One Owner", "## 263. Phase 10 Remains Future Work"),
+            ("## 234. High Product Risk With One Owner", "## 263. Phase 10 Evidence Stays Separately Attributed"),
             "tests/scenarios.md",
             errors,
         )

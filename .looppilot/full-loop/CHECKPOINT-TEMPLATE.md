@@ -38,16 +38,16 @@ and `invalid`. Active IDs use `CHECKPOINT-NNN` with at least three digits.
 ## Current Execution State
 
 - Current mode: none
-- Successful Deliveries: none
-- Failed delegation attempts: none
-- Current implementation owner: none
-- Current Loop: none
-- Loop status observed in Loop Map: none
+- Successful Deliveries: see current Task Ledger and Delivery references
+- Failed delegation attempts: see current Task Ledger and Integration Record
+- Current implementation owner: see current Task Ledger
+- Current Loop: see Loop Map
+- Loop status observed in Loop Map: see current Loop row
 - Current Barrier: none
-- Active Task or Rework: none
-- Integration state: none
-- Review state: none
-- Closure state: none
+- Active Task or Rework: see current Task Ledger
+- Integration state: see current Integration Record
+- Review state: see current Review Reports
+- Closure state: see current Loop Closure
 - Context Pressure: unknown
 - Budget State: unbounded-unknown
 
@@ -58,15 +58,15 @@ Context Pressure values are `unknown`, `normal`, `elevated`, `high`, and
 
 ## Verified Completed Work
 
-- None.
+- Reference integrated Deliveries and authoritative Task entries.
 
 ## Unfinished Work
 
-- None.
+- Reference current Task or Finding entries and the exact Resume Point.
 
 ## Open Blockers
 
-- None.
+- Reference open blocker entries in the current Finding Ledger.
 
 ## Execution Infrastructure Incidents Affecting Recovery
 
@@ -78,7 +78,7 @@ it does not own Project or Loop Status.
 
 ## Open Major Findings
 
-- None.
+- Reference open major entries in the current Finding Ledger.
 
 ## Pending Decisions
 

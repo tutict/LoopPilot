@@ -34,10 +34,10 @@ UNAUTHORIZED_COMMIT_ROW = (
     "pending | yes | no | not-created-not-authorized | pending |"
 )
 TASK_PLACEHOLDER = (
-    "| None | None | None | no | proposed | none | none | pending | pending | none |"
+    "| None | None | None | no | proposed | none | 0 | none | pending | pending | none |"
 )
 VALID_TASK_ROW = (
-    "| TASK-001 | Implement access | implementation | yes | proposed | none | "
+    "| TASK-001 | Implement access | implementation | yes | proposed | none | 0 | "
     "none | pending | pending | none |"
 )
 FINDING_PLACEHOLDER = (
@@ -377,7 +377,7 @@ class FullLoopTemplateTests(unittest.TestCase):
 
     def test_44_invalid_rework_task_id_is_rejected(self) -> None:
         row = (
-            "| TASK-001-RX | Fix access | rework | yes | proposed | none | "
+            "| TASK-001-RX | Fix access | rework | yes | proposed | none | 1 | "
             "TASK-001 | pending | pending | TASK-001 |"
         )
         self.assert_rejected(
@@ -386,7 +386,7 @@ class FullLoopTemplateTests(unittest.TestCase):
         )
 
     def test_45_inactive_task_ledger_cannot_name_worker(self) -> None:
-        row = TASK_PLACEHOLDER.replace("| none | none | pending", "| worker-a | none | pending")
+        row = TASK_PLACEHOLDER.replace("| none | 0 | none | pending", "| worker-a | 0 | none | pending")
         self.assert_rejected(
             lambda fixture: self.write_task_rows(fixture, [row], active=False),
             "inactive template cannot name a real Worker",

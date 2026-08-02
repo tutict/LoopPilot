@@ -1,6 +1,49 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## Unreleased
+
+- Rejected a canonical lifecycle assertion copied into a supporting `.looppilot/`
+  artifact outside a declared projection or closure section, so a duplicated
+  lifecycle value without source, boundary, and derived-status metadata is
+  invalid rather than undocumented. Semantic staleness of undeclared prose
+  remains Reviewer work.
+- Declared Scenario ID, input boundary, evidence links, reviewer decision, and
+  unverified limitations in the evaluation and Host Acceptance Record templates,
+  and disclosed that the validator does not yet enforce the added fields.
+- Separated README claims into Implemented, Observed, and Unverified, and listed
+  every candidate host, including Claude Code, as explicitly unverified.
+
+- Added a reference-host evaluation preparation note for Claude Code without
+  claiming any observed acceptance, and required it as a repository file.
+- Consolidated the changelog into a single Unreleased section with the
+  document preamble at the top.
+
+- Defined the Cross-Host Acceptance procedure, per-host verdicts, the inactive
+  Host Acceptance Record template, and the v1.0 Release Candidate checklist
+  inside the feature freeze, without verifying any host or preparing a release.
+- Added public structural validation and regression cases for Host Acceptance
+  Records, and fixed three checkpoint-recovery test helpers that pytest
+  collected as module-level tests.
+
+- Finalized Phase 11 lifecycle authority, derived projection, finite Closure
+  assertion, backward-compatible validation, and governance-surface reduction rules.
+- Corrected the Phase 11 validator from four-axis independent review: committed
+  snapshots stay valid through ancestor Git boundaries, superseded Review rounds
+  no longer block Closure, authority pointers are no longer flagged as competing
+  authorities, the Finding assertion grammar matches the frozen ID pattern, the
+  repository-wide forbidden-Ledger scan is restored, migration warnings print
+  on failing runs, role-authority declarations stay outside lifecycle-file
+  scope, and non-canonical Ledger IDs receive migration guidance instead of an
+  unexplained failure.
+- Added the public lifecycle consistency validator, focused regression fixtures,
+  migration guidance, and semantic Reviewer boundary without adding a runtime,
+  role, mode, Ledger, status, severity, Barrier, acceptance layer, or authority.
+- Feature-froze the v1 core protocol for Cross-Host Acceptance and Release
+  Candidate preparation.
 
 - Added Phase 9 baseline attribution, Verification Surface inventory, Product Risk
   versus Coordination Necessity, specialist-reviewed Lightweight, delegation
@@ -18,12 +61,6 @@
   guidance without adding runtime state or authority.
 - Added Phase 7 public validation, 76 distinct regressions, 40 scenarios, rubric
   dimensions, five Mermaid diagrams, and explicit Phase 6 through Phase 8 status.
-
-All notable changes to this project will be documented in this file.
-
-The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
 
 ### Added
 

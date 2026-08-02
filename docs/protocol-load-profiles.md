@@ -24,7 +24,8 @@ Load for every task:
 - `SKILL.md` and the current user instruction;
 - current Git and observable workspace state;
 - baseline attribution and Verification Surface when validation is relevant;
-- Product Risk and Coordination Necessity before selecting a mode; and
+- Product Risk and Coordination Necessity before selecting a mode;
+- the single-authority and derived-projection rules when lifecycle state is relevant;
 - the active host-native Goal and Plan, if any; and
 - `.looppilot/STATE.md` and `.looppilot/HANDOFF.md` only when continuity is
   relevant.
@@ -46,18 +47,20 @@ Lightweight MAY add a risk-matched Security, Data, Compatibility, Accessibility,
 Operations Reviewer. This adds review depth, not a mode; Spec and Standards remain
 the permanent axes.
 
-Lightweight does not default to Full Loop history, Loop Map entries, full Loop
-Contracts, Task or Finding Ledgers, multiple Worker Deliveries, Integration
-Records, Loop Closure, Project Closure, Cross-Loop Validation, Project
-Acceptance, Release Readiness, or Final Delivery Reports.
+Lightweight does not default to Full Loop history, Lifecycle Assertions, projection
+inventories, Loop Map entries, full Loop Contracts, Task or Finding Ledgers,
+multiple Worker Deliveries, Integration Records, Loop Closure, Project Closure,
+Cross-Loop Validation, Project Acceptance, Release Readiness, or Final Delivery
+Reports. Load lifecycle consistency guidance only for complex recovery or an actual
+copied mutable value.
 
 ## Full Loop Profile
 
 Load Core plus the active Project engineering context, Loop Map entry, Loop
 Contract, Task and Finding Ledgers, scoped Task Contracts, relevant Worker
-Deliveries, Review Reports, Integration Record, Closure requirements, coordination
-necessity, delegation failure budget, ownership fallback, verifiable claims, and
-the current Checkpoint only when recovery is active.
+Deliveries, Review Reports, Integration Record, Closure requirements, lifecycle
+consistency guidance, coordination necessity, delegation failure budget,
+ownership fallback, verifiable claims, and the current Checkpoint only when recovery is active.
 
 Always retain independent Spec and Standards Review. Add Security, Data,
 Compatibility, Operations, Accessibility, or another specialist only when the
@@ -70,7 +73,8 @@ Load this profile only when multiple mandatory Loops, Project Acceptance,
 release readiness, or final delivery actually requires project-level closure.
 Load the Project Closure templates, Cross-Loop Validation, Project Finding
 triage, independent Project Review, Project Acceptance, Release Readiness, and
-Final Delivery Report as applicable.
+Final Delivery Report as applicable. Recheck Project authority, closed-Loop
+evidence, remaining Findings, and release-versus-execution distinctions.
 
 A single Lightweight change or ordinary single-Loop delivery does not load this
 profile. Release Readiness records evidence and never authorizes release,

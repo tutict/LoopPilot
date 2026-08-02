@@ -57,6 +57,11 @@ replace every placeholder with current facts. The Task Contract is authoritative
 for the Worker's scoped responsibility but remains subordinate to the latest user
 instruction, current authorization, and the parent Goal.
 
+In Full Loop Mode, the current Task Ledger owns project lifecycle status, owner,
+and revision. This frontmatter records the delegated contract workflow; any copied
+lifecycle value is a derived projection of that Ledger, and the Ledger wins on
+conflict. It does not become a competing authority.
+
 The Worker MUST NOT change `parent_goal`, expand `scope.allowed`, weaken
 `scope.forbidden`, grant authority, select its own Reviewer, or claim the parent
 Goal is complete. Evidence MUST describe observed results rather than intended or

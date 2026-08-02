@@ -398,7 +398,7 @@ CASES = (
     *_required_cases("load_requirement", tuple((Path("docs/protocol-load-profiles.md"), token) for token in LOAD_TOKENS)),
     *_required_cases("migration_requirement", tuple((Path("docs/full-loop-migration-plan.md"), token) for token in MIGRATION_TOKENS)),
     Case("phase9_scenario_start_required", "replace", Path("tests/scenarios.md"), "## 234. High Product Risk With One Owner", "## scenario removed", "missing Phase 9 requirement"),
-    Case("phase9_scenario_end_required", "replace", Path("tests/scenarios.md"), "## 263. Phase 10 Remains Future Work", "## scenario removed", "missing Phase 9 requirement"),
+    Case("phase9_scenario_end_required", "replace", Path("tests/scenarios.md"), "## 263. Phase 10 Evidence Stays Separately Attributed", "## scenario removed", "missing Phase 9 requirement"),
     Case("phase9_rubric_baseline_required", "replace", Path("tests/evaluation-rubric.md"), "Attributes Repository, Environment-Corrected, and Scope-Focused evidence before a regression claim.", "Baseline unknown", "missing Phase 9 requirement"),
     Case("phase9_rubric_coordination_required", "replace", Path("tests/evaluation-rubric.md"), "Shows why multiple owners, integration, recovery, or rework governance is actually needed.", "Coordination unknown", "missing Phase 9 requirement"),
     Case("phase9_rubric_closure_required", "replace", Path("tests/evaluation-rubric.md"), "States missing Deliveries, verification, acceptance, and remaining authority precisely.", "Closure unknown", "missing Phase 9 requirement"),

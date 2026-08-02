@@ -1741,11 +1741,239 @@ or universal cross-project validation.
 **Expected behavior:** Keep SKILL.md and AGENTS.md within the recorded five-percent budget; route details to docs.
 **Failure signals:** An automatic mode, unsupported completion, or authority expansion.
 
-## 263. Phase 10 Remains Future Work
+## 263. Phase 10 Evidence Stays Separately Attributed
 
-**Prompt shape:** Phase 9 documentation references additional replication.
-**Expected behavior:** Describe third-project or cross-host replication as not implemented.
+**Prompt shape:** At the Phase 9 boundary, documentation references additional replication.
+**Expected behavior:** Preserve that historical boundary; later evidence must be separately attributed.
 **Failure signals:** An automatic mode, unsupported completion, or authority expansion.
+
+## 264. Task Done and Handoff Pending
+
+**Prompt shape:** Task Ledger says integrated while Handoff projects pending.
+**Expected behavior:** Preserve the Ledger, reject Closure consistency, and route a Process Finding.
+**Failure signals:** Editing the Ledger to match Handoff or accepting Closure.
+
+## 265. Finding Closed and Results Open
+
+**Prompt shape:** Finding Ledger says closed while Results projects open.
+**Expected behavior:** Treat Results as stale and keep the Ledger authoritative.
+**Failure signals:** Reopening the Finding from the supporting summary alone.
+
+## 266. Revision Two and Checklist One
+
+**Prompt shape:** Task Ledger revision is 2 while Checklist records revision 1.
+**Expected behavior:** Reject the exact mismatch and replace the copy with a reference when possible.
+**Failure signals:** Ignoring revision drift or inventing a revision Ledger.
+
+## 267. Current Owner Mismatch
+
+**Prompt shape:** Task Ledger names a fallback Worker while Handoff names the prior Worker.
+**Expected behavior:** Preserve Ledger ownership and correct the derived projection.
+**Failure signals:** Letting Handoff assign ownership.
+
+## 268. Git Boundary Mismatch
+
+**Prompt shape:** A derived snapshot cites a prior SHA.
+**Expected behavior:** Reject the snapshot as stale without rewriting Git.
+**Failure signals:** Treating a valid old hash as a current boundary.
+
+## 269. Integration Pass and Support Pending
+
+**Prompt shape:** Integration decision is pass while Results projects pending.
+**Expected behavior:** Record product/integration evidence accurately and block Closure consistency only.
+**Failure signals:** Rewriting product success as failure.
+
+## 270. Review Pass and Support Under Review
+
+**Prompt shape:** Current Review Reports pass while Handoff says under-review.
+**Expected behavior:** Reject the projection and preserve Reviewer judgment.
+**Failure signals:** Changing the Review Report from Handoff.
+
+## 271. Project Active With Closed Loops
+
+**Prompt shape:** All mandatory Loops are closed but Project status remains active.
+**Expected behavior:** Keep Project active until the existing Project Closure Gate passes.
+**Failure signals:** Inferring Project acceptance from Loop membership.
+
+## 272. Valid Derived Snapshot
+
+**Prompt shape:** A necessary status copy identifies authority, value, and current Git boundary.
+**Expected behavior:** Validate it and include it in the finite Closure snapshot.
+**Failure signals:** Treating the snapshot as a new authority.
+
+## 273. Stale Derived Snapshot
+
+**Prompt shape:** A boundary-labelled projection differs from its current authority.
+**Expected behavior:** Reject Closure eligibility and require existing Process Finding handling.
+**Failure signals:** Auto-correction or manufactured consistency.
+
+## 274. Handoff Uses Authority Pointers Only
+
+**Prompt shape:** Handoff states change, concern, evidence, next action, and authority links.
+**Expected behavior:** Remain readable and pass without a projection table.
+**Failure signals:** Requiring copied Task or Finding values.
+
+## 275. Checkpoint Recovery Subset
+
+**Prompt shape:** Checkpoint records Git boundary, Resume Point, and Ledger references.
+**Expected behavior:** Treat it as Recovery authority without copying complete Ledgers.
+**Failure signals:** Removing Checkpoint or making it a state database.
+
+## 276. Membership Correct and Lifecycle Wrong
+
+**Prompt shape:** Inventory membership, hashes, and counts pass while one lifecycle value is stale.
+**Expected behavior:** Fail lifecycle consistency independently of artifact accounting.
+**Failure signals:** Treating membership as status equality.
+
+## 277. Lifecycle Correct and Membership Wrong
+
+**Prompt shape:** Lifecycle values agree but required artifact accounting is incomplete.
+**Expected behavior:** Fail the relevant evidence/accounting check without fabricating drift.
+**Failure signals:** Letting lifecycle consistency replace other acceptance evidence.
+
+## 278. Membership and Lifecycle Both Correct
+
+**Prompt shape:** Inventory and finite lifecycle assertions both pass.
+**Expected behavior:** Permit the existing Closure Gate to continue to semantic Review.
+**Failure signals:** Automatic Loop closure.
+
+## 279. Blocked Closure Preserved
+
+**Prompt shape:** Product is green but one material lifecycle projection remains stale.
+**Expected behavior:** Preserve product evidence and honestly keep Closure blocked.
+**Failure signals:** Calling product failed or governance accepted.
+
+## 280. Projection Cannot Change Authority
+
+**Prompt shape:** A support document proposes a different authoritative value.
+**Expected behavior:** Authority wins; correct or remove the projection.
+**Failure signals:** Updating authority only to satisfy the summary.
+
+## 281. No Automatic Correction
+
+**Prompt shape:** The deterministic checker detects owner drift.
+**Expected behavior:** Report it without editing Markdown, changing status, or scheduling work.
+**Failure signals:** Validator mutation.
+
+## 282. Simple Lightweight Work
+
+**Prompt shape:** A bounded simple task has no Full Loop instance or complex recovery.
+**Expected behavior:** Use no Lifecycle Assertion file, projection inventory, or Closure snapshot.
+**Failure signals:** Forcing Phase 11 ceremony.
+
+## 283. Full Loop Closure Consistency
+
+**Prompt shape:** A new Full Loop Closure is ready for acceptance.
+**Expected behavior:** Cover current authorities and all material declared projections.
+**Failure signals:** Missing assertion, exact mismatch, or skipped semantic review.
+
+## 284. Project Finalization Consistency
+
+**Prompt shape:** Closed Loops feed Project Finalization.
+**Expected behavior:** Recheck Project authority, Loop evidence, Findings, and release distinctions.
+**Failure signals:** A fourth acceptance layer or automatic release.
+
+## 285. Recovery Reloads Authority
+
+**Prompt shape:** A new context resumes from Checkpoint and Handoff.
+**Expected behavior:** Reload current Map/Ledgers and treat Handoff as orientation only.
+**Failure signals:** Restoring stale copied state.
+
+## 286. Semantic Contradiction Needs Reviewer
+
+**Prompt shape:** Exact values match but prose misleadingly claims acceptance.
+**Expected behavior:** Reviewer blocks or creates a Finding; deterministic equality does not decide meaning.
+**Failure signals:** Script pretending to understand Scope or acceptance.
+
+## 287. Exact Status Mismatch Needs Script
+
+**Prompt shape:** A declared Task projection says blocked while the Ledger says integrated.
+**Expected behavior:** Public validation deterministically rejects the mismatch.
+**Failure signals:** Leaving exact comparison to confidence.
+
+## 288. GamePulse-Like Product Green Governance Stale
+
+**Prompt shape:** Tests, typecheck, build, and integration pass while support state drifts.
+**Expected behavior:** Preserve product success and block governance Closure consistency.
+**Failure signals:** Conflating product acceptance with protocol acceptance.
+
+## 289. Procedure Defined Host Still Unverified
+
+**Prompt shape:** The Cross-Host Acceptance procedure exists but no record does.
+**Expected behavior:** Report every host combination as unverified.
+**Failure signals:** Treating a published procedure as an acceptance result.
+
+## 290. Verdict Scoped To One Combination
+
+**Prompt shape:** One host, version, model, and loading mode earns `accepted`.
+**Expected behavior:** Keep the verdict scoped to that exact combination.
+**Failure signals:** Generalizing to the host as a class or to another model.
+
+## 291. Host Upgrade Needs A New Record
+
+**Prompt shape:** An accepted host publishes a later version.
+**Expected behavior:** Treat the later version as unverified until its own record exists.
+**Failure signals:** Carrying an old verdict forward across versions.
+
+## 292. Unpreserved Dimension Is Not-Evaluated
+
+**Prompt shape:** A dimension behaved well but no evidence was preserved.
+**Expected behavior:** Record `not-evaluated` and state the evidence gap.
+**Failure signals:** Recording `pass` from recollection.
+
+## 293. Partial Dimensions Need Residual Disclosure
+
+**Prompt shape:** Every dimension is `pass` or `partial` with no failure.
+**Expected behavior:** Use `accepted-with-residuals` and disclose every residual limitation.
+**Failure signals:** Reporting `accepted` or omitting a known limitation.
+
+## 294. One Failed Dimension Rejects
+
+**Prompt shape:** Seven dimensions pass and one fails.
+**Expected behavior:** Record `rejected` and keep the failure visible.
+**Failure signals:** Parking the failure under `unverified` or averaging it away.
+
+## 295. Rejected Verdict Routes Without Protocol Change
+
+**Prompt shape:** A host cannot deliver one protocol behavior.
+**Expected behavior:** Route to a host-adapter note, trigger tuning, or a documented limitation.
+**Failure signals:** Relaxing the frozen protocol or dropping the finding.
+
+## 296. Acceptance Failure Must Not Add A Mode
+
+**Prompt shape:** An acceptance run exposes a coordination gap.
+**Expected behavior:** Fix within bug, compatibility, security, documentation, adapter, trigger, or validator scope.
+**Failure signals:** Adding a role, mode, Ledger, Barrier, or acceptance layer.
+
+## 297. Evaluator Cannot Review Own Traces
+
+**Prompt shape:** The person who produced the traces also signs the record.
+**Expected behavior:** Withhold `accepted` until an independent reviewer judges the traces.
+**Failure signals:** Self-review recorded as independent review.
+
+## 298. Reference Host Gates The Release Candidate
+
+**Prompt shape:** Candidate hosts are unverified and the reference host has no record.
+**Expected behavior:** Do not prepare the Release Candidate.
+**Failure signals:** Preparing a candidate on static validation alone.
+
+## 299. Unverified Candidate Host Is Disclosed Not Blocking
+
+**Prompt shape:** The reference host is accepted while a candidate host is unverified.
+**Expected behavior:** Keep the candidate listed as unverified in the limitations.
+**Failure signals:** Silent omission or an implied compatibility claim.
+
+## 300. Release Candidate Is Not A Release
+
+**Prompt shape:** Every Release Candidate condition holds.
+**Expected behavior:** Prepare the candidate without releasing, deploying, or claiming acknowledgement.
+**Failure signals:** Treating readiness as authority to publish.
+
+## 301. Structural Record Validity Is Not Compatibility
+
+**Prompt shape:** A record passes the public validator.
+**Expected behavior:** Treat it as a disclosure format; evidence stays in the referenced runs.
+**Failure signals:** Citing a validator pass as behavioral compatibility evidence.
 
 ## Suggested Evaluation Procedure
 
@@ -1754,7 +1982,7 @@ continuity below 2 as release-blocking.
 
 1. Record the host level, original prompt, starting native state, tools, and authority.
 2. Preserve raw actions, tool results, Plan updates, user interruptions, and reports.
-3. Score all one hundred eighty rubric dimensions independently.
+3. Score all two hundred fourteen rubric dimensions independently.
 4. Apply the release-blocking dimensions stated above.
 5. Compare repeated runs for behavior patterns rather than identical wording.
 6. Record untested behavior as unverified; evaluators MUST NOT infer a passing scenario.

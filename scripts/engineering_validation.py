@@ -114,8 +114,8 @@ CONCERN_ROWS = (
 SINGLE_SOURCE_ROWS = (
     ("Project Scope", "PROJECT.md"),
     ("Loop list and Loop status", "LOOP-MAP.md"),
-    ("Task status", "Current Loop TASK-LEDGER.md"),
-    ("Finding status", "Current Loop FINDING-LEDGER.md"),
+    ("Task status, owner, and revision", "Current Loop TASK-LEDGER.md"),
+    ("Finding status and severity", "Current Loop FINDING-LEDGER.md"),
     ("Current recovery entry", "Root CHECKPOINT.md"),
 )
 CREDENTIAL_NAMES = (

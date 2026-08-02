@@ -47,6 +47,7 @@ No active grouping.
 - Integrator record: none
 - Active specialist Reviewers: none
 - Recovery implications: none
+- Lifecycle authority references: Project, Map, current Ledgers, and Checkpoint
 
 The Full Loop Contract Barrier is evaluated before implementation. These fields
 record a Supervisor decision; they do not add a mode status, acceptance layer, or

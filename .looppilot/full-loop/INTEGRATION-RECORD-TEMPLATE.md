@@ -111,8 +111,9 @@ when the evidence proves that defect.
 
 ## Authority Note
 
-The Integrator records integration facts, readiness projections, and mechanical
-resolutions only. Semantic conflicts go to the Supervisor. This record does not
+The Integrator records integration facts, authority references, and mechanical
+resolutions only. Any copied lifecycle value is a boundary-labelled derived
+projection, not a second state source. Semantic conflicts go to the Supervisor. This record does not
 change Scope, accept risk, reject or rewrite Reviewer Findings, authorize commit,
 push, release, or deployment, or own Loop status. `integrated` does not mean
 `accepted`, `closed`, or `[x]`; `LOOP-MAP.md` remains the Loop status source.

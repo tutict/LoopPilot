@@ -157,11 +157,12 @@ Behavioral equivalence matters more than representation.
 
 ## Thin Ledgers and One Authority
 
-Full Loop Ledgers are deliberately narrow. The Loop Map stores Loop projection,
-Task Ledger stores Task projection, and Finding Ledger stores Finding projection;
-Contracts, Deliveries, Reviews, Finding Detail, Rework Tasks, and Closure retain richer content and
-evidence. This prevents the same status from drifting across files and avoids
-turning Markdown into a workflow database.
+Full Loop Ledgers are deliberately narrow. The Loop Map owns Loop status, the Task
+Ledger owns Task status, owner, and revision, and the Finding Ledger owns Finding
+status and severity. Contracts, Deliveries, Reviews, Finding Detail, Rework Tasks,
+and Closure retain richer content and evidence. Supporting copies are
+boundary-labelled derived projections checked before Closure. This limits drift
+without turning Markdown into a workflow database.
 
 Task-level Readiness is deliberately narrower than Loop-level Review. Integration
 records what was combined and which checks ran; it does not prove the outcome meets

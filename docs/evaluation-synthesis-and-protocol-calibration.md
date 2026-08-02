@@ -123,6 +123,16 @@ profiles, or benchmarks justify it. Full Loop does not require a DDD model, a
 large DI framework, MVVM forwarding layers, classes for pure helpers, or
 zero-copy changes without measurement.
 
+## Final Lifecycle Calibration
+
+Later EXP-008, EXP-009, and the different GamePulse EXP-010 repeatedly exposed
+stale lifecycle projections while preserving distinct product and governance
+outcomes. Phase 11 therefore treats supporting copies as derived, retains one
+authority per lifecycle fact, and adds a finite pre-Closure consistency check. This
+is repeated-pattern evidence, not proof that every Full Loop drifts or that any
+named host is compatible. See
+[final protocol calibration](final-protocol-calibration.md).
+
 ## Migration Status
 
 - Phase 1 through Phase 5: statically implemented.
@@ -136,3 +146,8 @@ zero-copy changes without measurement.
   archive does not contain final comparative scoring.
 - Phase 9, Second evidence-backed calibration: statically implemented by this
   repository revision.
+- Phase 10, Third-project replication: observed through GamePulse EXP-010, whose
+  final Full Loop behavioral acceptance failed with a verified partial delivery;
+  cross-host acceptance remains.
+- Phase 11, Final protocol calibration: statically implemented by this repository
+  revision; behaviorally unverified.

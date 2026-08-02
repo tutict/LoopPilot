@@ -378,7 +378,12 @@ def validate_evaluation_calibration(
     if REVIEWER_TYPES != EXPECTED_REVIEWER_TYPES:
         errors.append("Phase 7 freeze: Reviewer types changed")
 
-    allowed_ledgers = {"TASK-LEDGER-TEMPLATE.md", "FINDING-LEDGER-TEMPLATE.md"}
+    allowed_ledgers = {
+        "TASK-LEDGER-TEMPLATE.md",
+        "FINDING-LEDGER-TEMPLATE.md",
+        "TASK-LEDGER.md",
+        "FINDING-LEDGER.md",
+    }
     unexpected_ledgers = {
         path.name
         for path in (root / ".looppilot").rglob("*-LEDGER.md")

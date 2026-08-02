@@ -193,6 +193,7 @@ authorize more work after the stop.
 | Checked Loop before Closure | Remove the mark; only `closed` may be `[x]` |
 | Task or Review treated as Loop completion | Keep the Loop unchecked and evaluate all Barriers |
 | Contract duplicates Loop status | Use Contract Status and defer Loop status to the Loop Map |
+| Supporting projection conflicts with authority | Preserve authority, fix or remove the projection, and route lifecycle drift through the existing Process Finding flow |
 | Checklist conflicts with a Ledger | Recheck observable facts, correct the projection, and preserve Ledger authority |
 | Required commit lacks authority | Record not-created-not-authorized and stop at the contract-defined state |
 | Integrator accepts risk or lowers severity | Reject the transition and require a Supervisor decision |
@@ -200,6 +201,8 @@ authorize more work after the stop.
 | Worker self-approves Delivery | Require Task-level Readiness before integration |
 | Integrator resolves semantic conflict | Stop integration and request a Supervisor decision |
 | Rework repeats the failed strategy | Require material strategy change or Supervisor escalation |
+| Closure omits material lifecycle projections | Reject readiness until the finite assertion snapshot and semantic review are complete |
+| Validator attempts automatic correction | Stop; deterministic validation must remain read-only and must not create Findings or change status |
 | Closure hides skipped verification | Reject readiness until the omission is disclosed and dispositioned |
 | Closure claims recovery without Checkpoint | Record recovery readiness as false; recovery is Phase 4 work |
 | Full Loop artifacts added to trivial work | Return to Lightweight Mode and remove unnecessary ceremony |

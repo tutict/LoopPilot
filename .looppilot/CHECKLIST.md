@@ -29,7 +29,12 @@ not a mode decision.
 
 ## Work Items
 
-- [ ] None.
+- [ ] Confirm mandatory Tasks against the current `TASK-LEDGER.md`.
+- [ ] Confirm Finding disposition against the current `FINDING-LEDGER.md`.
+- [ ] Confirm Loop Closure and status against `LOOP-CLOSURE.md` and `LOOP-MAP.md`.
+- [ ] Confirm recovery facts against root `CHECKPOINT.md`.
+
+These are procedure checks, not copied Task, Finding, Review, or Closure states.
 
 ## Blocked Items
 

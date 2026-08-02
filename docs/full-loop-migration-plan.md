@@ -103,10 +103,37 @@ role, status, Ledger, or authority.
 
 ## Phase 10: Third-Project and/or Cross-Host Replication
 
-**Status: not implemented.**
+**Status: observed through GamePulse EXP-010; its final Full Loop behavioral
+acceptance was FAIL with a verified partial delivery; cross-host acceptance
+remains.**
 
-Future work may include another project or host, a fully archived control comparison,
-dynamic holdout observation, and further recovery or Reviewer evidence.
+The different GamePulse project repeated lifecycle projection drift after product,
+integration, test, typecheck, and build success. This supports the Phase 11
+calibration but does not prove named-host compatibility or universal behavior.
+
+## Phase 11: Final Protocol Calibration
+
+**Status: implemented statically; behaviorally unverified; v1 core protocol
+feature frozen.**
+
+Lifecycle facts remain in their existing authorities. Supporting copies are derived
+projections, and new Full Loop Closure uses finite consistency assertions plus
+Reviewer semantic judgment. Phase 11 adds no role, mode, Ledger, status, severity,
+Barrier, acceptance layer, recovery authority, or runtime.
+
+The next phase is Cross-Host Acceptance and Release Candidate preparation, not
+EXP-011 or another core protocol calibration. Before the RC, only bug,
+compatibility, security, documentation, host-adapter, trigger-tuning, and validator
+correctness fixes are in scope.
+
+## Cross-Host Acceptance and Release Candidate
+
+**Status: procedure defined; every host combination remains unverified.**
+
+The [acceptance procedure](cross-host-acceptance.md) defines per-host verdicts,
+evidence requirements, the Host Acceptance Record, and the Release Candidate
+checklist inside the feature freeze. No observed Host Acceptance Record exists
+yet, so no host verdict has changed and the Release Candidate is not prepared.
 
 ## Migration Rules
 

@@ -57,6 +57,23 @@ Allowed Closure Status values are `inactive`, `draft`, `ready-for-acceptance`,
 
 - None.
 
+## Lifecycle Consistency
+
+- Assertion snapshot: none
+- Deterministic validation: `python scripts/validate.py`
+- Semantic projection review: not-evaluated
+- Open consistency findings: none
+- Snapshot Git boundary: none
+
+| Assertion | Authority | Projection | Expected | Observed | Consistent |
+|---|---|---|---|---|---|
+| None | none | authoritative-only | none | none | no |
+
+This finite snapshot covers current Closure facts and material declared projections.
+It is an existing Closure check, not a new Barrier, Ledger, status, or acceptance
+layer. Exact values are deterministic; semantic contradictions remain Reviewer
+judgment.
+
 ## Finding Disposition
 
 | Finding | Severity | Final Status | Decision | Evidence |

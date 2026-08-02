@@ -138,12 +138,12 @@ class LoopEngineeringArchitectureTests(unittest.TestCase):
         def mutate(fixture: Path) -> None:
             self.remove_once(
                 fixture / MODE_DOCUMENT,
-                "| Task status | Current Loop TASK-LEDGER.md |",
+                "| Task status, owner, and revision | Current Loop TASK-LEDGER.md |",
             )
 
         result = self.validate_fixture(mutate)
         self.assertEqual(1, result.returncode)
-        self.assertIn("missing single source of truth for Task status", result.stdout)
+        self.assertIn("missing single source of truth for Task status, owner, and revision", result.stdout)
 
     def test_20_real_host_validation_claim_is_rejected(self) -> None:
         def mutate(fixture: Path) -> None:

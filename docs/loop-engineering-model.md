@@ -186,6 +186,9 @@ Project Loop Map, one Contract per Loop, and authoritative Task and Finding Ledg
 The Loop Map alone owns Loop status. Task and Finding detail remains separate from
 Ledger status, and only a `closed` Loop may be checked complete. Task completion,
 integration, Review approval, or commit alone does not pass the Closure Barrier.
+Before a new Full Loop Closure is ready, a finite assertion snapshot compares
+authoritative lifecycle facts with material declared projections. This is a check
+inside existing Closure acceptance, not another Barrier or lifecycle layer.
 
 The [Phase 2 protocol](full-loop-contracts-and-ledgers.md) defines enums, grouping,
 Task DAG, Reviewer Matrix, budget, commit authorization exceptions, role decisions,

@@ -9,10 +9,17 @@ For each run, copy the templates and record:
 - Model;
 - LoopPilot version or commit;
 - Skill loading mode;
-- task fixture and exact prompt;
+- Scenario ID and task fixture;
+- exact prompt and input boundary;
+- observable trace and evidence links;
 - observed outcome;
-- rubric score; and
-- evaluator notes.
+- rubric score;
+- reviewer decision; and
+- evaluator notes and unverified limitations.
+
+A run whose Scenario ID, evidence links, reviewer decision, or unverified
+limitations are missing is an incomplete evaluation, not a weaker result. Report
+it as incomplete rather than scoring around the gap.
 
 Evaluators MUST keep observations separate from interpretation and preserve
 user-visible and tool-visible evidence. They MUST NOT request or record private

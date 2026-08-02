@@ -49,6 +49,19 @@ Allowed Reviewer Type values are `spec`, `standards`, `domain`, `data`,
 
 - None.
 
+## Lifecycle Consistency Review
+
+- Supporting artifact contradiction check: not-evaluated
+- Exact fields checked: status, owner, revision, Finding state, Git boundary,
+  review decision, and Closure decision
+- Semantic projection review: not-evaluated
+- Evidence: none
+- Limitations: none
+
+Does any supporting artifact contradict authoritative lifecycle state? Deterministic
+equality belongs to `scripts/validate.py`; misleading prose, Scope meaning, and
+acceptance interpretation remain Reviewer judgment.
+
 ## Findings Created
 
 - None.

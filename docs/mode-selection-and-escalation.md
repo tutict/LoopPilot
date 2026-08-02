@@ -71,6 +71,8 @@ Evaluate Full Loop first when any hard trigger is present:
 - a release-required or production-delivery obligation.
 
 A hard trigger creates a Full Loop tendency, not an automatic runtime decision.
+Lifecycle consistency does not create another mode: Product Risk still determines
+review and evidence depth, while Coordination Necessity determines Full Loop.
 The Supervisor records actual evidence, grouping rationale, why Lightweight is
 insufficient, and expected protocol cost before the Contract Barrier.
 

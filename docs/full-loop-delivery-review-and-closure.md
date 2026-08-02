@@ -155,6 +155,13 @@ Supervisor decision and Integrator recording. Risk acceptance is not verificatio
 
 ## Loop Closure
 
+Before readiness, the finite Lifecycle Consistency snapshot derives current
+Project, Loop, Task, Finding, Git, Integration, Review, Closure, and Checkpoint
+assertions and compares material declared projections. Exact equality runs through
+`scripts/validate.py`; Reviewers judge prose, Scope, and acceptance meaning.
+Drift preserves authority and enters the existing Process Finding flow. The check
+is not a sixth Barrier and does not close a Loop or mutate Markdown.
+
 Loop Closure summarizes the objective outcome, included and excluded work,
 completed and unintegrated Tasks, integrated boundary, review coverage, Finding
 dispositions, three-layer Acceptance, five Barriers, residual risks, deferred work,
@@ -202,7 +209,10 @@ The authorities remain unchanged:
 
 The responsible role supplies a decision or evidence. The Integrator verifies that
 it is recordable and updates the corresponding authority. Detailed artifacts and
-Checklists remain projections and cannot create business decisions.
+Checklists remain procedural projections and cannot create business decisions.
+Handoff, Context Compaction, Delivery summaries, Integration summaries, Review
+summaries, and Results reference lifecycle authority unless a boundary-labelled
+snapshot is necessary.
 
 ## Static Validation Boundary
 

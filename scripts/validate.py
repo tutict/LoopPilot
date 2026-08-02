@@ -31,6 +31,14 @@ from full_loop_recovery_validation import (
     validate_full_loop_recovery,
 )
 from full_loop_validation import FULL_LOOP_FILES, validate_full_loop
+from cross_host_acceptance_validation import (
+    CROSS_HOST_ACCEPTANCE_FILES,
+    validate_cross_host_acceptance,
+)
+from lifecycle_consistency_validation import (
+    LIFECYCLE_CONSISTENCY_FILES,
+    validate_lifecycle_consistency,
+)
 from protocol_validation import (
     validate_repository_extensions,
     validate_review_protocol,
@@ -72,6 +80,8 @@ REQUIRED_FILES = (
     "scripts/project_closure_validation.py",
     *EVALUATION_CALIBRATION_FILES,
     *PHASE9_CALIBRATION_FILES,
+    *LIFECYCLE_CONSISTENCY_FILES,
+    *CROSS_HOST_ACCEPTANCE_FILES,
     "docs/validation.md",
     "docs/loop-engineering-model.md",
     "docs/project-engineering-context.md",
@@ -83,6 +93,7 @@ REQUIRED_FILES = (
     "evaluations/README.md",
     "docs/host-capabilities.md",
     "evaluations/codex/README.md",
+    "evaluations/claude-code/README.md",
     "evaluations/templates/environment.md",
     "evaluations/templates/prompt.md",
     "evaluations/templates/trace.md",
@@ -1133,9 +1144,15 @@ def extract_mermaid(blocks: list[MermaidBlock], output: Path) -> None:
         (output / block.filename).write_text(block.content, encoding="utf-8", newline="\n")
 
 
-def validate_repository(root: Path, extract_directory: Path | None = None) -> list[str]:
+def validate_repository(
+    root: Path,
+    extract_directory: Path | None = None,
+    warnings: list[str] | None = None,
+) -> list[str]:
     root = root.resolve()
     errors: list[str] = []
+    if warnings is None:
+        warnings = []
     for relative in REQUIRED_FILES:
         if not (root / relative).is_file():
             errors.append(f"missing required file: {relative}")
@@ -1151,6 +1168,8 @@ def validate_repository(root: Path, extract_directory: Path | None = None) -> li
     validate_project_closure(root, errors)
     validate_evaluation_calibration(root, errors, LOGICAL_ROLES, TASK_STATUSES)
     validate_phase9_calibration(root, errors)
+    validate_lifecycle_consistency(root, errors, warnings)
+    validate_cross_host_acceptance(root, errors)
     validate_yaml_files(root, errors)
     validate_skill_frontmatter(root, errors)
     validate_openai_yaml(root, errors)
@@ -1210,10 +1229,13 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    warnings: list[str] = []
     try:
-        errors = validate_repository(args.root, args.extract_mermaid)
+        errors = validate_repository(args.root, args.extract_mermaid, warnings)
     except (OSError, UnicodeError) as error:
         errors = [str(error)]
+    for warning in warnings:
+        print(f"WARNING: {warning}")
     if errors:
         for error in errors:
             print(f"ERROR: {error}")

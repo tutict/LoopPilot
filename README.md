@@ -276,6 +276,35 @@ does not imply release execution or user acknowledgement. These templates and th
 validator are static protocol checks, not a Project Closure or release runtime. See
 the [Phase 5 protocol](docs/project-closure-and-final-delivery.md).
 
+### Final Protocol Calibration and Feature Freeze
+
+Phase 11 makes each lifecycle fact single-authority, treats supporting copies as
+derived projections, and requires a finite lifecycle consistency snapshot before a
+new Full Loop Closure becomes ready. Exact comparisons run through the public
+validator; semantic contradiction remains independent Reviewer judgment. Legacy
+Closures without the new section receive migration guidance rather than an
+unconditional failure.
+
+The v1 core protocol is feature frozen after Phase 11. Before the Release Candidate,
+work is limited to bug, compatibility, security, documentation, host-adapter,
+trigger-tuning, and validator-correctness fixes. No new role, mode, Ledger,
+lifecycle subsystem, Barrier, or acceptance model is added. See
+[final protocol calibration](docs/final-protocol-calibration.md),
+[lifecycle authority and derived projections](docs/lifecycle-authority-and-derived-projections.md)
+and [v1 migration](docs/v1-migration.md).
+
+### Cross-Host Acceptance Preparation
+
+The [Cross-Host Acceptance procedure](docs/cross-host-acceptance.md) defines how a
+host, host version, model, and loading-mode combination earns an evidence-backed
+verdict on eight protocol dimensions, and which conditions gate the v1.0 Release
+Candidate. Verdicts come from observed
+[Host Acceptance Records](evaluations/templates/host-acceptance-record.md) that
+reference real evaluation runs; the public validator checks record structure and
+verdict constraints. Defining the procedure verifies no host: every combination
+remains `unverified` until its record exists. Reference-host preparation notes
+live in [evaluations/claude-code](evaluations/claude-code/README.md).
+
 ### Evidence-Calibrated Protocol Selection
 
 Phase 7 synthesizes four bounded, read-only MMGH experiments into documentation
@@ -351,7 +380,51 @@ does not possess. Formal compatibility requires a separate, tested adapter.
 
 ## Validation Status
 
-The following repository-level checks have been exercised with pinned tools:
+This section separates what the repository implements, what has actually been
+observed, and what remains unverified. The three are not interchangeable.
+
+### Implemented
+
+Present in the repository and exercised by static checks:
+
+- Protocol rules in [`SKILL.md`](SKILL.md), [`AGENTS.md`](AGENTS.md), and the
+  `docs/` protocol documents, through Phase 11 lifecycle authority and the v1
+  feature freeze.
+- Validators under `scripts/`, entered through `python scripts/validate.py`.
+- Inactive templates under `.looppilot/` and `evaluations/templates/`.
+
+Implemented means the rule, validator, or template exists and passes the
+repository's own checks. It does not mean an agent follows it.
+
+### Observed
+
+Recorded from bounded experiments, each scoped to its own project and archive:
+
+- MMGH EXP-001 to EXP-004 informed Phase 7 mode selection.
+- Final-Assignment EXP-005 informed Phase 8-A. EXP-006 arm execution was
+  observed; its dynamic holdout is partially unverified and the inspected
+  control archive lacks final comparative scoring.
+- EXP-008 and EXP-009 are attributed to their supplied archived reports.
+- GamePulse EXP-010 reported a verified partial delivery whose final Full Loop
+  behavioral acceptance failed.
+
+Observed means it happened in a specific recorded run. It does not generalize to
+another project, host, or model.
+
+### Unverified
+
+No evidence in this repository supports any of the following:
+
+- Actual host behavior. Every host, including the Claude Code reference host,
+  is `unverified` because no Host Acceptance Record exists yet.
+- Production reliability, longitudinal governance behavior, release, and
+  deployment.
+- Automatic agent compliance, including implicit activation accuracy, automatic
+  mode selection, automatic Loop decomposition, dynamic Reviewer selection,
+  multi-Agent creation, Checkpoint recovery, and Project Closure execution.
+- Phase 11 behavior: it is statically implemented and behaviorally unverified.
+
+The repository-level checks below have been exercised with pinned tools:
 
 - Skill frontmatter and repository YAML parse with PyYAML 6.0.3, including duplicate
   mapping-key rejection and required metadata checks.
@@ -362,18 +435,8 @@ The following repository-level checks have been exercised with pinned tools:
   11.16.0.
 
 These are syntax and repository-structure checks, not behavioral compatibility
-evidence. Real-host behavior, implicit activation accuracy, named-host compatibility,
-Full Loop operation, automatic Loop decomposition, dynamic Reviewer selection,
-multi-Agent creation and delegation, Checkpoint recovery, Project Closure,
-concurrent file isolation, and A/B traces with rubric scores remain unverified. The
-[evaluation templates](evaluations/README.md) prepare that future work without
-claiming results.
-
-Phase 6 is partially observed through MMGH EXP-001 to EXP-004 but not generally
-validated. Phase 7 is statically implemented. Phase 8-A is observed through
-Final-Assignment EXP-005. EXP-006 arm execution is observed, while its dynamic
-holdout is partially unverified and the inspected control archive lacks final
-comparative scoring. Phase 9 is statically implemented.
+evidence. The [evaluation templates](evaluations/README.md) prepare that future
+work without claiming results.
 
 ## Current Limitations
 
@@ -382,8 +445,12 @@ comparative scoring. Phase 9 is statically implemented.
 - Prompt-only hosts have weak state continuity and may require user-attributed
   evidence.
 - The lifecycle and pseudocode are conceptual, not executable interfaces.
-- Formal compatibility with Codex, Gemini CLI, GitHub Copilot, and other named hosts
-  remains unverified.
+- Every candidate host is explicitly unverified. Claude Code, Codex, Gemini CLI,
+  GitHub Copilot, and every other host have no Host Acceptance Record, so this
+  repository claims no compatibility with any of them. A host moves off this
+  list only through an observed
+  [Host Acceptance Record](docs/cross-host-acceptance.md), and its verdict then
+  covers only that exact host, host version, model, and loading mode.
 - Real concurrent scheduling, runtime permission isolation, distributed locking,
   automatic merging, and cross-session delegated recovery are not implemented.
 - Automatic-trigger accuracy and behavioral reliability still require observed
@@ -391,7 +458,9 @@ comparative scoring. Phase 9 is statically implemented.
 
 ## Roadmap
 
-- Forward-test activation and stop behavior across host capability levels.
+- Run Cross-Host Acceptance with the
+  [defined procedure](docs/cross-host-acceptance.md) before preparing a
+  Release Candidate.
 - Record reproducible evaluation traces without turning examples into fake evidence.
 - Add narrowly scoped host notes only when an adapter and tests support them.
 - Refine false-positive activation and unnecessary-loop cases.
@@ -407,6 +476,13 @@ comparative scoring. Phase 9 is statically implemented.
 - [Multi-Agent coordination](docs/multi-agent-coordination.md): supervised
   delegation, review, conflict, and integration protocol.
 - [Design rationale](docs/design-rationale.md): design tradeoffs.
+- [Lifecycle authority and projections](docs/lifecycle-authority-and-derived-projections.md):
+  Phase 11 authority, derived snapshot, and Closure consistency rules.
+- [Final protocol calibration](docs/final-protocol-calibration.md): Phase 11
+  evidence classification, calibration table, and bounded conclusion.
+- [v1 migration](docs/v1-migration.md): backward-compatible adoption guidance.
+- [Cross-Host Acceptance](docs/cross-host-acceptance.md): per-host acceptance
+  procedure, verdicts, and the Release Candidate checklist.
 - [Validation](docs/validation.md): repeatable maintenance checks and their boundary.
 - [Full Loop Contracts and Ledgers](docs/full-loop-contracts-and-ledgers.md):
   Phase 2 templates, state enums, completion projection, and authority rules.

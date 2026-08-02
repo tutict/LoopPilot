@@ -44,8 +44,8 @@ These phases do not create `PROJECT.md`, `LOOP-MAP.md`, `CHECKPOINT.md`, a
 |---|---|
 | Project scope and engineering context | `PROJECT.md` |
 | Loop list and Loop status | `LOOP-MAP.md` |
-| Task status within a Loop | `TASK-LEDGER.md` |
-| Finding status within a Loop | `FINDING-LEDGER.md` |
+| Task status, owner, and revision within a Loop | `TASK-LEDGER.md` |
+| Finding status and severity within a Loop | `FINDING-LEDGER.md` |
 | Current recovery entry point | `CHECKPOINT.md` |
 
 `LOOP-MAP.md` MUST be the only authoritative source of Loop status.
@@ -55,8 +55,9 @@ These phases do not create `PROJECT.md`, `LOOP-MAP.md`, `CHECKPOINT.md`, a
 
 Detailed contracts, deliveries, reviews, and findings MUST NOT independently
 redefine authoritative status. They store content, evidence, rationale,
-deliverables, and review conclusions. A Checklist MAY summarize state but MUST NOT
-override an authoritative Ledger. Every projection MUST identify its authority.
+deliverables, and review conclusions. A Checklist MAY guide procedure but MUST NOT override an authoritative Ledger.
+Supporting artifacts SHOULD reference lifecycle facts. A necessary copy is a
+derived projection that identifies its authority and observed Git boundary.
 
 The responsible role supplies the decision or evidence for a transition. The
 Integrator records that transition in the authoritative source. Observable Git,

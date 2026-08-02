@@ -64,13 +64,15 @@ python scripts/validate.py --root <fixture>
 The Phase 4 extension adds 72 public-entry cases for three inactive recovery
 templates, Checkpoint and Resume status rules, exact Resume Point actionability,
 compaction boundaries, current-reality and permission revalidation, single Recovery
-authority, and Budget Stop invariants. The complete suite contains 364 tests.
+authority, and Budget Stop invariants. At that boundary the observed full
+repository suite contained 364 tests.
 
 The Phase 5 extension adds 130 public-entry cases for four inactive Project Closure
 templates, Goal-to-Evidence structure, Cross-Loop Validation, Project-level Review,
 three-layer Project Acceptance, remediation Loop routing, Release Readiness,
 independent execution authority, the Final Checkpoint, the Final Delivery Report,
-and Project status-source discipline. The complete suite contains 494 tests.
+and Project status-source discipline. At that boundary the observed full
+repository suite contained 494 tests.
 
 The Phase 7 extension adds at least 76 distinct public-entry cases for evidence
 levels, Mode Selection, Artifact Budget, escalation, incident classification,
@@ -79,12 +81,65 @@ freeze invariants. At its implementation boundary, the Phase 7 focused suite
 contained 89 tests and the observed full repository suite contained 583 tests.
 
 The Phase 9 extension adds 175 public-entry cases, including an explicit 76-case
-behavior matrix. The focused suite contains 175
-tests, and the observed full repository suite contains 758 tests.
+behavior matrix. The focused suite contains 175 tests, and the observed full
+repository suite contained 758 tests at that boundary.
+
+The Phase 11 extension reads current Full Loop authorities, explicit derived
+projection tables, actual Git HEAD when available, and the finite Closure snapshot.
+It compares status, owner, revision, Finding state, Git boundary, Integration,
+Review, Closure, and Checkpoint values through the public entry point only. Review
+reports whose `Status` is `superseded` are excluded from the current Review
+decision, so reverification rounds do not block Closure. A recorded Git boundary
+is accepted when it is the current HEAD or one of its ancestors, so a committed
+snapshot stays valid while fabricated or foreign SHAs are rejected; whether an
+ancestor boundary is still recent enough for its purpose remains Reviewer
+judgment, not a machine decision. A supporting
+artifact may declare a lifecycle authority line only when it names the canonical
+authority file; naming any other owner is a competing-authority error. When a
+repository contains a real Full Loop instance, its per-Loop `TASK-LEDGER.md` and
+`FINDING-LEDGER.md` are expected authorities rather than forbidden Ledger
+artifacts; this repository itself remains instance-free. It never
+changes files, selects Mode, closes state, creates Findings, accepts a Project, or
+schedules Agents. A legacy Closure without the new section passes with a migration
+warning; once a snapshot or projection is declared, available exact values are
+enforced. Lightweight projects without real Full Loop instances are unaffected.
+
+The same extension rejects a canonical lifecycle assertion name written into a
+supporting `.looppilot/` artifact outside a declared `## Lifecycle Projections`
+or `## Lifecycle Consistency` section. Such a copy carries no source location,
+no commit boundary, and no derived label, so it is invalid rather than merely
+undocumented. This check runs on every repository, including a Lightweight one
+with no `.looppilot/loops/` directory, and skips inactive templates and the
+authority files themselves. It matches the declared assertion grammar only; it
+does not judge whether undeclared narrative prose is stale, which stays Reviewer
+work.
 
 The validator reads repository files only. It does not inspect environment
 variables, browse the web, scan host Skill directories, count tokens, or print
 credentials.
+
+The Cross-Host Acceptance extension checks the inactive Host Acceptance Record
+template and any real record under `evaluations/`: required fields and their
+values, `YYYY-MM-DD` dates, the four-value verdict enum, the eight dimension rows
+and their result enum, cited evidence for every `pass` or `partial` dimension,
+duplicate dimension rows, and the constraint that a failed dimension forces the
+`rejected` verdict rather than hiding under `unverified`. For an `accepted` or
+`accepted-with-residuals` verdict it additionally checks a bare 40-character
+lowercase commit, referenced evaluation runs, scenario coverage naming both a
+Lightweight-shaped and a Full-Loop-shaped fixture, a trace author distinct from
+the independent reviewer, the lowest critical rubric score at 2 or higher, and
+honest residual disclosure. Record detection matches the `Host Acceptance Record`
+title even when it is qualified with the evaluated combination, and a file under
+`evaluations/` that declares a verdict without that title is reported rather than
+skipped. It validates record structure only; it does not run a host, score a
+trace, or grant a verdict.
+
+The evaluation templates additionally declare a Scenario ID, prompt and input
+boundary, evidence links, reviewer decision, and unverified limitations for each
+run, and the Host Acceptance Record template declares Scenario IDs and unverified
+limitations. Those additional fields are template-declared disclosure confirmed
+by an independent reviewer; the validator enforces the record fields listed
+above and does not yet check them.
 
 ## Mermaid Rendering
 
@@ -168,6 +223,24 @@ Full Loop superiority. Mermaid rendering and YAML parsing are evidence of syntax
 only. Phase 9 records observed EXP-005 and incomplete EXP-006 evidence; strict A/B
 comparison with archived final scoring, production behavior, automatic selection,
 all-host compatibility, and security or data certification remain unverified.
+
+## Phase 11 Validation Boundary
+
+Phase 11 static checks demonstrate exact parsing and mismatch rejection for the
+declared fixture format. They do not prove semantic contradiction detection,
+optimal projection selection, automatic migration, real Reviewer independence,
+cross-host behavior, longitudinal governance, production release, or deployment.
+Semantic prose and acceptance interpretation remain Reviewer work. Missing Git
+metadata is disclosed rather than fabricated.
+
+## Cross-Host Acceptance Validation Boundary
+
+The Cross-Host Acceptance checks validate record structure and verdict
+constraints from repository files only. They do not execute an evaluation on any
+host, observe activation, measure rubric scores, verify reviewer independence,
+or prove compatibility with Claude Code, Codex, Gemini CLI, GitHub Copilot, or
+any other host. A structurally valid record is a disclosure format, not
+compatibility evidence; the evidence lives in the referenced evaluation runs.
 
 ## Phase 9 Validation Boundary
 

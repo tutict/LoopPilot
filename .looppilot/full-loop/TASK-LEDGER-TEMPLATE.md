@@ -8,7 +8,7 @@ Integrator: none
 
 ## Authority
 
-- Task status authority: `TASK-LEDGER.md`
+- Task status, owner, and revision authority: `TASK-LEDGER.md`
 - Decision authority: Supervisor
 - Recording authority: Integrator
 - Worker may update Ledger: no
@@ -16,9 +16,9 @@ Integrator: none
 
 ## Task Summary
 
-| Task ID | Title | Type | Mandatory | Status | Worker | Dependencies | Delivery | Review Readiness | Rework Of |
-|---|---|---|---|---|---|---|---|---|---|
-| None | None | None | no | proposed | none | none | pending | pending | none |
+| Task ID | Title | Type | Mandatory | Status | Worker | Revision | Dependencies | Delivery | Review Readiness | Rework Of |
+|---|---|---|---|---|---|---|---|---|---|---|
+| None | None | None | no | proposed | none | 0 | none | pending | pending | none |
 
 ## Dependency Notes
 
@@ -43,6 +43,7 @@ Integrator: none
 ## Ledger Notes
 
 - Detailed Task Contracts do not own authoritative Task status.
+- Detailed Task Contracts also do not own authoritative Task owner or revision.
 - Worker Deliveries store implementation and evidence, not authoritative status.
 - Existing Task Contract status semantics remain compatible: `approved` means the
   Task passed its independent check and is ready for integration; `integrated`

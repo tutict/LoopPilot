@@ -463,6 +463,7 @@ def validate_task_ledger(
             "Mandatory",
             "Status",
             "Worker",
+            "Revision",
             "Dependencies",
             "Delivery",
             "Review Readiness",
@@ -475,6 +476,7 @@ def validate_task_ledger(
     for row in rows:
         task_id = _plain(row["Task ID"])
         worker = _plain(row["Worker"])
+        revision = _plain(row["Revision"])
         if ledger_status == "inactive" and worker.casefold() not in EMPTY_VALUES:
             errors.append(f"{location}: inactive template cannot name a real Worker")
         if task_id.casefold() == "none":
@@ -488,6 +490,8 @@ def validate_task_ledger(
         seen.add(task_id)
         if ledger_status == "inactive":
             errors.append(f"{location}: inactive template contains a real Task")
+        if not revision.isdigit():
+            errors.append(f"{location}: Task {task_id!r} Revision must be a non-negative integer")
         task_type = _plain(row["Type"]).casefold()
         if task_type not in TASK_TYPES:
             errors.append(f"{location}: invalid Task type {task_type!r}")
@@ -500,7 +504,7 @@ def validate_task_ledger(
                 errors.append(f"{location}: Rework Task requires a base Task ID")
 
     required_lines = (
-        "- Task status authority: `TASK-LEDGER.md`",
+        "- Task status, owner, and revision authority: `TASK-LEDGER.md`",
         "- Recording authority: Integrator",
         "- Worker may update Ledger: no",
         "- Reviewer may update Ledger: no",
@@ -637,16 +641,19 @@ def validate_state_source_discipline(root: Path, errors: list[str]) -> None:
                 )
 
 
-def validate_no_active_full_loop_instances(root: Path, errors: list[str]) -> None:
-    for relative in (
+def validate_active_full_loop_instance_shape(root: Path, errors: list[str]) -> None:
+    required = (
         ".looppilot/PROJECT.md",
         ".looppilot/LOOP-MAP.md",
         ".looppilot/CHECKPOINT.md",
-    ):
-        if (root / relative).exists():
-            errors.append(f"{relative}: Full Loop template phases must not create an active instance")
-    if (root / ".looppilot/loops").exists():
-        errors.append(".looppilot/loops: Full Loop template phases must not create active Loop instances")
+        ".looppilot/loops",
+    )
+    present = [relative for relative in required if (root / relative).exists()]
+    if present and len(present) != len(required):
+        missing = [relative for relative in required if relative not in present]
+        errors.append(
+            "active Full Loop instance is incomplete; missing " + ", ".join(missing)
+        )
 
 
 def validate_full_loop(
@@ -660,4 +667,4 @@ def validate_full_loop(
     validate_task_ledger(root, errors, task_statuses)
     validate_finding_ledger(root, errors)
     validate_state_source_discipline(root, errors)
-    validate_no_active_full_loop_instances(root, errors)
+    validate_active_full_loop_instance_shape(root, errors)
