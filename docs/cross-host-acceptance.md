@@ -132,3 +132,8 @@ The v1.0 Release Candidate MAY be prepared only when all of the following hold:
 Candidate-host acceptance is desirable but not a Release Candidate gate;
 undisclosed compatibility claims are. Release Candidate preparation is not a
 release, not deployment, and not user acknowledgement.
+
+The tracking form of this list lives in
+[`docs/release/v1.0-rc-checklist.md`](release/v1.0-rc-checklist.md), which
+records the observed evidence behind each gate. That checklist is a preparation
+aid; ticking it is not acceptance.

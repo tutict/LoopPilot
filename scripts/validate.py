@@ -83,6 +83,7 @@ REQUIRED_FILES = (
     *LIFECYCLE_CONSISTENCY_FILES,
     *CROSS_HOST_ACCEPTANCE_FILES,
     "docs/validation.md",
+    "docs/release/v1.0-rc-checklist.md",
     "docs/loop-engineering-model.md",
     "docs/project-engineering-context.md",
     "docs/protocol-modes-and-state-sources.md",

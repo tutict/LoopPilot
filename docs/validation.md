@@ -139,7 +139,9 @@ boundary, evidence links, reviewer decision, and unverified limitations for each
 run, and the Host Acceptance Record template declares Scenario IDs and unverified
 limitations. Those additional fields are template-declared disclosure confirmed
 by an independent reviewer; the validator enforces the record fields listed
-above and does not yet check them.
+above and does not yet check them. `docs/release/v1.0-rc-checklist.md` is a
+required repository file, so the Release Candidate gates cannot be silently
+deleted; its ticks are not validated, because the checklist is not acceptance.
 
 ## Mermaid Rendering
 

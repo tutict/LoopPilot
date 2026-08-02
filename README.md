@@ -436,7 +436,9 @@ The repository-level checks below have been exercised with pinned tools:
 
 These are syntax and repository-structure checks, not behavioral compatibility
 evidence. The [evaluation templates](evaluations/README.md) prepare that future
-work without claiming results.
+work without claiming results, and the
+[v1.0 RC checklist](docs/release/v1.0-rc-checklist.md) tracks what must be
+observed before a Release Candidate is prepared.
 
 ## Current Limitations
 
@@ -459,7 +461,8 @@ work without claiming results.
 ## Roadmap
 
 - Run Cross-Host Acceptance with the
-  [defined procedure](docs/cross-host-acceptance.md) before preparing a
+  [defined procedure](docs/cross-host-acceptance.md) and close the
+  [v1.0 RC checklist](docs/release/v1.0-rc-checklist.md) before preparing a
   Release Candidate.
 - Record reproducible evaluation traces without turning examples into fake evidence.
 - Add narrowly scoped host notes only when an adapter and tests support them.
@@ -483,6 +486,8 @@ work without claiming results.
 - [v1 migration](docs/v1-migration.md): backward-compatible adoption guidance.
 - [Cross-Host Acceptance](docs/cross-host-acceptance.md): per-host acceptance
   procedure, verdicts, and the Release Candidate checklist.
+- [v1.0 RC checklist](docs/release/v1.0-rc-checklist.md): Release Candidate gates
+  and their required evidence. The checklist is not acceptance.
 - [Validation](docs/validation.md): repeatable maintenance checks and their boundary.
 - [Full Loop Contracts and Ledgers](docs/full-loop-contracts-and-ledgers.md):
   Phase 2 templates, state enums, completion projection, and authority rules.
