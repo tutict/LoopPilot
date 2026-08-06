@@ -1,8 +1,10 @@
 # Claude Code Evaluation Preparation
 
 Claude Code is the reference host for Cross-Host Acceptance, and its observed
-Host Acceptance Record gates the v1.0 Release Candidate. No such record exists
-yet, so the Claude Code acceptance status remains unverified.
+accepted or accepted-with-residuals Host Acceptance Record gates the v1.0
+Release Candidate. A committed unverified record exists for Claude Code 2.1.220
+with the Skill not loaded, so the Claude Code acceptance status remains
+unverified.
 
 Future runs SHOULD copy the shared templates, record the exact Claude Code
 surface, version, model, and Skill loading mode, and preserve only observable

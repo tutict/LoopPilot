@@ -302,8 +302,9 @@ Candidate. Verdicts come from observed
 [Host Acceptance Records](evaluations/templates/host-acceptance-record.md) that
 reference real evaluation runs; the public validator checks record structure and
 verdict constraints. Defining the procedure verifies no host: every combination
-remains `unverified` until its record exists. Reference-host preparation notes
-live in [evaluations/claude-code](evaluations/claude-code/README.md).
+remains `unverified` until an observed accepted record supports a narrower
+verdict. Reference-host preparation notes live in
+[evaluations/claude-code](evaluations/claude-code/README.md).
 
 ### Evidence-Calibrated Protocol Selection
 
@@ -416,7 +417,7 @@ another project, host, or model.
 No evidence in this repository supports any of the following:
 
 - Actual host behavior. Every host, including the Claude Code reference host,
-  is `unverified` because no Host Acceptance Record exists yet.
+  is `unverified` because no accepted Host Acceptance Record exists yet.
 - Production reliability, longitudinal governance behavior, release, and
   deployment.
 - Automatic agent compliance, including implicit activation accuracy, automatic
@@ -448,9 +449,9 @@ observed before a Release Candidate is prepared.
   evidence.
 - The lifecycle and pseudocode are conceptual, not executable interfaces.
 - Every candidate host is explicitly unverified. Claude Code, Codex, Gemini CLI,
-  GitHub Copilot, and every other host have no Host Acceptance Record, so this
-  repository claims no compatibility with any of them. A host moves off this
-  list only through an observed
+  GitHub Copilot, and every other host have no accepted Host Acceptance Record,
+  so this repository claims no compatibility with any of them. A host moves off
+  this list only through an observed
   [Host Acceptance Record](docs/cross-host-acceptance.md), and its verdict then
   covers only that exact host, host version, model, and loading mode.
 - Real concurrent scheduling, runtime permission isolation, distributed locking,

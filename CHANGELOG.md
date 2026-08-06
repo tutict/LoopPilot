@@ -8,7 +8,9 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Added the v1.0 Release Candidate checklist under `docs/release/`, required it
   as a repository file, and stated that ticking the checklist is not acceptance.
-  No gate is satisfied and no candidate version section is created.
+  No gate is ticked and no candidate version section is created.
+- Corrected release-preparation wording to distinguish an unverified Host
+  Acceptance Record from an accepted Host Acceptance Record.
 - Rejected a canonical lifecycle assertion copied into a supporting `.looppilot/`
   artifact outside a declared projection or closure section, so a duplicated
   lifecycle value without source, boundary, and derived-status metadata is
