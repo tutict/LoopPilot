@@ -1,0 +1,27 @@
+# Official managed payload. Directory entries use tracked files in a Git checkout.
+install.ps1
+install.sh
+update.ps1
+update.sh
+uninstall.ps1
+uninstall.sh
+INSTALLATION-VALIDATION.md
+distribution/managed-files.txt
+distribution/version.txt
+distribution/loop-pilot.ps1
+distribution/loop-pilot.sh
+SKILL.md
+README.md
+AGENTS.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
+requirements-dev.txt
+docs/installation.md
+agents/
+docs/
+.looppilot/
+examples/
+evaluations/
+scripts/
+tests/

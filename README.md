@@ -351,13 +351,34 @@ or external actions.
 
 ## Install or Copy
 
-LoopPilot has no runtime dependency for Skill users:
+LoopPilot has no runtime dependency for Skill users. Distribution-001 provides
+stateful installers that preserve the complete repository-relative payload:
 
-1. Copy or clone the repository to a location the host can read.
-2. Expose [SKILL.md](SKILL.md) using the host's documented skill or instruction
-   mechanism.
-3. Preserve the relative docs and examples if the host can load them on demand.
-4. Invoke LoopPilot only for an appropriate task.
+```powershell
+.\install.ps1 -Destination "$HOME\.codex\skills\loop-pilot"
+```
+
+```bash
+./install.sh --destination "$HOME/.codex/skills/loop-pilot"
+```
+
+The destination may instead be supplied through `LOOPPILOT_INSTALL_DIR`. Without
+an explicit destination, the scripts use a single detectable Claude Code or Codex
+skills directory and stop if detection is absent or ambiguous. Directory detection
+does not establish host compatibility; every host remains unverified until an
+accepted Host Acceptance Record exists.
+
+Use `update.ps1` or `update.sh` from the new source package to upgrade. Use
+`uninstall.ps1` or `uninstall.sh` to remove only state-recorded, unmodified managed
+files. Local modifications, unrelated files, and backups are preserved by default.
+See the [installation and distribution guide](docs/installation.md) for layout,
+ownership, conflict, backup, upgrade, and uninstall behavior. Observed packaging
+checks are recorded separately in
+[installation validation](INSTALLATION-VALIDATION.md).
+
+Manual copying remains possible: copy or clone the repository, expose
+[SKILL.md](SKILL.md) through the host's documented Skill or instruction mechanism,
+and preserve its relative supporting files.
 
 Repository maintainers can install the isolated development dependency and run the
 repeatable checks described in [validation](docs/validation.md).
