@@ -113,6 +113,20 @@ class DistributionLifecycleTests(unittest.TestCase):
         )
         return source_v1, source_v2
 
+    def test_official_manifest_includes_validator_workflow(self) -> None:
+        manifest = (ROOT / "distribution" / "managed-files.txt").read_text(
+            encoding="utf-8"
+        )
+        entries = {
+            line.strip()
+            for line in manifest.splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        }
+
+        workflow = ".github/workflows/validate.yml"
+        self.assertIn(workflow, entries)
+        self.assertTrue((ROOT / workflow).is_file())
+
     def test_fresh_reinstall_upgrade_and_uninstall_preserve_user_content(self) -> None:
         source_v1, source_v2 = self._sources()
         destination = self.work / "installed"

@@ -1,8 +1,9 @@
 # LoopPilot Installation Validation
 
-This document defines the Distribution-001 verification boundary. It validates
-packaging behavior only. It does not validate host loading, agent behavior, Host
-Acceptance, protocol effectiveness, or release readiness.
+This document defines the Distribution-001 verification boundary and records later
+distribution corrections through Distribution-003. It validates packaging behavior
+only. It does not validate agent behavior, Host Acceptance, protocol effectiveness,
+or release readiness.
 
 ## Verification Method
 
@@ -19,7 +20,7 @@ adds no validator.
 
 | Scenario | Verification |
 |---|---|
-| Fresh install | All manifest files are copied, user files remain, state is created, and output prints version and commit. |
+| Fresh install | All manifest files are copied, user files remain, state is created, output prints version and commit, and the installed existing validator passes against the installed root. |
 | Reinstall | An identical installation reports `reinstall (no changes)` without changing user content. |
 | Upgrade | Unmodified files update, new files appear, retired unmodified files are removed, version and commit advance, and backups are retained. |
 | Customized upgrade | Modified managed files and colliding user files are preserved by default and marked customized; force update backs them up before replacement. |
@@ -61,6 +62,16 @@ py -3.13 -m unittest tests.test_validate -q
 git diff --check
 ```
 
+Installed-package validation after a fresh install:
+
+```powershell
+py -3.13 <destination>\scripts\validate.py --root <destination>
+```
+
+This command must use the validator copied into the installation. A missing
+required file, including `.github/workflows/validate.yml`, is an installation
+failure rather than a validator exception.
+
 ## Observed Results
 
 The result table must contain only commands observed against the current working
@@ -70,18 +81,21 @@ pass does not establish behavior on another shell.
 | Check | Environment | Status | Evidence |
 |---|---|---|---|
 | PowerShell parser | Windows PowerShell | PASS | Observed after the complete Distribution-001 change set. |
-| PowerShell lifecycle scenarios | Windows PowerShell | PASS | `tests.test_distribution`: 6/6 passed; live repository install, update, uninstall, and self-uninstall also completed. |
-| Bash syntax | Git Bash or POSIX Bash | UNVERIFIED | The current sandbox denied Bash process initialization before parsing began. |
-| Bash lifecycle scenarios | Git Bash or POSIX Bash | UNVERIFIED | No Bash lifecycle execution has completed in the current environment. |
+| PowerShell lifecycle scenarios | Windows PowerShell | PASS | `tests.test_distribution`: 7/7 passed after Distribution-002.1; live repository install, update, uninstall, and self-uninstall also completed. |
+| Bash syntax | Git Bash 5.2.37 on Windows | PASS | All three Bash wrappers and `distribution/loop-pilot.sh` parsed successfully outside the restrictive sandbox. The sandbox-only `Win32 error 5` remains recorded as an Execution Infrastructure Incident. |
+| Bash lifecycle scenarios | Git Bash 5.2.37 on Windows | PASS | Distribution-003 observed fresh install, 126-file manifest/state/hash integrity, customization preservation, backup creation, self-uninstall, user-content preservation, and state cleanup. |
+| Installed existing validator | Windows PowerShell and Python 3.13 | PASS | A fresh isolated Distribution-002.1 installation included `.github/workflows/validate.yml`; its copied validator printed `Static validation passed`. |
 | Existing static validator | Python 3.13 | PASS | `py -3.13 scripts\\validate.py` printed `Static validation passed`. |
-| Validator regression tests | Python 3.13 | PASS | `tests.test_validate`: 2/2 passed; the focused cross-host suite remains environment-blocked by temporary-directory permissions. |
+| Full repository tests | CPython 3.13 | PASS | The approved outside-sandbox run completed 870/870 tests in 795.054 seconds. The normal sandbox run had 861 pre-assertion temporary-directory permission errors and 9 passes. |
 | Diff whitespace check | Git | PASS | `git diff --check` completed with exit code 0; Git emitted only existing LF/CRLF normalization warnings. |
 
-The full repository discovery command was also attempted. It discovered 868 tests;
-861 failed before assertions because this Windows environment denied creation and
-cleanup of temporary fixture directories (`WinError 5`). A rerun outside the
-sandbox was requested but the approval service returned `503 Service Unavailable`.
-This is an execution-environment limitation, not evidence that those tests pass.
+The user-requested `python` command resolved to GraalPy 3.12.8 without PyYAML.
+`python scripts/validate.py` therefore stopped at import with
+`ModuleNotFoundError: No module named 'yaml'`; its full discovery run was stopped
+after repeated instances of the same dependency failure. These are execution
+environment results, not product failures. CPython 3.13 supplied the repository's
+declared dependency and provided the complete passing suite above.
 
 Any remaining `PENDING`, `UNVERIFIED`, or failed row must be reported honestly in
-the Distribution-001 completion summary.
+the applicable distribution completion summary. Git Bash evidence does not imply
+Linux, macOS, WSL, or another Bash implementation was tested.

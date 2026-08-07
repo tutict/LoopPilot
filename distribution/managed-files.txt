@@ -17,6 +17,7 @@ CHANGELOG.md
 CONTRIBUTING.md
 LICENSE
 requirements-dev.txt
+.github/workflows/validate.yml
 docs/installation.md
 agents/
 docs/

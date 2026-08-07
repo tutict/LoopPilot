@@ -18,13 +18,16 @@ The current repository separates distribution concerns from protocol content:
 | `distribution/loop-pilot.sh` | Shared Bash implementation |
 | `SKILL.md`, `AGENTS.md`, `docs/`, `.looppilot/` | Protocol instructions and supporting material |
 | `examples/`, `evaluations/`, `scripts/`, `tests/` | Supporting examples, evidence, maintenance tools, and tests |
+| `.github/workflows/validate.yml` | Workflow definition required by the existing repository validator |
 
-The local `.git/`, `.github/`, `.claude/`, `.codex/`, `.tmp/`, caches, and other
-files not named by `distribution/managed-files.txt` are not part of the installed
-payload. In a Git checkout, a manifest directory expands only to files tracked by
-that checkout. This prevents untracked local material from entering an install. In
-a release archive without Git metadata, the archive contents under each manifest
-directory are used.
+The local `.git/`, `.claude/`, `.codex/`, `.tmp/`, caches, and other files not
+named by `distribution/managed-files.txt` are not part of the installed payload.
+The only managed `.github/` file is `.github/workflows/validate.yml`; other
+`.github/` material remains repository-only unless the manifest names it. In a Git
+checkout, a manifest directory expands only to files tracked by that checkout.
+This prevents untracked local material from entering an install. In a release
+archive without Git metadata, the archive contents under each manifest directory
+are used.
 
 ## Installed Layout
 
@@ -45,6 +48,7 @@ the supporting documents:
 |-- agents/
 |-- examples/
 |-- evaluations/
+|-- .github/workflows/validate.yml
 |-- scripts/
 |-- tests/
 |-- .looppilot-installation       generated
@@ -71,6 +75,9 @@ Missing manifest sources stop installation before destination writes begin.
 - `requirements-dev.txt`, `scripts/`, and `tests/` are not needed for host-native
   Skill invocation, but they are included in the complete managed payload for
   repeatable repository validation.
+- `.github/workflows/validate.yml` is included because the existing repository
+  validator requires it. Its presence in an installation does not install or run
+  GitHub Actions.
 - `examples/` and `evaluations/` are supporting material. They do not become
   observed Host Acceptance evidence merely because they are installed.
 
