@@ -123,16 +123,29 @@ pass does not establish behavior on another shell.
 | Check | Environment | Status | Evidence |
 |---|---|---|---|
 | PowerShell parser | Windows PowerShell | PASS | All five PowerShell files parsed after the complete Distribution-004 change set: `distribution\loop-pilot.ps1`, `install.ps1`, `update.ps1`, `uninstall.ps1`, and `status.ps1`. |
-| PowerShell lifecycle scenarios | Windows PowerShell | PASS | `tests.test_distribution`: 18/18 passed after Distribution-004. A live repository install, `status`, local customization, and uninstall against a temporary destination also completed. |
+| PowerShell lifecycle scenarios | Windows PowerShell | PASS | `tests.test_distribution`: 18/18 passed after Distribution-004. Distribution-002.1 previously observed 7/7 with the same harness, together with a live repository install, update, uninstall, and self-uninstall. Distribution-004 additionally observed a live repository install, `status`, local customization, and uninstall against a temporary destination. |
 | Bash syntax | Git Bash 5.2.37 on Windows | PASS | `bash -n install.sh update.sh uninstall.sh status.sh distribution/loop-pilot.sh` exited 0 outside the restrictive sandbox. The sandbox-only `Win32 error 5` remains recorded as an Execution Infrastructure Incident. |
 | Bash lifecycle scenarios | Git Bash 5.2.37 on Windows | PASS | Distribution-003 observed fresh install, 126-file manifest/state/hash integrity, customization preservation, backup creation, self-uninstall, user-content preservation, and state cleanup. Distribution-004 additionally runs all ten synchronization scenarios through `distribution/loop-pilot.sh` as `shell='bash'` subtests, with zero skips. |
 | Distribution-004 synchronization scenarios | Windows PowerShell and Git Bash 5.2.37 | PASS | Every scenario in the Distribution-004 table executed on both shells in one suite run, 20 shell-level subtests, no divergence between implementations. |
 | Live install at repository scale | Windows PowerShell and Python 3.13 | PASS | Installing the current repository placed 141 managed files with version `unreleased` and commit `317dd975145c6193f4af0b0479f31357c06f1245`; `status` then reported `CURRENT`, `State format: 2`, `Revision: unchanged`, `Manifest: unchanged`, and 141 current files. `status.ps1` and `status.sh` were both present in the installation. |
 | Status from inside an installation | Windows PowerShell | Documented limitation | Running the installed `status.ps1` against its own installation stops with `cannot determine a 40-character source commit`, because an installed copy has no `.git/` and no `distribution/commit.txt`. This is the pre-existing rule that already governs `install` and `update`; `status` compares against a source package and is run from one. |
-| Installed existing validator | Windows PowerShell and Python 3.13 | PASS | The copied validator in that live installation printed `Static validation passed` against the installed root. |
+| Installed existing validator | Windows PowerShell and Python 3.13 | PASS | Distribution-002.1 first established this row when a fresh isolated installation included `.github/workflows/validate.yml` and its copied validator printed `Static validation passed`. Distribution-004 re-observed the same result: the copied validator in the live 141-file installation printed `Static validation passed` against the installed root. |
 | Existing static validator | Python 3.13 | PASS | `scripts\validate.py` printed `Static validation passed` with exit code 0. |
 | Full repository tests | CPython 3.13 | PASS | The outside-sandbox run completed 881/881 tests in 768.260 seconds with exit code 0. The count rose from 870 because Distribution-004 added ten synchronization tests and one conflict-refusal test. |
 | Diff whitespace check | Git | PASS | `git diff --check` completed with exit code 0; Git emitted only existing LF/CRLF normalization warnings. |
+
+## Distribution Evidence Lineage
+
+Each stage is retained so a later reader can see what was established when, and
+what a later stage replaced. A superseded behavior is recorded, not deleted.
+
+| Stage | What it established |
+|---|---|
+| Distribution-001 | The packaging boundary: manifest, version and commit metadata, installation state, entry points, path safety, and the original install, update, and uninstall lifecycle. |
+| Distribution-002 | Corrections to that lifecycle, carried into the scenario table above. |
+| Distribution-002.1 | The `tests.test_distribution` harness passing 7/7, a live repository install, update, uninstall, and self-uninstall, and a fresh isolated installation whose copied validator printed `Static validation passed` with `.github/workflows/validate.yml` present. |
+| Distribution-003 | Bash parity: syntax across the wrappers and shared implementation, plus a Git Bash lifecycle covering a fresh install, 126-file manifest, state and hash integrity, customization preservation, backup creation, self-uninstall, user-content preservation, and state cleanup. |
+| Distribution-004 | Installed-Skill upgrade synchronization: the five synchronization states, the three-way BASE/LOCAL/REMOTE comparison, state format 2 with a preserved baseline, the transaction journal with rollback recovery, the `status` operation, and both-shell execution of every synchronization scenario. |
 
 ## Distribution-004 Behavior Change
 
