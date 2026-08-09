@@ -5,6 +5,8 @@ update.ps1
 update.sh
 uninstall.ps1
 uninstall.sh
+status.ps1
+status.sh
 INSTALLATION-VALIDATION.md
 distribution/managed-files.txt
 distribution/version.txt

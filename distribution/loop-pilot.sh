@@ -5,7 +5,10 @@ SOURCE_ROOT=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 MANIFEST_PATH="$SOURCE_ROOT/distribution/managed-files.txt"
 VERSION_PATH="$SOURCE_ROOT/distribution/version.txt"
 STATE_NAME=".looppilot-installation"
-STATE_FORMAT="1"
+JOURNAL_NAME=".looppilot-transaction"
+STATE_FORMAT="2"
+LEGACY_STATE_FORMATS="1"
+UNKNOWN_HASH="-"
 TEMP_PATHS=()
 
 cleanup() {
@@ -22,7 +25,7 @@ fail() {
 }
 
 usage() {
-  printf 'Usage: %s {install|update|uninstall} [--destination DIR] [--force]\n' "$0" >&2
+  printf 'Usage: %s {install|update|uninstall|status} [--destination DIR] [--force]\n' "$0" >&2
   exit 2
 }
 
@@ -208,11 +211,28 @@ state_customized() {
   state_file_row "$1" "$2" | awk -F'|' '{print $4}'
 }
 
+state_base() {
+  # Format 2 records the baseline in field 5. A format 1 row keeps its baseline
+  # only when the file was never customized, because a customized format 1 row
+  # overwrote the baseline with the local hash.
+  state_file_row "$1" "$2" | awk -F'|' -v unknown="$UNKNOWN_HASH" '
+    {
+      if (NF >= 5) { print $5 }
+      else if ($4 == "1") { print unknown }
+      else { print $3 }
+    }'
+}
+
 validate_state() {
   local state=$1 destination_root=$2
   [ -f "$state" ] || fail "no compatible LoopPilot installation found at '$destination_root'"
-  awk -F'|' -v expected_format="$STATE_FORMAT" '
-    BEGIN { ok=1; files=0 }
+  awk -F'|' -v expected_format="$STATE_FORMAT" -v legacy_formats="$LEGACY_STATE_FORMATS" -v unknown="$UNKNOWN_HASH" '
+    BEGIN {
+      ok=1; files=0
+      known[expected_format]=1
+      split(legacy_formats, legacy, " ")
+      for (i in legacy) known[legacy[i]]=1
+    }
     { sub(/\r$/, "") }
     /^[[:space:]]*$/ || /^#/ { next }
     $1 == "FORMAT" {
@@ -233,8 +253,9 @@ validate_state() {
       next
     }
     $1 == "FILE" {
-      if (NF != 4 || $2 == "" || $2 ~ /^\// || $2 ~ /\\/ || $2 ~ /:/ || $2 ~ /\/\// || $2 ~ /\/$/ ||
+      if ((NF != 4 && NF != 5) || $2 == "" || $2 ~ /^\// || $2 ~ /\\/ || $2 ~ /:/ || $2 ~ /\/\// || $2 ~ /\/$/ ||
           length($3) != 64 || $3 ~ /[^0-9a-f]/ || $4 !~ /^[01]$/ || seen_file[$2]++) ok=0
+      if (NF == 5 && $5 != unknown && (length($5) != 64 || $5 ~ /[^0-9a-f]/)) ok=0
       count=split($2, parts, "/")
       for (i=1; i<=count; i++) if (parts[i] == "" || parts[i] == "." || parts[i] == "..") ok=0
       files++
@@ -242,7 +263,7 @@ validate_state() {
     }
     { ok=0 }
     END {
-      if (format_seen != 1 || format != expected_format || version_seen != 1 || commit_seen != 1 ||
+      if (format_seen != 1 || !(format in known) || version_seen != 1 || commit_seen != 1 ||
           manifest_seen != 1 || files == 0) ok=0
       exit(ok ? 0 : 1)
     }
@@ -262,15 +283,68 @@ assert_safe_destination_path() {
 }
 
 preflight_generated_paths() {
-  local root=$1 state_path backup_root
+  local root=$1 state_path backup_root journal_path
   state_path="$root/$STATE_NAME"
   backup_root="$root/.looppilot-backups"
+  journal_path="$root/$JOURNAL_NAME"
   if [ -L "$state_path" ] || { [ -e "$state_path" ] && [ ! -f "$state_path" ]; }; then
     fail "generated installation state path must be a regular file: '$state_path'"
   fi
   if [ -L "$backup_root" ] || { [ -e "$backup_root" ] && [ ! -d "$backup_root" ]; }; then
     fail "generated backup path must be a regular directory: '$backup_root'"
   fi
+  if [ -L "$journal_path" ] || { [ -e "$journal_path" ] && [ ! -f "$journal_path" ]; }; then
+    fail "generated transaction path must be a regular file: '$journal_path'"
+  fi
+}
+
+start_journal() {
+  local root=$1 backup_id=$2 version=$3 commit=$4 manifest_hash=$5
+  printf 'BEGIN|%s|%s|%s|%s\n' "$backup_id" "$version" "$commit" "$manifest_hash" > "$root/$JOURNAL_NAME"
+}
+
+journal_entry() {
+  # Recorded before the action so an interruption always leaves a recoverable trace.
+  printf '%s|%s\n' "$2" "$3" >> "$1/$JOURNAL_NAME"
+}
+
+complete_journal() {
+  rm -f -- "$1/$JOURNAL_NAME"
+}
+
+restore_journal() {
+  # Roll the destination back to the pre-update content, newest action first.
+  local root=$1 journal_path backup_id restored action path backup target
+  journal_path="$root/$JOURNAL_NAME"
+  [ -f "$journal_path" ] || { printf '0\n'; return 0; }
+  backup_id=$(awk -F'|' '$1 == "BEGIN" {print $2; exit}' "$journal_path")
+  [ -n "$backup_id" ] || fail 'interrupted-update journal has no BEGIN row'
+  restored=0
+  while IFS='|' read -r action path; do
+    case "$action" in
+      REPLACE|CREATE|DELETE) ;;
+      *) continue ;;
+    esac
+    [ -n "$path" ] || continue
+    assert_relative "$path"
+    target="$root/$path"
+    if [ "$action" = CREATE ]; then
+      if [ -f "$target" ]; then
+        rm -f -- "$target"
+        restored=$((restored + 1))
+      fi
+      continue
+    fi
+    backup="$root/.looppilot-backups/$backup_id/$path"
+    if [ -f "$backup" ]; then
+      mkdir -p -- "$(dirname -- "$target")"
+      cp -p -- "$backup" "$target"
+      restored=$((restored + 1))
+    fi
+  done < <(grep -v '^BEGIN|' "$journal_path" |
+    awk '{lines[NR]=$0} END {for (i=NR; i>=1; i--) print lines[i]}')
+  complete_journal "$root"
+  printf '%s\n' "$restored"
 }
 
 preflight_destination() {
@@ -319,8 +393,8 @@ source_hash() {
 }
 
 write_state() {
-  local destination_root=$1 version=$2 commit=$3 manifest_hash=$4 entries_file=$5 customized_file=$6
-  local state_path state_tmp entry flag
+  local destination_root=$1 version=$2 commit=$3 manifest_hash=$4 entries_file=$5 customized_file=$6 baseline_file=$7
+  local state_path state_tmp entry flag base
   state_path="$destination_root/$STATE_NAME"
   state_tmp=$(mktemp "$destination_root/.looppilot-installation.tmp.XXXXXX")
   TEMP_PATHS+=("$state_tmp")
@@ -334,10 +408,105 @@ write_state() {
       [ -f "$destination_root/$entry" ] || fail "managed file is missing while writing state: $entry"
       flag=0
       grep -F -x -q -- "$entry" "$customized_file" && flag=1 || true
-      printf 'FILE|%s|%s|%s\n' "$entry" "$(file_hash "$destination_root/$entry")" "$flag"
+      base=$(source_hash "$entry" "$baseline_file")
+      [ -n "$base" ] || base=$UNKNOWN_HASH
+      printf 'FILE|%s|%s|%s|%s\n' "$entry" "$(file_hash "$destination_root/$entry")" "$flag" "$base"
     done < "$entries_file"
   } > "$state_tmp"
   mv -f -- "$state_tmp" "$state_path"
+}
+
+compare_installation() {
+  # Emits "CATEGORY|path" lines using the three-way BASE/LOCAL/REMOTE comparison.
+  local destination_root=$1 entries_file=$2 hashes_file=$3 state_path=$4
+  local all_file old_file entry path local_hash base_hash remote_hash has_state has_base
+  all_file=$(mktemp)
+  old_file=$(mktemp)
+  TEMP_PATHS+=("$all_file" "$old_file")
+  has_state=0
+  : > "$old_file"
+  if [ -n "$state_path" ] && [ -f "$state_path" ]; then
+    has_state=1
+    awk -F'|' '{sub(/\r$/, "")} $1 == "FILE" {print $2}' "$state_path" | sort -u > "$old_file"
+  fi
+  sort -u "$entries_file" "$old_file" > "$all_file"
+
+  while IFS= read -r entry; do
+    [ -n "$entry" ] || continue
+    path="$destination_root/$entry"
+    remote_hash=$(source_hash "$entry" "$hashes_file")
+    has_base=0
+    base_hash=''
+    if [ "$has_state" -eq 1 ] && [ -n "$(state_file_row "$entry" "$state_path")" ]; then
+      has_base=1
+      base_hash=$(state_base "$entry" "$state_path")
+      [ "$base_hash" != "$UNKNOWN_HASH" ] || base_hash=''
+    fi
+
+    if [ -z "$remote_hash" ]; then
+      [ -f "$path" ] || continue
+      local_hash=$(file_hash "$path")
+      if [ -n "$base_hash" ] && [ "$local_hash" = "$base_hash" ]; then
+        printf 'REMOVE|%s\n' "$entry"
+      else
+        printf 'REMOVE-PRESERVE|%s\n' "$entry"
+      fi
+      continue
+    fi
+
+    if [ ! -f "$path" ]; then
+      if [ "$has_base" -eq 1 ]; then
+        printf 'UPDATE|%s\n' "$entry"
+      else
+        printf 'ADD|%s\n' "$entry"
+      fi
+      continue
+    fi
+
+    local_hash=$(file_hash "$path")
+    if [ "$local_hash" = "$remote_hash" ]; then
+      printf 'CURRENT|%s\n' "$entry"
+      continue
+    fi
+    if [ "$has_base" -eq 0 ] || [ -z "$base_hash" ]; then
+      # Either a new managed path colliding with user content, or a baseline
+      # lost by a legacy format 1 state. Neither can be proven safe.
+      printf 'CONFLICT|%s\n' "$entry"
+      continue
+    fi
+    if [ "$local_hash" = "$base_hash" ]; then
+      printf 'UPDATE|%s\n' "$entry"
+    elif [ "$remote_hash" = "$base_hash" ]; then
+      printf 'LOCAL|%s\n' "$entry"
+    else
+      printf 'CONFLICT|%s\n' "$entry"
+    fi
+  done < "$all_file"
+}
+
+plan_paths() {
+  awk -F'|' -v category="$1" '$1 == category {print $2}' "$2"
+}
+
+plan_count() {
+  plan_paths "$1" "$2" | grep -c . || true
+}
+
+synchronization_state() {
+  local plan_file=$1 metadata_changed=$2 recovery_required=$3
+  if [ "$recovery_required" -eq 1 ]; then printf 'RECOVERY_REQUIRED\n'; return; fi
+  if [ "$(plan_count CONFLICT "$plan_file")" -gt 0 ]; then printf 'CONFLICT\n'; return; fi
+  if [ "$(plan_count UPDATE "$plan_file")" -gt 0 ] ||
+     [ "$(plan_count ADD "$plan_file")" -gt 0 ] ||
+     [ "$(plan_count REMOVE "$plan_file")" -gt 0 ] ||
+     [ "$metadata_changed" -eq 1 ]; then
+    printf 'UPDATE_AVAILABLE\n'; return
+  fi
+  if [ "$(plan_count LOCAL "$plan_file")" -gt 0 ] ||
+     [ "$(plan_count REMOVE-PRESERVE "$plan_file")" -gt 0 ]; then
+    printf 'LOCAL_MODIFICATIONS\n'; return
+  fi
+  printf 'CURRENT\n'
 }
 
 show_installed() {
@@ -352,7 +521,7 @@ show_installed() {
 
 install_action() {
   local destination_root version commit manifest_hash entries_file hashes_file state_path
-  local same entry path conflicts_file conflict_count first_conflict backup_id customized_file
+  local same entry path conflicts_file conflict_count first_conflict backup_id customized_file baseline_file
   destination_root=$(resolve_destination)
   preflight_generated_paths "$destination_root"
   version=$(source_version)
@@ -362,7 +531,8 @@ install_action() {
   hashes_file=$(mktemp)
   conflicts_file=$(mktemp)
   customized_file=$(mktemp)
-  TEMP_PATHS+=("$entries_file" "$hashes_file" "$conflicts_file" "$customized_file")
+  baseline_file=$(mktemp)
+  TEMP_PATHS+=("$entries_file" "$hashes_file" "$conflicts_file" "$customized_file" "$baseline_file")
   manifest_entries > "$entries_file"
   build_source_hashes "$entries_file" "$hashes_file"
   preflight_destination "$destination_root" "$entries_file"
@@ -407,25 +577,38 @@ install_action() {
 
   mkdir -p -- "$destination_root"
   backup_id=$(new_backup_id)
+  : > "$baseline_file"
   while IFS= read -r entry; do
     [ -n "$entry" ] || continue
     path="$destination_root/$entry"
     if [ -f "$path" ]; then
-      [ "$(file_hash "$path")" = "$(source_hash "$entry" "$hashes_file")" ] && continue
+      if [ "$(file_hash "$path")" = "$(source_hash "$entry" "$hashes_file")" ]; then
+        printf '%s|%s\n' "$entry" "$(source_hash "$entry" "$hashes_file")" >> "$baseline_file"
+        continue
+      fi
       backup_file "$destination_root" "$entry" "$backup_id"
     fi
     copy_source_file "$destination_root" "$entry"
+    printf '%s|%s\n' "$entry" "$(source_hash "$entry" "$hashes_file")" >> "$baseline_file"
   done < "$entries_file"
   : > "$customized_file"
-  write_state "$destination_root" "$version" "$commit" "$manifest_hash" "$entries_file" "$customized_file"
+  write_state "$destination_root" "$version" "$commit" "$manifest_hash" "$entries_file" "$customized_file" "$baseline_file"
   show_installed "$destination_root" "$version" "$commit" install 0
 }
 
 update_action() {
-  local destination_root version commit manifest_hash entries_file hashes_file state_path old_entries all_entries
-  local customized_file preserved backup_id entry path current_hash row was_customized baseline_hash was_managed
+  local destination_root version commit manifest_hash entries_file hashes_file state_path all_entries
+  local customized_file baseline_file plan_file preserved backup_id entry path recovered conflict_names old_entries
   destination_root=$(resolve_destination)
   preflight_generated_paths "$destination_root"
+
+  # An interrupted update is rolled back first so every update starts from a
+  # known-good baseline and retrying is deterministic.
+  recovered=$(restore_journal "$destination_root")
+  if [ "$recovered" -gt 0 ]; then
+    printf 'Warning: recovered %s file(s) from an interrupted update before continuing\n' "$recovered" >&2
+  fi
+
   state_path="$destination_root/$STATE_NAME"
   validate_state "$state_path" "$destination_root"
   version=$(source_version)
@@ -433,72 +616,206 @@ update_action() {
   manifest_hash=$(file_hash "$MANIFEST_PATH")
   entries_file=$(mktemp)
   hashes_file=$(mktemp)
-  old_entries=$(mktemp)
   all_entries=$(mktemp)
+  old_entries=$(mktemp)
   customized_file=$(mktemp)
-  TEMP_PATHS+=("$entries_file" "$hashes_file" "$old_entries" "$all_entries" "$customized_file")
+  baseline_file=$(mktemp)
+  plan_file=$(mktemp)
+  TEMP_PATHS+=("$entries_file" "$hashes_file" "$all_entries" "$old_entries" "$customized_file" "$baseline_file" "$plan_file")
   manifest_entries > "$entries_file"
   build_source_hashes "$entries_file" "$hashes_file"
   awk -F'|' '{sub(/\r$/, "")} $1 == "FILE" {print $2}' "$state_path" | sort -u > "$old_entries"
   sort -u "$entries_file" "$old_entries" > "$all_entries"
   preflight_destination "$destination_root" "$all_entries"
 
+  compare_installation "$destination_root" "$entries_file" "$hashes_file" "$state_path" > "$plan_file"
+  if [ "$(plan_count CONFLICT "$plan_file")" -gt 0 ] && [ "$FORCE" -ne 1 ]; then
+    conflict_names=$(plan_paths CONFLICT "$plan_file" |
+      awk 'NR == 1 {printf "%s", $0; next} {printf ", %s", $0} END {print ""}')
+    fail "update stopped: $(plan_count CONFLICT "$plan_file") conflicting file(s) changed both locally and upstream ($conflict_names); resolve them or pass --force. No managed file was changed."
+  fi
+
   : > "$customized_file"
+  : > "$baseline_file"
   preserved=0
   backup_id=$(new_backup_id)
+  start_journal "$destination_root" "$backup_id" "$version" "$commit" "$manifest_hash"
+
   while IFS= read -r entry; do
     [ -n "$entry" ] || continue
-    grep -F -x -q -- "$entry" "$entries_file" && continue
-    path="$destination_root/$entry"
-    [ -f "$path" ] || continue
+    journal_entry "$destination_root" DELETE "$entry"
     backup_file "$destination_root" "$entry" "$backup_id"
-    if [ "$(state_customized "$entry" "$state_path")" = 1 ] ||
-       [ "$(file_hash "$path")" != "$(state_file_hash "$entry" "$state_path")" ]; then
-      preserved=$((preserved + 1))
-      printf 'Warning: preserved retired customized file as user-owned content: %s\n' "$entry" >&2
-      continue
-    fi
-    rm -f -- "$path"
-  done < "$old_entries"
+    rm -f -- "$destination_root/$entry"
+  done < <(plan_paths REMOVE "$plan_file")
+
+  while IFS= read -r entry; do
+    [ -n "$entry" ] || continue
+    backup_file "$destination_root" "$entry" "$backup_id"
+    preserved=$((preserved + 1))
+    printf 'Warning: preserved retired customized file as user-owned content: %s\n' "$entry" >&2
+  done < <(plan_paths REMOVE-PRESERVE "$plan_file")
 
   while IFS= read -r entry; do
     [ -n "$entry" ] || continue
     path="$destination_root/$entry"
-    if [ ! -f "$path" ]; then
-      copy_source_file "$destination_root" "$entry"
-      continue
-    fi
-    current_hash=$(file_hash "$path")
-    [ "$current_hash" = "$(source_hash "$entry" "$hashes_file")" ] && continue
-    row=$(state_file_row "$entry" "$state_path")
-    was_managed=0
-    was_customized=0
-    baseline_hash=''
-    if [ -n "$row" ]; then
-      was_managed=1
-      was_customized=$(printf '%s\n' "$row" | awk -F'|' '{print $4}')
-      baseline_hash=$(printf '%s\n' "$row" | awk -F'|' '{print $3}')
-    fi
-    if [ "$FORCE" -eq 1 ] ||
-       { [ "$was_managed" -eq 1 ] && [ "$was_customized" -ne 1 ] && [ "$current_hash" = "$baseline_hash" ]; }; then
+    if [ -f "$path" ]; then
+      journal_entry "$destination_root" REPLACE "$entry"
       backup_file "$destination_root" "$entry" "$backup_id"
+    else
+      journal_entry "$destination_root" CREATE "$entry"
+    fi
+    copy_source_file "$destination_root" "$entry"
+    printf '%s|%s\n' "$entry" "$(source_hash "$entry" "$hashes_file")" >> "$baseline_file"
+  done < <(plan_paths UPDATE "$plan_file"; plan_paths ADD "$plan_file")
+
+  while IFS= read -r entry; do
+    [ -n "$entry" ] || continue
+    printf '%s|%s\n' "$entry" "$(source_hash "$entry" "$hashes_file")" >> "$baseline_file"
+  done < <(plan_paths CURRENT "$plan_file")
+
+  while IFS= read -r entry; do
+    [ -n "$entry" ] || continue
+    backup_file "$destination_root" "$entry" "$backup_id"
+    printf '%s\n' "$entry" >> "$customized_file"
+    # REMOTE still equals BASE here, so the baseline is retained exactly.
+    printf '%s|%s\n' "$entry" "$(source_hash "$entry" "$hashes_file")" >> "$baseline_file"
+    preserved=$((preserved + 1))
+    printf 'Warning: preserved customized managed file: %s\n' "$entry" >&2
+  done < <(plan_paths LOCAL "$plan_file")
+
+  while IFS= read -r entry; do
+    [ -n "$entry" ] || continue
+    path="$destination_root/$entry"
+    if [ "$FORCE" -eq 1 ]; then
+      if [ -f "$path" ]; then
+        journal_entry "$destination_root" REPLACE "$entry"
+        backup_file "$destination_root" "$entry" "$backup_id"
+      else
+        journal_entry "$destination_root" CREATE "$entry"
+      fi
       copy_source_file "$destination_root" "$entry"
+      printf '%s|%s\n' "$entry" "$(source_hash "$entry" "$hashes_file")" >> "$baseline_file"
       continue
     fi
     backup_file "$destination_root" "$entry" "$backup_id"
     printf '%s\n' "$entry" >> "$customized_file"
+    printf '%s|%s\n' "$entry" "$(source_hash "$entry" "$hashes_file")" >> "$baseline_file"
     preserved=$((preserved + 1))
-    printf 'Warning: preserved customized managed file: %s\n' "$entry" >&2
+    printf 'Warning: preserved conflicting managed file: %s\n' "$entry" >&2
+  done < <(plan_paths CONFLICT "$plan_file")
+
+  # Verify before the transaction is marked complete.
+  while IFS= read -r entry; do
+    [ -n "$entry" ] || continue
+    path="$destination_root/$entry"
+    [ -f "$path" ] || fail "managed file is missing after update: $entry"
+    if ! grep -F -x -q -- "$entry" "$customized_file"; then
+      [ "$(file_hash "$path")" = "$(source_hash "$entry" "$hashes_file")" ] ||
+        fail "managed file does not match the source after update: $entry"
+    fi
   done < "$entries_file"
 
-  write_state "$destination_root" "$version" "$commit" "$manifest_hash" "$entries_file" "$customized_file"
+  write_state "$destination_root" "$version" "$commit" "$manifest_hash" "$entries_file" "$customized_file" "$baseline_file"
+  complete_journal "$destination_root"
   show_installed "$destination_root" "$version" "$commit" update "$preserved"
 }
 
-uninstall_action() {
-  local destination_root state_path entries_file preserved entry path version commit
+status_action() {
+  local destination_root version commit manifest_hash entries_file hashes_file state_path plan_file
+  local interrupted state_broken metadata_changed present entry sync installed_version installed_commit
+  local installed_manifest state_format
   destination_root=$(resolve_destination)
   preflight_generated_paths "$destination_root"
+  state_path="$destination_root/$STATE_NAME"
+  interrupted=0
+  [ -f "$destination_root/$JOURNAL_NAME" ] && interrupted=1
+
+  version=$(source_version)
+  commit=$(source_commit)
+  manifest_hash=$(file_hash "$MANIFEST_PATH")
+  entries_file=$(mktemp)
+  hashes_file=$(mktemp)
+  plan_file=$(mktemp)
+  TEMP_PATHS+=("$entries_file" "$hashes_file" "$plan_file")
+  manifest_entries > "$entries_file"
+  build_source_hashes "$entries_file" "$hashes_file"
+
+  state_broken=0
+  if [ -f "$state_path" ]; then
+    validate_state "$state_path" "$destination_root" 2>/dev/null || state_broken=1
+  else
+    present=0
+    while IFS= read -r entry; do
+      [ -n "$entry" ] || continue
+      [ -f "$destination_root/$entry" ] && present=$((present + 1))
+    done < "$entries_file"
+    [ "$present" -gt 0 ] || fail "no compatible LoopPilot installation found at '$destination_root'"
+    state_broken=1
+  fi
+
+  if [ "$state_broken" -eq 1 ]; then
+    compare_installation "$destination_root" "$entries_file" "$hashes_file" '' > "$plan_file"
+    installed_version=unknown
+    installed_commit=unknown
+    installed_manifest=''
+    state_format=unreadable
+  else
+    compare_installation "$destination_root" "$entries_file" "$hashes_file" "$state_path" > "$plan_file"
+    installed_version=$(state_value VERSION "$state_path")
+    installed_commit=$(state_value COMMIT "$state_path")
+    installed_manifest=$(state_value MANIFEST "$state_path")
+    state_format=$(state_value FORMAT "$state_path")
+  fi
+
+  metadata_changed=0
+  [ "$installed_version" = "$version" ] || metadata_changed=1
+  [ "$installed_commit" = "$commit" ] || metadata_changed=1
+  [ "$installed_manifest" = "$manifest_hash" ] || metadata_changed=1
+  sync=$(synchronization_state "$plan_file" "$metadata_changed" "$((interrupted | state_broken))")
+
+  printf 'LoopPilot installation status\n'
+  printf 'Destination: %s\n' "$destination_root"
+  printf 'State: %s\n' "$sync"
+  printf 'State format: %s\n' "$state_format"
+  printf 'Installed version: %s\n' "$installed_version"
+  printf 'Installed commit: %s\n' "$installed_commit"
+  printf 'Source version: %s\n' "$version"
+  printf 'Source commit: %s\n' "$commit"
+  if [ "$installed_commit" = "$commit" ]; then
+    printf 'Revision: unchanged\n'
+  else
+    printf 'Revision: changed\n'
+  fi
+  if [ "$installed_manifest" = "$manifest_hash" ]; then
+    printf 'Manifest: unchanged\n'
+  else
+    printf 'Manifest: changed\n'
+  fi
+  if [ "$interrupted" -eq 1 ]; then
+    printf 'Interrupted update: yes\n'
+  else
+    printf 'Interrupted update: no\n'
+  fi
+  printf 'Files current: %s\n' "$(plan_count CURRENT "$plan_file")"
+  printf 'Files updatable: %s\n' "$(plan_count UPDATE "$plan_file")"
+  printf 'Files locally modified: %s\n' "$(plan_count LOCAL "$plan_file")"
+  printf 'Files conflicted: %s\n' "$(plan_count CONFLICT "$plan_file")"
+  printf 'Files to add: %s\n' "$(plan_count ADD "$plan_file")"
+  printf 'Files to remove: %s\n' "$(plan_count REMOVE "$plan_file")"
+  printf 'Files preserved on remove: %s\n' "$(plan_count REMOVE-PRESERVE "$plan_file")"
+  awk -F'|' '$1 == "UPDATE" || $1 == "LOCAL" || $1 == "CONFLICT" || $1 == "ADD" ||
+             $1 == "REMOVE" || $1 == "REMOVE-PRESERVE" {print $1 "|" $2}' "$plan_file"
+}
+
+uninstall_action() {
+  local destination_root state_path entries_file preserved entry path version commit recovered
+  destination_root=$(resolve_destination)
+  preflight_generated_paths "$destination_root"
+  # Roll back an interrupted update first, so removal works from recorded state.
+  recovered=$(restore_journal "$destination_root")
+  if [ "$recovered" -gt 0 ]; then
+    printf 'Warning: recovered %s file(s) from an interrupted update before uninstalling\n' "$recovered" >&2
+  fi
   state_path="$destination_root/$STATE_NAME"
   validate_state "$state_path" "$destination_root"
   entries_file=$(mktemp)
@@ -546,5 +863,6 @@ case "$operation" in
   install) install_action ;;
   update) update_action ;;
   uninstall) uninstall_action ;;
+  status) status_action ;;
   *) usage ;;
 esac

@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true, Position = 0)]
-    [ValidateSet("install", "update", "uninstall")]
+    [ValidateSet("install", "update", "uninstall", "status")]
     [string]$Operation,
     [string]$Destination,
     [switch]$Force
@@ -12,7 +12,10 @@ $SourceRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $ManifestPath = Join-Path $SourceRoot "distribution\managed-files.txt"
 $VersionPath = Join-Path $SourceRoot "distribution\version.txt"
 $StateName = ".looppilot-installation"
-$StateFormat = "1"
+$JournalName = ".looppilot-transaction"
+$StateFormat = "2"
+$LegacyStateFormats = @("1")
+$UnknownHash = "-"
 
 function Fail([string]$Message) {
     throw "LoopPilot distribution: $Message"
@@ -210,6 +213,7 @@ function Get-State([string]$Path) {
         Manifest = $null
         Files = [ordered]@{}
         Customized = [ordered]@{}
+        Base = [ordered]@{}
     }
     $seen = @{}
     foreach ($line in Get-Content -LiteralPath $Path) {
@@ -238,19 +242,35 @@ function Get-State([string]$Path) {
                 $state.Manifest = $parts[1]
             }
             "FILE" {
-                if ($parts.Count -ne 4) { Fail "invalid installation state FILE row" }
+                # Format 1 rows carry four fields; format 2 adds the baseline hash.
+                if ($parts.Count -ne 4 -and $parts.Count -ne 5) { Fail "invalid installation state FILE row" }
                 Assert-RelativePath $parts[1]
                 if ($state.Files.Contains($parts[1])) { Fail "duplicate installation state file '$($parts[1])'" }
                 if ($parts[2] -notmatch '^[0-9a-f]{64}$' -or $parts[3] -notmatch '^[01]$') {
                     Fail "invalid installation state metadata for '$($parts[1])'"
                 }
+                $customized = ($parts[3] -eq "1")
+                if ($parts.Count -eq 5) {
+                    if ($parts[4] -ne $UnknownHash -and $parts[4] -notmatch '^[0-9a-f]{64}$') {
+                        Fail "invalid installation state baseline for '$($parts[1])'"
+                    }
+                    $baseline = $parts[4]
+                } elseif ($customized) {
+                    # A format 1 customized row recorded the local hash and lost its
+                    # baseline, so the upstream content it came from is unknown.
+                    $baseline = $UnknownHash
+                } else {
+                    $baseline = $parts[2]
+                }
                 $state.Files[$parts[1]] = $parts[2]
-                $state.Customized[$parts[1]] = ($parts[3] -eq "1")
+                $state.Customized[$parts[1]] = $customized
+                $state.Base[$parts[1]] = $baseline
             }
             default { Fail "unknown installation state row '$kind'" }
         }
     }
-    if ($state.Format -ne $StateFormat -or
+    $known = @($StateFormat) + $LegacyStateFormats
+    if ($known -notcontains $state.Format -or
         $state.Version -notmatch '^[A-Za-z0-9._-]+$' -or
         $state.Commit -notmatch '^[0-9a-f]{40}$' -or
         $state.Manifest -notmatch '^[0-9a-f]{64}$' -or
@@ -303,6 +323,15 @@ function Assert-GeneratedPathSafety([string]$Root) {
             Fail "generated backup path must be a regular directory: '$backupRoot'"
         }
     }
+
+    $journalPath = Join-Path $Root $JournalName
+    $journalItem = Get-Item -LiteralPath $journalPath -Force -ErrorAction SilentlyContinue
+    if ($null -ne $journalItem) {
+        if (($journalItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or
+            -not (Test-Path -LiteralPath $journalPath -PathType Leaf)) {
+            Fail "generated transaction path must be a regular file: '$journalPath'"
+        }
+    }
 }
 
 function New-BackupId {
@@ -331,7 +360,8 @@ function Write-State(
     [string]$Commit,
     [string]$ManifestHash,
     [string[]]$Entries,
-    [System.Collections.IDictionary]$Customized
+    [System.Collections.IDictionary]$Customized,
+    [System.Collections.IDictionary]$Baseline
 ) {
     $lines = @(
         "FORMAT|$StateFormat",
@@ -345,7 +375,8 @@ function Write-State(
             Fail "managed file is missing while writing state: $entry"
         }
         $flag = if ($Customized.Contains($entry) -and $Customized[$entry]) { "1" } else { "0" }
-        $lines += "FILE|$entry|$(Get-Hash $path)|$flag"
+        $base = if ($null -ne $Baseline -and $Baseline.Contains($entry)) { $Baseline[$entry] } else { $UnknownHash }
+        $lines += "FILE|$entry|$(Get-Hash $path)|$flag|$base"
     }
     $statePath = Join-Path $DestinationRoot $StateName
     $temporaryPath = "$statePath.tmp.$PID.$([guid]::NewGuid().ToString('N'))"
@@ -357,6 +388,78 @@ function Write-State(
             Remove-Item -LiteralPath $temporaryPath -Force
         }
     }
+}
+
+function Get-JournalPath([string]$Root) {
+    return Join-Path $Root $JournalName
+}
+
+function Start-Journal([string]$Root, [string]$BackupId, [string]$Version, [string]$Commit, [string]$ManifestHash) {
+    $path = Get-JournalPath $Root
+    [IO.File]::WriteAllLines($path, @("BEGIN|$BackupId|$Version|$Commit|$ManifestHash"), [Text.Encoding]::ASCII)
+}
+
+function Add-JournalEntry([string]$Root, [string]$Action, [string]$RelativePath) {
+    # Recorded before the action so an interruption always leaves a recoverable trace.
+    $path = Get-JournalPath $Root
+    [IO.File]::AppendAllText($path, "$Action|$RelativePath`n", [Text.Encoding]::ASCII)
+}
+
+function Complete-Journal([string]$Root) {
+    $path = Get-JournalPath $Root
+    if (Test-Path -LiteralPath $path -PathType Leaf) {
+        Remove-Item -LiteralPath $path -Force
+    }
+}
+
+function Read-Journal([string]$Root) {
+    $path = Get-JournalPath $Root
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return $null }
+    $records = New-Object System.Collections.Generic.List[object]
+    $backupId = $null
+    foreach ($line in Get-Content -LiteralPath $path) {
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+        $parts = @($line.Split([char]'|'))
+        if ($parts[0] -eq "BEGIN") {
+            if ($parts.Count -ne 5) { Fail "invalid interrupted-update journal BEGIN row" }
+            $backupId = $parts[1]
+            continue
+        }
+        if ($parts.Count -ne 2 -or @("REPLACE", "CREATE", "DELETE") -notcontains $parts[0]) {
+            Fail "invalid interrupted-update journal row"
+        }
+        Assert-RelativePath $parts[1]
+        $records.Add([pscustomobject]@{ Action = $parts[0]; Path = $parts[1] })
+    }
+    if ([string]::IsNullOrWhiteSpace($backupId)) { Fail "interrupted-update journal has no BEGIN row" }
+    return [pscustomobject]@{ BackupId = $backupId; Records = $records }
+}
+
+function Restore-Journal([string]$Root) {
+    # Roll the destination back to the pre-update content, newest action first.
+    $journal = Read-Journal $Root
+    if ($null -eq $journal) { return 0 }
+    $backupRoot = Join-Path $Root (".looppilot-backups\" + $journal.BackupId)
+    $restored = 0
+    for ($index = $journal.Records.Count - 1; $index -ge 0; $index--) {
+        $record = $journal.Records[$index]
+        $target = Get-DestinationPath $Root $record.Path
+        if ($record.Action -eq "CREATE") {
+            if (Test-Path -LiteralPath $target -PathType Leaf) {
+                Remove-Item -LiteralPath $target -Force
+                $restored++
+            }
+            continue
+        }
+        $backup = Get-DestinationPath $backupRoot $record.Path
+        if (Test-Path -LiteralPath $backup -PathType Leaf) {
+            New-Item -ItemType Directory -Force -Path (Split-Path -Parent $target) | Out-Null
+            Copy-Item -LiteralPath $backup -Destination $target -Force
+            $restored++
+        }
+    }
+    Complete-Journal $Root
+    return $restored
 }
 
 function Get-SourceHashes([string[]]$Entries) {
@@ -375,6 +478,106 @@ function Assert-DestinationPreflight([string]$DestinationRoot, [string[]]$Entrie
             Fail "managed path is not a regular file: $entry"
         }
     }
+}
+
+function Compare-Installation(
+    [string]$DestinationRoot,
+    [string[]]$Entries,
+    [System.Collections.IDictionary]$SourceHashes,
+    $State
+) {
+    <#
+        Three-way comparison for every managed path.
+
+            BASE   = content recorded at the previous successful installation
+            LOCAL  = content currently on disk
+            REMOTE = content in the source repository
+
+        Classification is deliberately conservative: whenever BASE is unknown and
+        LOCAL differs from REMOTE, the file is a conflict rather than an
+        overwrite candidate.
+    #>
+    $plan = [ordered]@{
+        Current = New-Object System.Collections.Generic.List[string]
+        Update = New-Object System.Collections.Generic.List[string]
+        Local = New-Object System.Collections.Generic.List[string]
+        Conflict = New-Object System.Collections.Generic.List[string]
+        Add = New-Object System.Collections.Generic.List[string]
+        Remove = New-Object System.Collections.Generic.List[string]
+        RemovePreserve = New-Object System.Collections.Generic.List[string]
+    }
+
+    $remoteSet = New-Object 'System.Collections.Generic.HashSet[string]'
+    foreach ($entry in $Entries) { [void]$remoteSet.Add($entry) }
+    $baseKeys = if ($null -ne $State) { @($State.Files.Keys) } else { @() }
+    $all = @(@($Entries) + @($baseKeys) | Sort-Object -Unique)
+
+    foreach ($entry in $all) {
+        $path = Get-DestinationPath $DestinationRoot $entry
+        $localExists = Test-Path -LiteralPath $path -PathType Leaf
+        $local = if ($localExists) { Get-Hash $path } else { $null }
+        $baseKnown = $null -ne $State -and $State.Files.Contains($entry)
+        $base = if ($baseKnown) { $State.Base[$entry] } else { $null }
+        if ($base -eq $UnknownHash) { $base = $null }
+        $remote = if ($remoteSet.Contains($entry)) { $SourceHashes[$entry] } else { $null }
+
+        if ($null -eq $remote) {
+            # Retired from the manifest.
+            if (-not $localExists) { continue }
+            if ($null -ne $base -and $local -eq $base) {
+                $plan.Remove.Add($entry)
+            } else {
+                $plan.RemovePreserve.Add($entry)
+            }
+            continue
+        }
+
+        if (-not $localExists) {
+            if ($baseKnown) { $plan.Update.Add($entry) } else { $plan.Add.Add($entry) }
+            continue
+        }
+
+        if ($local -eq $remote) {
+            # Already converged, whatever the baseline says.
+            $plan.Current.Add($entry)
+            continue
+        }
+
+        if (-not $baseKnown) {
+            # A newly managed path colliding with pre-existing user content.
+            $plan.Conflict.Add($entry)
+            continue
+        }
+
+        if ($null -eq $base) {
+            # Baseline lost by a legacy format 1 state; cannot prove safety.
+            $plan.Conflict.Add($entry)
+            continue
+        }
+
+        $localChanged = $local -ne $base
+        $remoteChanged = $remote -ne $base
+        if (-not $localChanged -and $remoteChanged) {
+            $plan.Update.Add($entry)
+        } elseif ($localChanged -and -not $remoteChanged) {
+            $plan.Local.Add($entry)
+        } elseif ($localChanged -and $remoteChanged) {
+            $plan.Conflict.Add($entry)
+        } else {
+            $plan.Current.Add($entry)
+        }
+    }
+    return $plan
+}
+
+function Get-SynchronizationState($Plan, [bool]$MetadataChanged, [bool]$RecoveryRequired) {
+    if ($RecoveryRequired) { return "RECOVERY_REQUIRED" }
+    if ($Plan.Conflict.Count -gt 0) { return "CONFLICT" }
+    if ($Plan.Update.Count -gt 0 -or $Plan.Add.Count -gt 0 -or $Plan.Remove.Count -gt 0 -or $MetadataChanged) {
+        return "UPDATE_AVAILABLE"
+    }
+    if ($Plan.Local.Count -gt 0 -or $Plan.RemovePreserve.Count -gt 0) { return "LOCAL_MODIFICATIONS" }
+    return "CURRENT"
 }
 
 function Show-Installed([string]$DestinationRoot, [string]$Version, [string]$Commit, [string]$Action, [int]$Preserved) {
@@ -436,21 +639,34 @@ function Invoke-Install {
 
     New-Item -ItemType Directory -Force -Path $destinationRoot | Out-Null
     $backupId = New-BackupId
+    $baseline = [ordered]@{}
     foreach ($entry in $entries) {
         $path = Get-DestinationPath $destinationRoot $entry
         if (Test-Path -LiteralPath $path -PathType Leaf) {
-            if ((Get-Hash $path) -eq $sourceHashes[$entry]) { continue }
+            if ((Get-Hash $path) -eq $sourceHashes[$entry]) {
+                $baseline[$entry] = $sourceHashes[$entry]
+                continue
+            }
             Backup-File $destinationRoot $entry $backupId
         }
         Copy-SourceFile $destinationRoot $entry
+        $baseline[$entry] = $sourceHashes[$entry]
     }
-    Write-State $destinationRoot $version $commit $manifestHash $entries ([ordered]@{})
+    Write-State $destinationRoot $version $commit $manifestHash $entries ([ordered]@{}) $baseline
     Show-Installed $destinationRoot $version $commit "install" 0
 }
 
 function Invoke-Update {
     $destinationRoot = Get-InstallDestination $Destination
     Assert-GeneratedPathSafety $destinationRoot
+
+    # An interrupted update is rolled back first so every update starts from a
+    # known-good baseline and retrying is deterministic.
+    $recovered = Restore-Journal $destinationRoot
+    if ($recovered -gt 0) {
+        Write-Warning "recovered $recovered file(s) from an interrupted update before continuing"
+    }
+
     $statePath = Join-Path $destinationRoot $StateName
     $state = Get-State $statePath
     if ($null -eq $state) { Fail "no compatible LoopPilot installation found at '$destinationRoot'" }
@@ -460,59 +676,174 @@ function Invoke-Update {
     $commit = Get-SourceCommit
     $manifestHash = Get-Hash $ManifestPath
     $sourceHashes = Get-SourceHashes $entries
-    $allPaths = @($entries + @($state.Files.Keys) | Sort-Object -Unique)
+    $allPaths = @(@($entries) + @($state.Files.Keys) | Sort-Object -Unique)
     Assert-DestinationPreflight $destinationRoot $allPaths
 
-    $newEntrySet = New-Object 'System.Collections.Generic.HashSet[string]'
-    foreach ($entry in $entries) { [void]$newEntrySet.Add($entry) }
+    $plan = Compare-Installation $destinationRoot $entries $sourceHashes $state
+    if ($plan.Conflict.Count -gt 0 -and -not $Force) {
+        $names = @($plan.Conflict) -join ", "
+        Fail "update stopped: $($plan.Conflict.Count) conflicting file(s) changed both locally and upstream ($names); resolve them or pass -Force. No managed file was changed."
+    }
+
     $customized = [ordered]@{}
+    $baseline = [ordered]@{}
     $preserved = 0
     $backupId = New-BackupId
+    Start-Journal $destinationRoot $backupId $version $commit $manifestHash
 
-    foreach ($entry in @($state.Files.Keys)) {
-        if ($newEntrySet.Contains($entry)) { continue }
-        $path = Get-DestinationPath $destinationRoot $entry
-        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { continue }
-        Backup-File $destinationRoot $entry $backupId
-        if ($state.Customized[$entry] -or (Get-Hash $path) -ne $state.Files[$entry]) {
+    try {
+        foreach ($entry in $plan.Remove) {
+            Add-JournalEntry $destinationRoot "DELETE" $entry
+            Backup-File $destinationRoot $entry $backupId
+            Remove-Item -LiteralPath (Get-DestinationPath $destinationRoot $entry) -Force
+        }
+        foreach ($entry in $plan.RemovePreserve) {
+            Backup-File $destinationRoot $entry $backupId
             $preserved++
             Write-Warning "preserved retired customized file as user-owned content: $entry"
-            continue
         }
-        Remove-Item -LiteralPath $path -Force
-    }
-
-    foreach ($entry in $entries) {
-        $destinationPath = Get-DestinationPath $destinationRoot $entry
-        if (-not (Test-Path -LiteralPath $destinationPath -PathType Leaf)) {
+        foreach ($entry in $plan.Add) {
+            Add-JournalEntry $destinationRoot "CREATE" $entry
             Copy-SourceFile $destinationRoot $entry
-            continue
+            $baseline[$entry] = $sourceHashes[$entry]
         }
-        $currentHash = Get-Hash $destinationPath
-        if ($currentHash -eq $sourceHashes[$entry]) { continue }
-
-        $wasManaged = $state.Files.Contains($entry)
-        $wasCustomized = $wasManaged -and $state.Customized[$entry]
-        $matchesBaseline = $wasManaged -and $currentHash -eq $state.Files[$entry]
-        if ($Force -or ((-not $wasCustomized) -and $matchesBaseline)) {
+        foreach ($entry in $plan.Update) {
+            $path = Get-DestinationPath $destinationRoot $entry
+            if (Test-Path -LiteralPath $path -PathType Leaf) {
+                Add-JournalEntry $destinationRoot "REPLACE" $entry
+                Backup-File $destinationRoot $entry $backupId
+            } else {
+                Add-JournalEntry $destinationRoot "CREATE" $entry
+            }
+            Copy-SourceFile $destinationRoot $entry
+            $baseline[$entry] = $sourceHashes[$entry]
+        }
+        foreach ($entry in $plan.Current) {
+            $baseline[$entry] = $sourceHashes[$entry]
+        }
+        foreach ($entry in $plan.Local) {
             Backup-File $destinationRoot $entry $backupId
-            Copy-SourceFile $destinationRoot $entry
-            continue
+            $customized[$entry] = $true
+            # REMOTE still equals BASE here, so the baseline is retained exactly.
+            $baseline[$entry] = $sourceHashes[$entry]
+            $preserved++
+            Write-Warning "preserved customized managed file: $entry"
+        }
+        foreach ($entry in $plan.Conflict) {
+            if ($Force) {
+                $path = Get-DestinationPath $destinationRoot $entry
+                if (Test-Path -LiteralPath $path -PathType Leaf) {
+                    Add-JournalEntry $destinationRoot "REPLACE" $entry
+                    Backup-File $destinationRoot $entry $backupId
+                } else {
+                    Add-JournalEntry $destinationRoot "CREATE" $entry
+                }
+                Copy-SourceFile $destinationRoot $entry
+                $baseline[$entry] = $sourceHashes[$entry]
+                continue
+            }
+            Backup-File $destinationRoot $entry $backupId
+            $customized[$entry] = $true
+            $baseline[$entry] = $sourceHashes[$entry]
+            $preserved++
+            Write-Warning "preserved conflicting managed file: $entry"
         }
 
-        Backup-File $destinationRoot $entry $backupId
-        $customized[$entry] = $true
-        $preserved++
-        Write-Warning "preserved customized managed file: $entry"
+        # Verify before the transaction is marked complete.
+        foreach ($entry in $entries) {
+            $path = Get-DestinationPath $destinationRoot $entry
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+                Fail "managed file is missing after update: $entry"
+            }
+            $expectCustomized = $customized.Contains($entry) -and $customized[$entry]
+            if (-not $expectCustomized -and (Get-Hash $path) -ne $sourceHashes[$entry]) {
+                Fail "managed file does not match the source after update: $entry"
+            }
+        }
+
+        Write-State $destinationRoot $version $commit $manifestHash $entries $customized $baseline
+    } catch {
+        Write-Warning "update failed; the previous installation is recoverable from .looppilot-backups\$backupId"
+        throw
     }
 
-    Write-State $destinationRoot $version $commit $manifestHash $entries $customized
+    Complete-Journal $destinationRoot
     Show-Installed $destinationRoot $version $commit "update" $preserved
+}
+
+function Invoke-Status {
+    $destinationRoot = Get-InstallDestination $Destination
+    Assert-GeneratedPathSafety $destinationRoot
+    $journalPath = Get-JournalPath $destinationRoot
+    $interrupted = Test-Path -LiteralPath $journalPath -PathType Leaf
+
+    $entries = Get-ManifestEntries
+    $version = Get-SourceVersion
+    $commit = Get-SourceCommit
+    $manifestHash = Get-Hash $ManifestPath
+    $sourceHashes = Get-SourceHashes $entries
+    $statePath = Join-Path $destinationRoot $StateName
+
+    $state = $null
+    $stateBroken = $false
+    if (Test-Path -LiteralPath $statePath -PathType Leaf) {
+        try {
+            $state = Get-State $statePath
+        } catch {
+            $stateBroken = $true
+        }
+    } else {
+        $present = 0
+        foreach ($entry in $entries) {
+            if (Test-Path -LiteralPath (Get-DestinationPath $destinationRoot $entry) -PathType Leaf) { $present++ }
+        }
+        if ($present -eq 0) {
+            Fail "no compatible LoopPilot installation found at '$destinationRoot'"
+        }
+        $stateBroken = $true
+    }
+
+    $plan = Compare-Installation $destinationRoot $entries $sourceHashes $state
+    $metadataChanged = $null -eq $state -or
+        $state.Version -ne $version -or
+        $state.Commit -ne $commit -or
+        $state.Manifest -ne $manifestHash
+    $synchronization = Get-SynchronizationState $plan $metadataChanged ($interrupted -or $stateBroken)
+
+    Write-Output "LoopPilot installation status"
+    Write-Output "Destination: $destinationRoot"
+    Write-Output "State: $synchronization"
+    Write-Output "State format: $(if ($null -ne $state) { $state.Format } else { 'unreadable' })"
+    Write-Output "Installed version: $(if ($null -ne $state) { $state.Version } else { 'unknown' })"
+    Write-Output "Installed commit: $(if ($null -ne $state) { $state.Commit } else { 'unknown' })"
+    Write-Output "Source version: $version"
+    Write-Output "Source commit: $commit"
+    Write-Output "Revision: $(if ($null -ne $state -and $state.Commit -eq $commit) { 'unchanged' } else { 'changed' })"
+    Write-Output "Manifest: $(if ($null -ne $state -and $state.Manifest -eq $manifestHash) { 'unchanged' } else { 'changed' })"
+    Write-Output "Interrupted update: $(if ($interrupted) { 'yes' } else { 'no' })"
+    Write-Output "Files current: $($plan.Current.Count)"
+    Write-Output "Files updatable: $($plan.Update.Count)"
+    Write-Output "Files locally modified: $($plan.Local.Count)"
+    Write-Output "Files conflicted: $($plan.Conflict.Count)"
+    Write-Output "Files to add: $($plan.Add.Count)"
+    Write-Output "Files to remove: $($plan.Remove.Count)"
+    Write-Output "Files preserved on remove: $($plan.RemovePreserve.Count)"
+    foreach ($entry in $plan.Update) { Write-Output "UPDATE|$entry" }
+    foreach ($entry in $plan.Local) { Write-Output "LOCAL|$entry" }
+    foreach ($entry in $plan.Conflict) { Write-Output "CONFLICT|$entry" }
+    foreach ($entry in $plan.Add) { Write-Output "ADD|$entry" }
+    foreach ($entry in $plan.Remove) { Write-Output "REMOVE|$entry" }
+    foreach ($entry in $plan.RemovePreserve) { Write-Output "REMOVE-PRESERVE|$entry" }
 }
 
 function Invoke-Uninstall {
     $destinationRoot = Get-InstallDestination $Destination
     Assert-GeneratedPathSafety $destinationRoot
+    # Roll back an interrupted update first, so removal works from recorded state.
+    $recovered = Restore-Journal $destinationRoot
+    if ($recovered -gt 0) {
+        Write-Warning "recovered $recovered file(s) from an interrupted update before uninstalling"
+    }
     $statePath = Join-Path $destinationRoot $StateName
     $state = Get-State $statePath
     if ($null -eq $state) { Fail "no compatible LoopPilot installation found at '$destinationRoot'" }
@@ -530,10 +861,10 @@ function Invoke-Uninstall {
         Remove-Item -LiteralPath $path -Force
     }
     Remove-Item -LiteralPath $statePath -Force
-    Write-Host "LoopPilot uninstall complete"
-    Write-Host "Destination: $destinationRoot"
-    Write-Host "Removed files from version: $($state.Version)"
-    Write-Host "Installed commit: $($state.Commit)"
+    Write-Output "LoopPilot uninstall complete"
+    Write-Output "Destination: $destinationRoot"
+    Write-Output "Removed files from version: $($state.Version)"
+    Write-Output "Installed commit: $($state.Commit)"
     if ($preserved -gt 0) {
         Write-Warning "$preserved modified managed file(s) were preserved as user-owned content"
     }
@@ -543,4 +874,5 @@ switch ($Operation) {
     "install" { Invoke-Install }
     "update" { Invoke-Update }
     "uninstall" { Invoke-Uninstall }
+    "status" { Invoke-Status }
 }
