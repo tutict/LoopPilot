@@ -1,7 +1,7 @@
 # LoopPilot Installation Validation
 
 This document defines the Distribution-001 verification boundary and records later
-distribution corrections through Distribution-003. It validates packaging behavior
+distribution corrections through Distribution-004. It validates packaging behavior
 only. It does not validate agent behavior, Host Acceptance, protocol effectiveness,
 or release readiness.
 
@@ -13,8 +13,15 @@ checks destination files, installation state, backups, and process results. The
 fixtures exercise a manifest change between two source versions without modifying
 protocol files in the repository.
 
+Distribution-004 runs its synchronization suite against both shipped
+implementations. Every scenario in the Distribution-004 table below executes once
+through `distribution/loop-pilot.ps1` and once through `distribution/loop-pilot.sh`,
+as a `subTest` per shell, so a divergence between them fails the suite rather than
+going unnoticed. A shell that is genuinely unavailable is skipped and reported as
+skipped, never as a pass.
+
 Repository validation continues to use the existing validators. Distribution-001
-adds no validator.
+adds no validator, and neither does Distribution-004.
 
 ## Required Scenarios
 
@@ -23,13 +30,38 @@ adds no validator.
 | Fresh install | All manifest files are copied, user files remain, state is created, output prints version and commit, and the installed existing validator passes against the installed root. |
 | Reinstall | An identical installation reports `reinstall (no changes)` without changing user content. |
 | Upgrade | Unmodified files update, new files appear, retired unmodified files are removed, version and commit advance, and backups are retained. |
-| Customized upgrade | Modified managed files and colliding user files are preserved by default and marked customized; force update backs them up before replacement. |
+| Customized upgrade | Modified managed files are preserved by default and marked customized; force update backs them up before replacement. |
 | Uninstall | Only matching, non-customized files recorded by state are removed; user and modified files remain. |
 | Broken installation detection | Install detects an existing state whose payload differs and directs the user to update; update repairs a missing managed file. |
 | Missing source detection | A manifest entry absent from the source package stops installation before destination writes. |
 | Version mismatch detection | A valid old source version is handled as an upgrade; malformed or incomplete installed version metadata is rejected. |
 | Manifest migration | Added and retired managed files are processed from old state without requiring an identical manifest hash. |
 | Path safety | Non-regular managed paths and symbolic-link or reparse-point traversal are rejected before managed deletion or replacement. |
+
+## Distribution-004 Synchronization Scenarios
+
+Each row runs against PowerShell and Bash.
+
+| Scenario | Expected | Verification |
+|---|---|---|
+| Identical repository and installation | `CURRENT` | `status` reports `CURRENT` with zero pending actions immediately after install. |
+| Repository changed, local untouched | `UPDATE_AVAILABLE`, then a successful update | `status` reports the state, the changed revision and manifest, and the per-file `UPDATE`, `ADD`, and `REMOVE` actions; the update applies them and returns to `CURRENT`. |
+| Local customization only | `LOCAL_MODIFICATIONS` | A file edited locally while upstream is unchanged is reported as locally modified, not as an update. |
+| Repository and local both modified | `CONFLICT` | Reported as a conflict; the update refuses, names the file, changes no managed file, and leaves the recorded version untouched. |
+| Repository adds a managed file | Installed automatically | A newly managed file absent locally is copied and its hash recorded. |
+| Repository removes an unchanged managed file | Removed safely | A retired file matching its baseline is backed up and deleted. |
+| Repository removes a customized file | Customization preserved | A retired file that differs from its baseline is backed up, preserved, and reported as a preserved local customization. |
+| Manifest hash mismatch | Detected | `status` reports `Manifest: changed` and contributes to `UPDATE_AVAILABLE`. |
+| Source revision changed | Detected | `status` reports `Revision: changed` and the differing installed and source commits. |
+| Interrupted update | `RECOVERY_REQUIRED` | A residual transaction journal makes `status` report recovery and `Interrupted update: yes`. |
+| Recovery and retry | Deterministic | The next update rolls back from the recorded backup, removes the journal, applies the update, reaches `CURRENT`, and a repeated update stays `CURRENT`. |
+| Missing installation state with payload present | `RECOVERY_REQUIRED` | Deleting the state file while managed files remain is reported as recovery, not as a fresh install. |
+| Reinstall after update | Remains correct | Reinstalling the same source reports `reinstall (no changes)` and stays `CURRENT`. |
+| Uninstall after update | Removes only managed files | Recorded, unmodified managed files are removed; unmanaged user files and backups remain. |
+| Legacy format 1 state | Read and migrated | An uncustomized format 1 row keeps a usable baseline, the update succeeds, and the state is rewritten as format 2. |
+| Baseline retention across a preserving update | Baseline stays upstream | After a customization is preserved, the recorded baseline still differs from the installed hash, so a later upstream change remains detectable. |
+| Status without an installation | Rejected | `status` against an empty destination exits non-zero and reports no compatible installation. |
+| Unmanaged user files | Never deleted | User-created files survive update, forced update, and uninstall in every scenario above that creates them. |
 
 ## Commands
 
@@ -50,8 +82,18 @@ py -3.13 -m unittest tests.test_distribution -q
 Bash syntax and lifecycle tests on a Bash-capable system:
 
 ```bash
-bash -n install.sh update.sh uninstall.sh distribution/loop-pilot.sh
+bash -n install.sh update.sh uninstall.sh status.sh distribution/loop-pilot.sh
 python -m unittest tests.test_distribution -q
+```
+
+Synchronization status against an installation:
+
+```powershell
+.\status.ps1 -Destination <destination>
+```
+
+```bash
+./status.sh --destination <destination>
 ```
 
 Existing repository checks:
@@ -80,14 +122,41 @@ pass does not establish behavior on another shell.
 
 | Check | Environment | Status | Evidence |
 |---|---|---|---|
-| PowerShell parser | Windows PowerShell | PASS | Observed after the complete Distribution-001 change set. |
-| PowerShell lifecycle scenarios | Windows PowerShell | PASS | `tests.test_distribution`: 7/7 passed after Distribution-002.1; live repository install, update, uninstall, and self-uninstall also completed. |
-| Bash syntax | Git Bash 5.2.37 on Windows | PASS | All three Bash wrappers and `distribution/loop-pilot.sh` parsed successfully outside the restrictive sandbox. The sandbox-only `Win32 error 5` remains recorded as an Execution Infrastructure Incident. |
-| Bash lifecycle scenarios | Git Bash 5.2.37 on Windows | PASS | Distribution-003 observed fresh install, 126-file manifest/state/hash integrity, customization preservation, backup creation, self-uninstall, user-content preservation, and state cleanup. |
-| Installed existing validator | Windows PowerShell and Python 3.13 | PASS | A fresh isolated Distribution-002.1 installation included `.github/workflows/validate.yml`; its copied validator printed `Static validation passed`. |
-| Existing static validator | Python 3.13 | PASS | `py -3.13 scripts\\validate.py` printed `Static validation passed`. |
-| Full repository tests | CPython 3.13 | PASS | The approved outside-sandbox run completed 870/870 tests in 795.054 seconds. The normal sandbox run had 861 pre-assertion temporary-directory permission errors and 9 passes. |
+| PowerShell parser | Windows PowerShell | PASS | All five PowerShell files parsed after the complete Distribution-004 change set: `distribution\loop-pilot.ps1`, `install.ps1`, `update.ps1`, `uninstall.ps1`, and `status.ps1`. |
+| PowerShell lifecycle scenarios | Windows PowerShell | PASS | `tests.test_distribution`: 18/18 passed after Distribution-004. A live repository install, `status`, local customization, and uninstall against a temporary destination also completed. |
+| Bash syntax | Git Bash 5.2.37 on Windows | PASS | `bash -n install.sh update.sh uninstall.sh status.sh distribution/loop-pilot.sh` exited 0 outside the restrictive sandbox. The sandbox-only `Win32 error 5` remains recorded as an Execution Infrastructure Incident. |
+| Bash lifecycle scenarios | Git Bash 5.2.37 on Windows | PASS | Distribution-003 observed fresh install, 126-file manifest/state/hash integrity, customization preservation, backup creation, self-uninstall, user-content preservation, and state cleanup. Distribution-004 additionally runs all ten synchronization scenarios through `distribution/loop-pilot.sh` as `shell='bash'` subtests, with zero skips. |
+| Distribution-004 synchronization scenarios | Windows PowerShell and Git Bash 5.2.37 | PASS | Every scenario in the Distribution-004 table executed on both shells in one suite run, 20 shell-level subtests, no divergence between implementations. |
+| Live install at repository scale | Windows PowerShell and Python 3.13 | PASS | Installing the current repository placed 141 managed files with version `unreleased` and commit `317dd975145c6193f4af0b0479f31357c06f1245`; `status` then reported `CURRENT`, `State format: 2`, `Revision: unchanged`, `Manifest: unchanged`, and 141 current files. `status.ps1` and `status.sh` were both present in the installation. |
+| Status from inside an installation | Windows PowerShell | Documented limitation | Running the installed `status.ps1` against its own installation stops with `cannot determine a 40-character source commit`, because an installed copy has no `.git/` and no `distribution/commit.txt`. This is the pre-existing rule that already governs `install` and `update`; `status` compares against a source package and is run from one. |
+| Installed existing validator | Windows PowerShell and Python 3.13 | PASS | The copied validator in that live installation printed `Static validation passed` against the installed root. |
+| Existing static validator | Python 3.13 | PASS | `scripts\validate.py` printed `Static validation passed` with exit code 0. |
+| Full repository tests | CPython 3.13 | PASS | The outside-sandbox run completed 881/881 tests in 768.260 seconds with exit code 0. The count rose from 870 because Distribution-004 added ten synchronization tests and one conflict-refusal test. |
 | Diff whitespace check | Git | PASS | `git diff --check` completed with exit code 0; Git emitted only existing LF/CRLF normalization warnings. |
+
+## Distribution-004 Behavior Change
+
+Distribution-004 supersedes one documented Distribution-001 upgrade behavior, and
+the change is recorded here rather than left to be discovered.
+
+Previously, a managed file modified both locally and upstream was preserved
+silently and the update reported success. A newly managed path colliding with
+different pre-existing user content was handled the same way. Both are now
+conflicts: the update stops before changing any managed file, names every
+conflicting path, and exits non-zero, because an update must not claim success
+while a conflict is unresolved. `-Force` and `--force` still back up local
+content and take the source version.
+
+Two existing regression tests encoded the superseded contract and were rewritten
+to assert refusal followed by a forced resolution. The two contracts are
+incompatible, so this is a deliberate replacement rather than a regression.
+
+The state schema moved from format `1` to format `2` so that a preserved
+customization no longer destroys its upstream baseline. Format `1` states are
+still read. An uncustomized format `1` row keeps its recorded hash as the
+baseline; a customized format `1` row has no recoverable baseline and is
+resolved conservatively toward conflict rather than toward overwriting local
+content.
 
 The user-requested `python` command resolved to GraalPy 3.12.8 without PyYAML.
 `python scripts/validate.py` therefore stopped at import with
@@ -98,4 +167,7 @@ declared dependency and provided the complete passing suite above.
 
 Any remaining `PENDING`, `UNVERIFIED`, or failed row must be reported honestly in
 the applicable distribution completion summary. Git Bash evidence does not imply
-Linux, macOS, WSL, or another Bash implementation was tested.
+Linux, macOS, WSL, or another Bash implementation was tested. The Bash results
+above were produced by Git Bash on Windows only; no Linux, macOS, WSL, or
+alternative Bash implementation was exercised, so those environments remain
+UNVERIFIED.

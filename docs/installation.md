@@ -1,7 +1,8 @@
 # LoopPilot Installation and Distribution
 
-This document describes the Distribution-001 packaging boundary. It does not
-change the LoopPilot protocol, establish Host Acceptance, or authorize a release.
+This document describes the packaging boundary established by Distribution-001
+and extended through Distribution-004. It does not change the LoopPilot
+protocol, establish Host Acceptance, or authorize a release.
 
 ## Source Repository Layout
 
@@ -12,6 +13,7 @@ The current repository separates distribution concerns from protocol content:
 | `install.ps1`, `install.sh` | Fresh installation and explicit reinstall entry points |
 | `update.ps1`, `update.sh` | Managed-file upgrade entry points |
 | `uninstall.ps1`, `uninstall.sh` | State-based removal entry points |
+| `status.ps1`, `status.sh` | Read-only synchronization status entry points |
 | `distribution/managed-files.txt` | Authoritative list of managed payload roots |
 | `distribution/version.txt` | Version token printed and recorded by the installer |
 | `distribution/loop-pilot.ps1` | Shared PowerShell implementation |
@@ -42,6 +44,7 @@ the supporting documents:
 |-- install.ps1 / install.sh
 |-- update.ps1 / update.sh
 |-- uninstall.ps1 / uninstall.sh
+|-- status.ps1 / status.sh
 |-- distribution/
 |-- docs/
 |-- .looppilot/
@@ -52,6 +55,7 @@ the supporting documents:
 |-- scripts/
 |-- tests/
 |-- .looppilot-installation       generated
+|-- .looppilot-transaction        generated only while an update is in progress
 `-- .looppilot-backups/           generated only when a backup is needed
 ```
 
@@ -83,8 +87,11 @@ Missing manifest sources stop installation before destination writes begin.
 
 ### Generated files
 
-- `.looppilot-installation` records format, version, source commit, manifest hash,
-  installed file hashes, and customization flags. Users should not edit it.
+- `.looppilot-installation` records format, version, source commit, manifest
+  hash, and one row per managed file holding the installed hash, the
+  customization flag, and the upstream baseline hash. Users should not edit it.
+- `.looppilot-transaction` exists only while an update is applying changes. Its
+  presence means the previous update did not finish.
 - `.looppilot-backups/<operation-id>/` contains files backed up before replacement
   or managed retirement. Backups are retained until the user reviews and removes
   them.
@@ -137,6 +144,78 @@ Successful output includes the installed version and source commit. The current
 `distribution/version.txt` value is `unreleased`; that token is not a Release
 Candidate claim.
 
+## Installation State and the Source of Truth
+
+The repository is authoritative. An installation is a managed projection of one
+repository revision, never a second source of truth.
+
+`.looppilot-installation` retains what an upgrade needs to compare three
+versions of every managed file:
+
+```text
+BASE   = the upstream content recorded at the previous successful installation
+LOCAL  = the file currently in the installation
+REMOTE = the file currently in the source repository
+```
+
+Each `FILE` row is `path`, `installed hash`, `customized flag`, `baseline hash`.
+`BASE` is the baseline hash and is kept distinct from the installed hash, so a
+file preserved as a customization still remembers the upstream content it came
+from and a later genuine upstream change stays detectable.
+
+The state carries a schema version. Format `2` is current. A format `1` state
+from an earlier installation is still read: an uncustomized row keeps its
+recorded hash as `BASE`, while a customized row has no recoverable baseline and
+its `BASE` is treated as unknown. An unknown baseline is resolved conservatively
+toward conflict rather than toward overwriting local content. Updating a format
+`1` installation rewrites it as format `2`.
+
+No semantic version or release tag is required. The `unreleased` token is a
+valid, updatable version.
+
+## Synchronization Status
+
+`status` is a read-only operation that reports whether an installation is
+synchronized with the source. It answers, deterministically, whether the
+installation is current, whether an update is available, whether local
+modifications exist, whether conflicts exist, and whether recovery is required.
+
+```powershell
+.\status.ps1 -Destination "$HOME\.codex\skills\loop-pilot"
+```
+
+```bash
+./status.sh --destination "$HOME/.codex/skills/loop-pilot"
+```
+
+The reported `State` is exactly one of:
+
+| State | Meaning |
+|---|---|
+| `CURRENT` | Every managed file matches the source, and the recorded revision and manifest match it too. |
+| `UPDATE_AVAILABLE` | At least one file can be updated, added, or removed safely, or the recorded revision or manifest has moved. No conflict exists. |
+| `LOCAL_MODIFICATIONS` | Local edits exist, nothing upstream competes with them, and no update is pending. |
+| `CONFLICT` | At least one managed file changed both locally and upstream, so no automatic resolution is safe. |
+| `RECOVERY_REQUIRED` | A previous update did not finish, or the installation state is missing or unreadable while a payload is present. |
+
+Those states are reported in that order of precedence: recovery outranks
+conflict, conflict outranks an available update, and an available update
+outranks local modifications. Counts per category and one `ACTION|path` line per
+non-current file follow the summary, so the reason for a state is always visible.
+
+`status` exits non-zero only when it cannot determine a state, such as when no
+installation exists at the destination.
+
+`status` compares an installation against a source package, so it is run from a
+source checkout or archive and pointed at the installation, exactly like
+`update`. It therefore needs a determinable source commit and shares the
+existing rule for `install` and `update`: run it from a Git checkout, or supply
+`distribution/commit.txt` in the source package. An installed copy contains no
+`.git/` and is not given a `commit.txt`, so running `status` from inside an
+installation against itself stops with the same source-commit error that
+`install` and `update` produce there. Only `uninstall` reads state alone and
+works from within an installation.
+
 ## Upgrade
 
 Run the update script from the new source checkout or archive, targeting the
@@ -151,21 +230,75 @@ existing installation:
 ```
 
 The update requires a compatible `.looppilot-installation` state format. It does
-not infer semantic version ordering. It applies the source package supplied by the
-user and records that package's version and commit.
+not infer semantic version ordering. It applies the source package supplied by
+the user and records that package's version and commit.
 
-- An unmodified managed file is backed up and replaced when its source changes.
-- A missing managed file is restored.
-- A locally modified managed file is backed up and preserved by default.
-- A new managed path that collides with user content is backed up and preserved as
-  a customization by default.
-- A retired, unmodified managed file is backed up and removed.
-- A retired, modified managed file is backed up, preserved, and becomes user-owned.
-- `-Force` or `--force` backs up and replaces customized files that remain in the
-  new manifest.
+### Three-way update semantics
 
-The new state file is written atomically after managed-file processing completes.
-Backups are never silently overwritten or removed by update.
+For every managed file:
+
+| Case | Condition | Action |
+|---|---|---|
+| Unchanged | `LOCAL == BASE` and `REMOTE == BASE` | No action. |
+| Safe upstream update | `LOCAL == BASE` and `REMOTE != BASE` | Replace `LOCAL` with `REMOTE`, after backup. |
+| User customization | `LOCAL != BASE` and `REMOTE == BASE` | Preserve `LOCAL` and record it as customized. |
+| Conflict | `LOCAL != BASE` and `REMOTE != BASE` | Never overwritten automatically. Reported as a conflict. |
+
+A file whose `LOCAL` already equals `REMOTE` needs no action whatever the
+baseline says. A missing managed file is restored.
+
+### Conflict handling
+
+An update that finds a conflict stops before changing any managed file, names
+every conflicting path, and exits non-zero. It never reports success while a
+conflict is unresolved. Resolve conflicts by reconciling the file yourself, or
+pass `-Force` or `--force` to back up local content and take the source version.
+
+A newly managed path that collides with pre-existing user content of different
+content is also a conflict, because no baseline proves the local file came from
+LoopPilot. This supersedes the earlier Distribution-001 behavior, which
+preserved such a file silently and reported the update as successful.
+
+### Additions and removals
+
+- A managed file that does not exist locally is installed and its hash recorded.
+- A file that leaves the manifest is backed up and removed when `LOCAL == BASE`.
+- A file that leaves the manifest while locally modified is backed up,
+  preserved, reported as a preserved local customization, and becomes
+  user-owned because it is no longer in the new state.
+- Files that were never managed are never removed. Removal only ever considers
+  paths recorded in `.looppilot-installation`.
+
+### Update transaction and recovery
+
+An update is transactional enough that an interruption cannot look like success.
+The order is: preflight, compare state, detect conflicts, back up, apply safe
+changes, write the new state, verify hashes, then mark the transaction complete.
+
+While changes are applied, `.looppilot-transaction` records the backup
+identifier and every intended action before that action is performed. It is
+removed only after the new state is written and the managed files are verified
+against their expected hashes. If the process is interrupted, the journal
+remains and `status` reports `RECOVERY_REQUIRED`.
+
+The next `update` or `uninstall` rolls the installation back to its pre-update
+content from the recorded backup, removes the journal, and then proceeds.
+Recovery is therefore automatic, and retrying an interrupted update is
+deterministic rather than dependent on how far the first attempt reached.
+
+If an update fails partway for another reason, it does not report success and
+the previous content remains available under `.looppilot-backups/<operation-id>/`.
+
+The scripts use only regular file operations. They create no symbolic links and
+depend on no shell redirection tricks, registry state, or sandbox bypasses.
+
+### Cross-shell reporting difference
+
+Both implementations report the same states, actions, and counts on standard
+output. Advisory warnings differ by stream: Bash writes them to standard error,
+while the PowerShell warning stream arrives on standard output when the script
+is run with `-File`. Automation that inspects warning text should read both
+streams.
 
 ## Uninstall
 
