@@ -1,0 +1,48 @@
+{
+  "source_transcript": "C:\\Users\\tutic\\.claude\\projects\\C--Users-tutic-IdeaProjects-LoopPilot\\664a2bdc-ac5f-473a-adbd-2294fc3965bf.jsonl",
+  "note": "Sanitised excerpt. Assistant reasoning is deliberately excluded. Entry 151's body is not duplicated; it is SKILL.md and is described by digest and length.",
+  "entries": [
+    {
+      "transcript_line": 149,
+      "uuid": "9cc8ff49-eb81-4584-8054-1b085029357e",
+      "parentUuid": "8364d4c6-f4c9-4167-be4d-866f490eba04",
+      "timestamp": "2026-08-09T05:41:05.118Z",
+      "version": "2.1.224",
+      "type": "assistant",
+      "role": "assistant",
+      "isMeta": null,
+      "tool_use": {
+        "id": "toolu_01W9UsEbL92ptc2pgJJTyG8R",
+        "name": "Skill",
+        "input": {
+          "skill": "loop-pilot"
+        }
+      }
+    },
+    {
+      "transcript_line": 150,
+      "uuid": "76ef1fc5-ee55-4c9a-be6a-28cd0b8ede86",
+      "parentUuid": "9cc8ff49-eb81-4584-8054-1b085029357e",
+      "timestamp": "2026-08-09T05:41:05.126Z",
+      "version": "2.1.224",
+      "type": "user",
+      "role": "user",
+      "isMeta": null,
+      "tool_result_text": "Launching skill: loop-pilot"
+    },
+    {
+      "transcript_line": 151,
+      "uuid": "06b86164-2f1d-456a-8c47-b0a2a58c15b6",
+      "parentUuid": "76ef1fc5-ee55-4c9a-be6a-28cd0b8ede86",
+      "timestamp": "2026-08-09T05:41:05.125Z",
+      "version": "2.1.224",
+      "type": "user",
+      "role": "user",
+      "isMeta": true,
+      "injected_content_characters": 17128,
+      "injected_content_sha256": "73bf663576e892ebbe5aba04c70066fc7d6101a0a2a2d38c256d0e53187241af",
+      "injected_content_first_line": "Base directory for this skill: C:\\Users\\tutic\\.claude\\skills\\loop-pilot",
+      "injected_content_body_excluded": true
+    }
+  ]
+}
