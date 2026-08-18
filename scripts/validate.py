@@ -1088,7 +1088,7 @@ def validate_shared_state(root: Path, errors: list[str]) -> None:
 
 
 def markdown_files(root: Path) -> list[Path]:
-    ignored = {".git", ".venv", "node_modules", "__pycache__"}
+    ignored = {".git", ".tmp", ".venv", "node_modules", "__pycache__"}
     return sorted(
         path
         for path in root.rglob("*.md")

@@ -2,15 +2,31 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+import posixpath
+import re
 import shutil
 import subprocess
 import unittest
+from urllib.parse import unquote, urlsplit
 import uuid
 
 
 ROOT = Path(__file__).resolve().parents[1]
 WORK_ROOT = ROOT / ".tmp" / "distribution-tests"
 POWERSHELL = shutil.which("powershell.exe") or shutil.which("pwsh")
+GIT = shutil.which("git")
+LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+
+# Trees the official payload deliberately stops distributing, so that a Skill
+# installed from a clean checkout carries no acceptance corpus.
+ACCEPTANCE_PREFIXES = (
+    "evaluations/",
+    "tests/",
+    "scripts/",
+    "docs/release/",
+    "docs/evaluations/",
+)
+ACCEPTANCE_FILES = ("docs/cross-host-acceptance.md",)
 
 
 def _find_bash() -> str | None:
@@ -58,6 +74,66 @@ def _posix_path(path: Path) -> str:
         return resolved.as_posix()
     remainder = resolved.as_posix()[len(resolved.drive) :].lstrip("/")
     return f"/{drive.lower()}/{remainder}"
+
+
+def _official_manifest_entries() -> list[str]:
+    """Read the non-comment entries of the official manifest, in file order."""
+    manifest = (ROOT / "distribution" / "managed-files.txt").read_text(encoding="utf-8")
+    return [
+        line.strip()
+        for line in manifest.splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
+
+
+def _expand_official_manifest() -> set[str]:
+    """Expand the official manifest the way both installers do.
+
+    Literal entries stand for themselves and a trailing slash expands to the
+    tracked files beneath that directory, falling back to a filesystem walk when
+    Git is unavailable.
+    """
+    expanded: set[str] = set()
+    for entry in _official_manifest_entries():
+        if not entry.endswith("/"):
+            expanded.add(entry)
+            continue
+        directory = ROOT / entry.rstrip("/")
+        if GIT is not None:
+            listing = subprocess.run(
+                [GIT, "-C", str(ROOT), "ls-files", "--", entry],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            expanded.update(line for line in listing.stdout.splitlines() if line)
+        else:
+            expanded.update(
+                path.relative_to(ROOT).as_posix()
+                for path in directory.rglob("*")
+                if path.is_file()
+            )
+    return expanded
+
+
+def _relative_markdown_links(document: str) -> list[str]:
+    """Return repository-relative targets of the relative links in a document."""
+    text = (ROOT / document).read_text(encoding="utf-8")
+    base = posixpath.dirname(document)
+    targets: set[str] = set()
+    for match in LINK_PATTERN.finditer(text):
+        raw_target = match.group(1).strip()
+        if raw_target.startswith("<") and raw_target.endswith(">"):
+            raw_target = raw_target[1:-1]
+        target = raw_target.split(maxsplit=1)[0]
+        parsed = urlsplit(target)
+        if parsed.scheme or target.startswith(("#", "//")):
+            continue
+        link = unquote(parsed.path)
+        if not link:
+            continue
+        targets.add(posixpath.normpath(posixpath.join(base, link)))
+    return sorted(targets)
 
 
 class DistributionFixture(unittest.TestCase):
@@ -182,18 +258,46 @@ class DistributionLifecycleTests(DistributionFixture):
         return source_v1, source_v2
 
     def test_official_manifest_includes_validator_workflow(self) -> None:
-        manifest = (ROOT / "distribution" / "managed-files.txt").read_text(
-            encoding="utf-8"
-        )
-        entries = {
-            line.strip()
-            for line in manifest.splitlines()
-            if line.strip() and not line.lstrip().startswith("#")
-        }
+        entries = set(_official_manifest_entries())
 
         workflow = ".github/workflows/validate.yml"
         self.assertIn(workflow, entries)
         self.assertTrue((ROOT / workflow).is_file())
+
+    def test_official_manifest_excludes_acceptance_corpus(self) -> None:
+        """The installed payload must not carry the acceptance corpus.
+
+        A Skill installed from a clean checkout is the second source a fixture
+        could read the rubric, the scenarios, the verdict rules, or prior scores
+        from. Removing it is what keeps an acceptance run uncontaminated, so the
+        boundary is asserted rather than left to manifest review.
+        """
+        payload = _expand_official_manifest()
+        self.assertTrue(payload)
+
+        leaked = sorted(
+            path
+            for path in payload
+            if path.startswith(ACCEPTANCE_PREFIXES) or path in ACCEPTANCE_FILES
+        )
+        self.assertEqual(leaked, [], f"acceptance material in payload: {leaked}")
+
+    def test_skill_relative_references_resolve_in_managed_payload(self) -> None:
+        """Every path SKILL.md sends a runtime agent to must be installed.
+
+        This is the standing guard on the packaging boundary: narrowing the
+        manifest must never silently strip a document the protocol depends on.
+        """
+        payload = _expand_official_manifest()
+        self.assertIn("SKILL.md", payload)
+
+        references = _relative_markdown_links("SKILL.md")
+        self.assertTrue(references)
+
+        unresolved = [target for target in references if target not in payload]
+        self.assertEqual(
+            unresolved, [], f"SKILL.md references outside the payload: {unresolved}"
+        )
 
     def test_fresh_reinstall_upgrade_and_uninstall_preserve_user_content(self) -> None:
         source_v1, source_v2 = self._sources()

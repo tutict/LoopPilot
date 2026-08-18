@@ -6,11 +6,40 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+- Added `scripts/c2_isolation_validation.py`, which enumerates an installed Skill
+  directory and reports whether it carries acceptance material. It walks the
+  whole tree rather than the managed-file manifest, never reads
+  `.looppilot-installation`, and matches path suffixes to any depth, so a corpus
+  preserved under `.looppilot-backups/<operation-id>/` is detected instead of
+  being invisible to a destination-relative comparison. Measured on two real
+  installations from one commit: a fresh install into an absent destination
+  reports `CURRENT` and `C2_CLEAN`, while the same commit reached by upgrade
+  reports `CURRENT` and `C2_CONTAMINATED` with 79 findings, all of them under a
+  backup root. `status` reporting `CURRENT` is therefore not a sufficient
+  condition for isolation — it quantifies over managed files, and the acceptance
+  corpus is unmanaged — and the acceptance pre-flight now asserts both
+  properties. No installer, manifest, or backup behavior changed.
+
+- Narrowed the official distribution payload to the Skill runtime by enumerating
+  `docs/` explicitly and dropping `evaluations/`, `tests/`, `scripts/`,
+  `docs/release/`, `docs/evaluations/`, `docs/cross-host-acceptance.md`, and
+  `requirements-dev.txt`, so an installed Skill carries no acceptance rubric,
+  scenarios, verdict rules, or prior scores. The payload falls from 161 files to
+  81; every `SKILL.md` and `AGENTS.md` relative reference still resolves, and two
+  tests now assert both properties. Retiring the removed files is existing update
+  behavior, so a customized copy is still preserved and reported rather than
+  deleted. Documented residual: 17 links in `README.md`, `CONTRIBUTING.md`,
+  `docs/installation.md`, and `docs/full-loop-migration-plan.md` point at
+  material an installation no longer contains. They remain valid in the
+  repository and were deliberately left unedited.
 - Added the v1.0 Release Candidate checklist under `docs/release/`, required it
   as a repository file, and stated that ticking the checklist is not acceptance.
   No gate is ticked and no candidate version section is created.
 - Corrected release-preparation wording to distinguish an unverified Host
   Acceptance Record from an accepted Host Acceptance Record.
+- Kept gitignored `.tmp/` validation artifacts outside the Markdown validation
+  boundary so temporary traces and rendered sources cannot create repository
+  findings.
 - Rejected a canonical lifecycle assertion copied into a supporting `.looppilot/`
   artifact outside a declared projection or closure section, so a duplicated
   lifecycle value without source, boundary, and derived-status metadata is
