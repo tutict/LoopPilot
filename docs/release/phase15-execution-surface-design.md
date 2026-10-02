@@ -58,7 +58,7 @@ the operator.
 ```text
 operator (this process, 2.1.232)          ← orchestrates, never enters a fixture
   │
-  ├─ prepares  src/      clean worktree @ 9006a24        (§8)
+  ├─ prepares  src/      clean worktree @ 89b1a1f        (§8)
   ├─ installs  ~/.claude/skills/loop-pilot from src/     (§8)
   ├─ writes    prompts/LW-1.txt, FL-1.txt, FL-1R.txt, IMP-1.txt   (C4)
   │
@@ -109,7 +109,7 @@ install.
 
 ```text
 %LOCALAPPDATA%\Temp\lp-accept\
-  src\                 clean detached worktree @ 9006a24    (install source only)
+  src\                 clean detached worktree @ 89b1a1f    (install source only)
   sandbox\LW-1\        fixture working directory
   sandbox\FL-1\        fixture working directory, shared by FL-1 and FL-1R
   sandbox\IMP-1\       fixture working directory
@@ -477,15 +477,15 @@ Design only; not executed. Every step is machine-checkable and none of it
 touches the repository working tree.
 
 ```text
-1.  git worktree add --detach %LOCALAPPDATA%\Temp\lp-accept\src 9006a241fc79…
-2.  verify:  git -C src rev-parse HEAD == 9006a241fc79…
+1.  git worktree add --detach %LOCALAPPDATA%\Temp\lp-accept\src 89b1a1f3b22b…
+2.  verify:  git -C src rev-parse HEAD == 89b1a1f3b22b…
              git -C src status --porcelain  is empty
 3.  clear the existing ~/.claude/skills/loop-pilot
 4.  src\install.ps1 -Destination "$HOME\.claude\skills\loop-pilot"
 5.  status.ps1 -Destination "$HOME\.claude\skills\loop-pilot"  MUST say CURRENT
 6.  c2_isolation_validation.py --destination "$HOME\.claude\skills\loop-pilot"
                                                                MUST say C2_CLEAN
-7.  verify .looppilot-installation exists and records commit 9006a241fc79…
+7.  verify .looppilot-installation exists and records commit 89b1a1f3b22b…
 8.  verify SKILL.md body-sha256 == 530bbaf7…46a
 9.  git worktree remove src   (and confirm the path is gone, §3.2)
 ```
@@ -654,7 +654,7 @@ that cannot be checked is treated as failed.
 | **P0** | Pinned binary flags | `2.1.232` supports `-p`, `--session-id`, `--setting-sources`, `--output-format stream-json`, `--strict-mcp-config`, `--model` | everything |
 | **P1** | Host and model | `version` = `2.1.232` and `message.model` = `claude-opus-5` on 100% of records, every arm | everything |
 | **P2** | Implicit surfacing works | probe with an unrelated Skill shows implicit surfacing under the chosen flag set | IMP-1 (B10) |
-| **P3** | Clean checkout | `src` at `9006a241fc79…`, `git status --porcelain` empty | install |
+| **P3** | Clean checkout | `src` at `89b1a1f3b22b…`, `git status --porcelain` empty | install |
 | **P4** | Install state | `status.ps1` = `CURRENT`; `.looppilot-installation` present and naming the pinned commit; **and `c2_isolation_validation.py` reports `C2_CLEAN` with `Findings: 0`** | first arm (B1) |
 | **P5** | Skill digest | installed body-sha256 = `530bbaf7…46a` | first arm |
 | **P6** | Checkout removed | `src` does not exist | first arm (C1) |
@@ -671,6 +671,11 @@ that cannot be checked is treated as failed.
 P10 has no defined pass condition in this document on purpose. It is the one
 gate that requires a decision rather than a check, and inventing a threshold for
 it here would be exactly the self-authorization §5.8 and §5.12 forbid.
+
+**P10 status: CLOSED.** The owner decision required by the row exists, was
+implemented, and is committed at `89b1a1f3b22b…`; §12 item 2 states the terms it
+had to meet. Closure records that the decision was taken — it adds no threshold
+and no new requirement to the row above.
 
 ## 12. Conditions Under Which Phase 15 May Execute
 

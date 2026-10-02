@@ -26,38 +26,46 @@ The local `.git/`, `.claude/`, `.codex/`, `.tmp/`, caches, and other files not
 named by `distribution/managed-files.txt` are not part of the installed payload.
 The only managed `.github/` file is `.github/workflows/validate.yml`; other
 `.github/` material remains repository-only unless the manifest names it. In a Git
-checkout, a manifest directory expands only to files tracked by that checkout.
-This prevents untracked local material from entering an install. In a release
-archive without Git metadata, the archive contents under each manifest directory
-are used.
+release, a manifest directory expands only inside the validated export of the
+pinned Git commit. Working-tree payload files are not copied. Explicit archive
+mode separately snapshots its declared manifest and requires a caller-supplied
+payload SHA-256; it never substitutes for failed Git identity resolution.
 
 ## Installed Layout
 
 An installation preserves the repository-relative paths required by `SKILL.md` and
 the supporting documents:
 
+<!-- managed-layout:start -->
 ```text
 <destination>/
 |-- SKILL.md
 |-- AGENTS.md
 |-- README.md
-|-- install.ps1 / install.sh
-|-- update.ps1 / update.sh
-|-- uninstall.ps1 / uninstall.sh
-|-- status.ps1 / status.sh
-|-- distribution/
-|-- docs/
+|-- CHANGELOG.md
+|-- CONTRIBUTING.md
+|-- LICENSE
+|-- INSTALLATION-VALIDATION.md
+|-- .github/workflows/validate.yml
 |-- .looppilot/
 |-- agents/
+|-- distribution/
+|-- docs/
 |-- examples/
-|-- evaluations/
-|-- .github/workflows/validate.yml
-|-- scripts/
-|-- tests/
+|-- install.ps1
+|-- install.sh
+|-- shortcuts/lp/SKILL.md
+|-- status.ps1
+|-- status.sh
+|-- uninstall.ps1
+|-- uninstall.sh
+|-- update.ps1
+|-- update.sh
 |-- .looppilot-installation       generated
-|-- .looppilot-transaction        generated only while an update is in progress
-`-- .looppilot-backups/           generated only when a backup is needed
+|-- .looppilot-transaction       generated only during update
+`-- .looppilot-backups/       generated only when needed
 ```
+<!-- managed-layout:end -->
 
 Empty directories are not significant and are not created or removed
 independently.
@@ -74,16 +82,21 @@ Missing manifest sources stop installation before destination writes begin.
 
 ### Optional files
 
-- `distribution/commit.txt` is optional source-package metadata. An archive without
-  `.git/` must provide it as one lowercase 40-character Git commit identifier.
-- `requirements-dev.txt`, `scripts/`, and `tests/` are not needed for host-native
-  Skill invocation, but they are included in the complete managed payload for
-  repeatable repository validation.
+- `distribution/commit.txt` is publisher metadata used only in explicit archive
+  mode; it is not verified Git identity. Release mode never falls back to it. A
+  conflicting marker in a pinned Git export is rejected.
+- `requirements-dev.txt`, `scripts/`, and `tests/` are development/maintenance-only
+  and are not installed by the official managed manifest. `evaluations/`,
+  `docs/release/`, `docs/evaluations/`, and `docs/cross-host-acceptance.md` are also
+  excluded from that payload; repository presence is not installation authority.
 - `.github/workflows/validate.yml` is included because the existing repository
   validator requires it. Its presence in an installation does not install or run
   GitHub Actions.
-- `examples/` and `evaluations/` are supporting material. They do not become
-  observed Host Acceptance evidence merely because they are installed.
+- `examples/` is managed illustrative material, not observed acceptance evidence.
+  `evaluations/` stores evaluation preparation/history separately and is not shipped.
+  A temporary source export may contain tracked development/evaluation files; only
+  manifest-selected files enter the installed payload. Generated installation receipts
+  are separate from committed source files and do not establish Host Acceptance.
 
 ### Generated files
 
@@ -120,8 +133,8 @@ loads or follows LoopPilot.
 
 ## Install
 
-Run the entry point from a complete LoopPilot source checkout or distribution
-archive:
+By default, run the entry point from a complete, clean Git source checkout.
+The installer pins and exports the resolved commit before reading payload metadata:
 
 ```powershell
 .\install.ps1 -Destination "$HOME\.codex\skills\loop-pilot"
@@ -209,17 +222,15 @@ installation exists at the destination.
 `status` compares an installation against a source package, so it is run from a
 source checkout or archive and pointed at the installation, exactly like
 `update`. It therefore needs a determinable source commit and shares the
-existing rule for `install` and `update`: run it from a Git checkout, or supply
-`distribution/commit.txt` in the source package. An installed copy contains no
-`.git/` and is not given a `commit.txt`, so running `status` from inside an
-installation against itself stops with the same source-commit error that
-`install` and `update` produce there. Only `uninstall` reads state alone and
-works from within an installation.
+rule for `install` and `update`: use a clean exact-root Git source, or explicitly
+select archive mode with its expected payload digest. A commit.txt alone is never
+sufficient. Default release mode refuses an installed copy without Git metadata.
+Only `uninstall` reads destination state alone and works from within an installation.
 
 ## Upgrade
 
-Run the update script from the new source checkout or archive, targeting the
-existing installation:
+Run the update script from the new clean Git source, targeting the existing
+installation. Archive sources require the explicit options described below:
 
 ```powershell
 .\update.ps1 -Destination "$HOME\.codex\skills\loop-pilot"
@@ -342,3 +353,93 @@ requirements. Installation success must not be reported as Host Acceptance.
 The executable scenario matrix and current observed results are in
 [`INSTALLATION-VALIDATION.md`](../INSTALLATION-VALIDATION.md). Repository protocol
 validation remains defined separately in [validation](validation.md).
+
+## Short Alias Binding
+
+`shortcuts/lp/SKILL.md` is the single short-trigger owner. It is part of the managed
+manifest, installed, statused, updated, and uninstalled with the canonical package.
+It adds no second protocol body and is not copied into a sibling user-scope `lp`
+Skill directory. The alias must be loaded from this installed nested path; it
+binds `../../SKILL.md` to the same installation used by `/loop-pilot`, requires
+matching non-customized FILE hashes in `.looppilot-installation`, and rejects a
+repository checkout, missing identity, ambiguity, or a different long-command root.
+There is no cwd or repository fallback. A frontmatter name is not source identity.
+
+Old out-of-band user-scope `lp` copies must be moved out of Skill discovery with
+path/hash receipts before any later host observation. Installing this payload does
+not authorize overwriting or deleting such copies. The maintenance-only
+`shortcut_validation.py` models filesystem binding; it is not shipped or required
+at runtime. Host discovery and command registration are separate, unverified
+behavior until actually observed. A host without nested discovery must report the
+alias unavailable rather than introduce another trigger owner or fallback body.
+
+## Source Provenance
+
+Release mode is the default for install, update and status. It requires an exact-root
+Git repository, resolves `HEAD^{commit}` once, verifies the object and clean status,
+and checks tracked working content against that pinned tree (including changes hidden
+by assume-unchanged). Invalid HEAD, missing refs/objects or unavailable Git metadata
+refuse release installation; commit.txt is never a fallback. Force does not override
+source identity or cleanliness. The clean check is a preflight observation, not a live worktree claim or the copy
+source. Another actor may change the original checkout afterward; the pinned SHA
+remains the selected source.
+The current receipt format uses 40-character SHA-1 commit identities; unsupported
+Git object formats are refused rather than producing an unreadable receipt. Payload
+content digests remain SHA-256.
+
+Both native installers export the resolved SHA with `git archive` into a private
+owned temporary directory (tar in Bash, ZIP in PowerShell). Regular exported files
+must match the pinned Git blob identities, without clean/smudge filtering. The file
+set must also exactly match the pinned tree: additional files are rejected before
+manifest expansion, including additions below a directory entry. Symlinks,
+submodules, omitted export-ignore files and changed export-subst content are rejected
+rather than silently changing payload identity. Only then is the snapshot made
+read-only for this pipeline. Manifest expansion, version/commit marker validation,
+source hashes and all subsequent copy operations read that snapshot, never the
+original working-tree payload. Each copied file must match its snapshot hash. A
+worktree edit after the clean boundary cannot change the selected payload or version.
+
+### Explicit Archive Mode
+
+Archive mode is a separate, digest-bound path, not repository release provenance:
+
+```powershell
+.\install.ps1 -SourceMode archive -ArchiveSha256 "<expected-payload-sha256>" -Destination "<destination>"
+```
+
+```bash
+./install.sh --source-mode archive --archive-sha256 '<expected-payload-sha256>' --destination '<destination>'
+```
+
+The same options apply to update and status. The source must not have its own Git
+metadata. It must contain publisher-supplied commit.txt; output and installation state
+label that commit as archive provenance, not verified Git identity. Manifest-selected
+files and metadata are copied to a private snapshot, then its payload digest must
+match the expected digest before destination mutation. Do not compute the expected
+digest from untrusted content and mistake that for independent attestation.
+
+### Receipt and Digest Semantics
+
+Payload SHA-256 hashes UTF-8 records `relative/path|lowercase-file-sha256` followed
+by LF, in ordinal path order, for every unique managed payload file. Source snapshot
+and installed digests use that same representation. A fresh uncustomized installation
+has matching digests. Updates may preserve explicitly flagged local customizations;
+then the installed digest differs and FILE rows retain their source baselines and
+customized flags. Such local bytes are not represented as unchanged Git bytes.
+
+Current writers extend format 2 with one validated optional row:
+
+```text
+PROVENANCE|git-release-or-archive|source-snapshot-sha256|installed-payload-sha256
+```
+
+Current readers still accept old format 1/2 states without that row and identify their
+mode as legacy-unverified. Older strict readers may reject the new extension; use the
+matching current installer/status/uninstaller. The alias maintenance validator accepts
+and validates this row but does not turn it into host acceptance or authenticity.
+
+Snapshots are disposed only within their verified owned temporary paths. Read-only
+staging is an implementation boundary, not a sandbox against privileged local actors.
+No Python or other Skill runtime dependency is introduced; these are native installer
+operations. Installation and provenance checks do not authorize release or prove host
+command discovery.

@@ -234,9 +234,12 @@ authority; no template or validator executes closure, release, or deployment.
 Before decomposition, the Supervisor uses observed risk and boundary evidence to
 choose Lightweight, Full Loop, or No Implementation; the Integrator records the
 decision. Lightweight targets four to seven artifacts as a provisional cost
-heuristic and escalates on Major or Blocker Findings, hard triggers, repeated
-correction, contract drift, or material context growth. Specialist Reviewers are
-risk-loaded. Execution Infrastructure Incidents remain separate from Product and
+heuristic and stops for mode reassessment on Major or Blocker Findings, hard
+triggers, repeated correction, contract drift, or material context growth. Assess
+Product Risk, set minimum review/validation/evidence depth, then reassess Coordination
+Necessity; select Full Loop only if coordination requires it. Otherwise Lightweight
+or the applicable non-Full-Loop path remains allowed subject to required checks,
+reviews, and stop controls. Specialist Reviewers are risk-loaded, not mode triggers. Execution Infrastructure Incidents remain separate from Product and
 Protocol Findings unless defect evidence proves otherwise. See
 [mode selection](mode-selection-and-escalation.md) and
 [load profiles](protocol-load-profiles.md).

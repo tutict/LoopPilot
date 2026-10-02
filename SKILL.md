@@ -1,6 +1,6 @@
 ---
 name: loop-pilot
-description: Proactive, host-native execution strategy for carrying complex work through explicit goals, native planning, real actions, verification, evidence-driven replanning, and bounded stopping. Use for multi-step tasks that require tools or file changes, meaningful validation, recovery from likely failure, gradual progress toward acceptance criteria, or an explicit LoopPilot invocation. Exclude simple factual answers, one-step text edits, casual conversation, brainstorming-only requests, and requests for advice without execution from implicit activation.
+description: Carry a multi-step task through an execute-verify-adapt loop until the requested outcome is checked or a real blocker stops it. Use for checked multi-step non-coding work, implementation, diagnosis, or recovery that needs tools and evidence, or when the user explicitly invokes /loop-pilot or $loop-pilot. Do not use for factual answers, one-step edits, brainstorming, or advice-only requests.
 ---
 
 # LoopPilot
@@ -20,14 +20,13 @@ useful safe action remains.
 
 ## 2. When to Activate
 
-Activate LoopPilot when one or more strong signals apply:
-
-- The task requires multiple dependent steps.
-- The task requires tools, file changes, external actions, or multiple artifacts.
-- Completion requires tests, inspection, source checks, or other real verification.
-- A reasonable first attempt might fail and require diagnosis or adaptation.
-- The Goal requires incremental progress toward explicit success criteria.
-- The host or user explicitly invokes LoopPilot.
+Activate LoopPilot when the work has more than one dependent step and its result
+must be checked, when a failed attempt needs diagnosis or recovery, or when the
+user or host explicitly invokes LoopPilot with /loop-pilot or $loop-pilot. Checked
+multi-step non-coding work includes research, writing, analysis, planning deliverables,
+and information organization; advice-only planning remains excluded. A file change,
+a test, or a database mention by itself is not a trigger. The managed short alias
+resolves only to this same installed protocol, never a repository-local substitute.
 
 LoopPilot MUST NOT implicitly activate for:
 
@@ -48,6 +47,12 @@ Read the latest user request, supplied context, available evidence, and current 
 state before acting. Inspect whether the host already maintains a Goal, Plan, Todo,
 Memory, or task status. Inherit and update that state; the agent MUST NOT create a
 competing copy.
+
+Do not read every project document before the first action. Section 11 names the
+document that owns each later concern. Within existing authorization, local, reversible, non-destructive
+edits and checks with no external effects need no confirmation at each step.
+This is not a grant of authority: host permissions, the Authorized Operation Set,
+and applicable instruction and safety boundaries remain unchanged.
 
 Identify only what is needed to guide execution:
 
@@ -124,9 +129,15 @@ Use the strongest relevant evidence that is available and authorized.
 - **File work:** confirm that the target files exist, inspect their actual contents,
   and check references or links that matter.
 
-When a check is available and proportionate, the agent SHOULD run it rather than
-infer its result. When actual files are readable, inspect them rather than rely on intended
-content. When commands expose status or exit codes, observe them.
+Run checks that can falsify the change. The agent MUST NOT scope out required verification
+under applicable higher-priority instructions, repository rules, project requirements,
+a Task Contract, or safety constraints. Only optional, objectively unrelated validation
+may be scoped out using change/dependency evidence, not inconvenience or duration.
+Disclose every skipped or scoped-down check as a verification gap: requirement status,
+objective rationale, evidence, and residual uncertainty. Required checks that cannot
+safely run remain unmet unless the proper authority explicitly waives them. When checks
+are available and proportionate, prefer observation to inference; inspect actual files
+and observe command exit codes.
 
 The agent MUST NOT describe a planned check, simulated output, illustrative trace,
 expected result, or unexecuted command as evidence. Attribute user-provided results
@@ -159,9 +170,11 @@ unchanged-failure Loop invariant before retrying.
 
 Choose one primary outcome.
 
-- **Completed**: every deliverable exists, all success criteria are satisfied or
-  explicitly waived, relevant evidence supports them, and no known critical
-  omission or regression remains.
+- **Completed**: the requested outcome exists and the check that outcome needs
+  was observed. A first draft is not completion when the user asked for the work
+  to be done. Unrequested exploration is not completion either. Every deliverable
+  exists, success criteria are satisfied or explicitly waived, and no known
+  critical omission or regression remains.
 - **Partially Completed**: useful work exists but the Goal remains incomplete.
   Name the completed subset and every unfinished or unverified criterion.
 - **Blocked**: no useful action can proceed without a missing prerequisite or
@@ -246,102 +259,38 @@ keep the same minimum summary in current context. A prompt-only host MUST NOT cl
 persistence, background work, tool execution, or recovery capabilities it does not
 have.
 
-## 11. Software Engineering and Loop Boundaries
+## 11. Load Only the Concern You Are In
 
-A Loop is a cohesive change set that can be independently implemented, integrated,
-reviewed, accepted, committed when authorized, and resumed from persisted state.
-The Supervisor MUST understand the user problem before decomposing implementation
-work and MUST choose process depth in proportion to complexity, risk, and recovery.
+This file holds the decisions that apply to every run. Mode-specific procedure
+stays in the document that owns it. Read that document when the concern applies.
+Do not read the others for a routine edit.
 
-- Every Loop MUST map deliverables to explicit user or system outcomes.
-- Business invariants MUST be identified before dependent parallel work.
-- Relevant engineering concerns MUST be assessed before contract approval.
-- Architecture patterns, including DDD, MVVM, and zero-copy, MUST follow observed
-  needs and measurable evidence.
-- Worker Delivery MUST disclose actual scope, failed checks, skipped checks, and evidence.
-- Worker self-report MUST NOT satisfy the Integration Barrier.
-- Integration success MUST NOT satisfy the Review Barrier.
-- Review MUST normally examine the integrated Loop outcome.
-- Findings MUST be registered before Rework begins.
-- Rework MUST use a scoped Rework Task and MUST NOT repeat the same failed approach
-  without a material strategy change.
-- Reviewer verification MUST precede Finding closure.
-- The Integrator MUST NOT accept risk, alter semantic scope, or rewrite Reviewer judgment.
-- Loop Closure MUST disclose unresolved Findings and skipped verification.
-- Loop Closure MUST NOT imply recovery readiness without a valid Checkpoint.
-- A Loop with unresolved Blocker Findings MUST NOT close.
-- Functional correctness alone MUST NOT satisfy final Loop Acceptance; Engineering
-  and Delivery Acceptance also apply.
-- Each lifecycle fact MUST have one authoritative source.
-- Supporting artifacts SHOULD reference authority; copies are derived
-  projections with a Git boundary.
-- Before Full Loop Closure, authoritative lifecycle assertions MUST be checked
-  against projections.
-- Lifecycle drift is a Process Finding; projections MUST NOT override authority.
+| Concern | Read |
+| --- | --- |
+| Stopping or an authority edge case | [safety and stopping](docs/safety-and-stopping.md) |
+| Loop shape, barriers, and acceptance layers | [Loop Engineering model](docs/loop-engineering-model.md) |
+| Choosing Lightweight, Full Loop, or no implementation | [mode selection](docs/mode-selection-and-escalation.md) |
+| Which file owns a lifecycle fact | [mode and state sources](docs/protocol-modes-and-state-sources.md) |
+| Delegation, review, or integration | [coordination protocol](docs/multi-agent-coordination.md) |
+| External facts that can change the work | [Research Brief](.looppilot/RESEARCH-TEMPLATE.md) |
+| Context pressure, a Checkpoint, or resume | [recovery protocol](docs/full-loop-checkpoint-and-context-recovery.md) |
+| Project completion or release readiness | [Project Closure protocol](docs/project-closure-and-final-delivery.md) |
 
-The Supervisor MUST approve a Full Loop Contract. Responsible roles provide
-decisions or evidence; the Integrator records them. Only a recorded `closed` Loop
-may be checked. Use Lightweight for bounded work and Full Loop when coordination, repeated
-Findings, or recovery justify its cost. High product risk may load deeper Review. See
-the
-[Loop Engineering model](docs/loop-engineering-model.md) and
-[mode and state-source rules](docs/protocol-modes-and-state-sources.md).
+Before implementation, the Supervisor chooses Lightweight, Full Loop, or No Implementation.
+Product Risk determines review, validation, and evidence depth; Coordination Necessity
+determines whether Full Loop is required. File count is not authority. Open the mode
+document before choosing any mode and whenever escalation evidence appears. Bounded
+non-coding work can be Lightweight, but real coordination need cannot be dismissed
+because work is non-coding. A closed Loop does not complete a Project. Each lifecycle
+fact has one authority; a copy is a projection. An execution-infrastructure failure
+is not a product finding.
 
-Before implementation the Supervisor MUST choose Lightweight, Full Loop, or No
-Implementation from evidence; the Integrator records but owns no status. File
-count MUST NOT decide mode. Product Risk sets Review depth; Coordination
-Necessity governs Full Loop. Lightweight's four-to-seven Governance Artifact target
-is provisional and escalates for Major or Blocker Findings, hard triggers, repeated correction, or
-contract drift. Specialists are risk-loaded. Passing commands prove only selected
-tests; Worker claims need verifiable evidence.
-Execution Infrastructure Incidents remain separate from Product or Protocol Findings. See
-[mode selection](docs/mode-selection-and-escalation.md) and
-[load profiles](docs/protocol-load-profiles.md).
-
-Closed Loops alone MUST NOT complete a Project. Project Closure requires mapped
-goals, cross-Loop evidence, dual Review, three acceptance layers, routed Findings,
-honest release authority, a Final Checkpoint, and disclosed limits. `PROJECT.md`
-remains the only Project status authority; Lightweight MUST NOT incur this
-overhead. See the [Project Closure protocol](docs/project-closure-and-final-delivery.md).
-
-## 12. Supervised Delegation
-
-Delegate only when supported and beneficial. The Supervisor remains accountable;
-each Worker receives a scoped [Task Contract](.looppilot/tasks/TASK-TEMPLATE.md),
-stays in scope, and does not claim parent completion. Require independent review,
-parent integration evidence, explicit conflict resolution, and one Integrator.
-Approved means reviewed; integrated also means combined and verified. The
-[coordination protocol](docs/multi-agent-coordination.md) creates no host capability.
-
-## 13. Research and Skill Routing
-
-Before delegation, decide whether current external facts can change the work. If
-so, use an available capability and a traceable
-[Research Brief](.looppilot/RESEARCH-TEMPLATE.md); otherwise use repository evidence.
-Select only confirmed relevant Skills, retain a fallback, and never treat Skill
-assignment as authority.
-
-## 14. Dual-Axis Review
-
-Delegated work requires Standards Review for rules, safety, scope, quality, context,
-and maintainability, plus Spec Review for outcomes, criteria, evidence, omissions,
-and integration readiness. Approval requires both axes to pass, observed required
-evidence, and no blocking conflict. Context pressure cannot skip either axis.
-
-## 15. Token-Aware Checklist and Budget Stop
-
-Use [CHECKLIST.md](.looppilot/CHECKLIST.md) only as projection. Before exhaustion,
-the Supervisor MUST Budget Stop and the Integrator persist authoritative state.
-A Checkpoint records the verified boundary, authority, unfinished work, evidence
-gaps, permissions, and exactly one actionable Resume Point; it never copies whole
-Ledgers, Reviews, or history. Compaction preserves Scope, invariants, permissions,
-open Findings, evidence gaps, and recovery boundaries. Resume validates
-instructions, Git, Ledgers, artifacts, capabilities, and permissions; reality
-corrects or supersedes stale records. Pressure never weakens Review, evidence,
-authority, or Closure. Only evidenced integrated items MAY be checked. At critical
-pressure persist `budget-stopped` and a Resume Point, then stop. Lightweight work
-avoids this overhead. Details: the
-[recovery protocol](docs/full-loop-checkpoint-and-context-recovery.md).
+Delegate only when the host can do it and the split is cheaper than doing the
+work. Assigning a Skill grants no authority. Delegated work needs both a
+Standards Review and a Spec Review; context pressure cannot skip either. Use
+[CHECKLIST.md](.looppilot/CHECKLIST.md) only for complex delegated work. Before
+exhaustion, stop and persist one Resume Point. Lightweight work does not carry
+that overhead.
 
 ## Progress Contract
 

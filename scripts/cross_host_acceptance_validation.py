@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from evaluation_disclosure_validation import disclosure_error
+
 CROSS_HOST_ACCEPTANCE_FILES = (
     "scripts/cross_host_acceptance_validation.py",
     "tests/test_cross_host_acceptance.py",
@@ -25,12 +27,14 @@ REQUIRED_FIELDS = (
     "Skill loading mode",
     "Evaluation IDs",
     "Scenario coverage",
+    "Scenario IDs",
     "Trace author",
     "Independent reviewer",
     "Lowest critical rubric score",
     "Date",
     "Verdict",
     "Residual limitations",
+    "Unverified limitations",
 )
 IDENTITY_FIELDS = ("Host", "Host version", "Model", "Skill loading mode", "Date")
 REQUIRED_DIMENSIONS = (
@@ -97,6 +101,23 @@ def _is_record(text: str) -> bool:
         if title == RECORD_TITLE or title.startswith(RECORD_TITLE):
             return True
     return False
+
+
+
+def _record_surface(path: Path, text: str) -> str:
+    """Classify a package prompt by its header, not its preserved input.
+
+    This is not an exemption from validation: the evidence validator must still
+    validate the complete package and reject acceptance claims in its header or
+    boundary disclosure. A record renamed prompt.md retains its record title.
+    """
+    normalized = text.replace("\r\n", "\n")
+    if (path.name == "prompt.md" and (path.parent / "run.json").is_file()
+            and normalized.startswith("# Prompt\n")):
+        marker = re.search(r"^## Exact User Input[ \t]*\n\n", normalized, re.M)
+        if marker is not None:
+            return normalized[:marker.start()]
+    return text
 
 
 def _validate_record(location: str, text: str, errors: list[str]) -> None:
@@ -166,6 +187,10 @@ def _validate_record(location: str, text: str, errors: list[str]) -> None:
         errors.append(
             f"{location}: verdict {verdict} requires at least one referenced evaluation run"
         )
+    if _none(fields.get("Scenario IDs")):
+        errors.append(
+            f"{location}: verdict {verdict} requires disclosed Scenario IDs"
+        )
     coverage = fields.get("Scenario coverage")
     if _none(coverage):
         errors.append(
@@ -226,6 +251,19 @@ def _validate_record(location: str, text: str, errors: list[str]) -> None:
         errors.append(
             f"{location}: verdict accepted-with-residuals requires disclosed residual limitations"
         )
+    if _none(fields.get("Unverified limitations")):
+        errors.append(
+            f"{location}: verdict {verdict} requires disclosed unverified limitations"
+        )
+    for label in ("Unverified limitations", "Residual limitations"):
+        value = fields.get(label)
+        if label == "Residual limitations" and verdict != "accepted-with-residuals":
+            continue
+        if not _none(value):
+            error = disclosure_error(value)
+            if error:
+                errors.append(f"{location}: {label} {error}")
+
 
 
 def validate_cross_host_acceptance(root: Path, errors: list[str]) -> None:
@@ -261,7 +299,7 @@ def validate_cross_host_acceptance(root: Path, errors: list[str]) -> None:
         relative = path.relative_to(root)
         if relative.parts[:2] == ("evaluations", "templates"):
             continue
-        text = path.read_text(encoding="utf-8")
+        text = _record_surface(path, path.read_text(encoding="utf-8"))
         location = relative.as_posix()
         if not _is_record(text):
             verdict = _field(text, "Verdict")

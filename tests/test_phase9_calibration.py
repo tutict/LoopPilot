@@ -406,7 +406,7 @@ CASES = (
     *(Case(f"forbidden_ledger_{name.lower().replace('-', '_').replace('.', '_')}", "create", Path(".looppilot/full-loop") / name, error="Phase 9 forbidden Ledger artifact") for name in (
         "BASELINE-LEDGER.md", "CLAIM-LEDGER.md", "EVIDENCE-LEDGER.md",
     )),
-    Case("core_prompt_budget_enforced", "append", Path("SKILL.md"), new="\n" + ("budget evidence\n" * 32), error="Phase 9 core prompt budget exceeded"),
+    Case("core_prompt_budget_enforced", "append", Path("SKILL.md"), new="\n" + ("budget evidence\n" * max(1, 591 - sum(len((REPOSITORY_ROOT / name).read_text(encoding="utf-8").splitlines()) for name in ("SKILL.md", "AGENTS.md")))), error="Phase 9 core prompt budget exceeded"),
 )
 
 

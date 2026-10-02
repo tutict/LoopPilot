@@ -417,9 +417,20 @@ rules do not prove real Reviewer independence or multi-Agent Project Closure.
 
 ## Proportional Delegation and Specialist Review
 
-Lightweight work normally has one owner and must escalate before it requires two
-or more Workers, independent integration proof, or a specialist Reviewer. Full
-Loop does not auto-load every specialist: Security, Data, Compatibility,
+Lightweight work normally has one owner and MAY use a risk-matched specialist
+Reviewer without changing mode. On new risk, scope, or specialist-review evidence,
+stop affected implementation when required and follow the
+[ordered mode reassessment](mode-selection-and-escalation.md#authority-and-timing):
+assess Product Risk, set minimum review/validation/evidence depth, then reassess
+Coordination Necessity. Risk-only changes preserve mode. Full Loop is selected only
+when coordination requires it; otherwise Lightweight or the applicable non-Full-Loop
+path remains allowed without dropping mandatory reviews, checks, or budget stops.
+Mode escalation follows actual coordination requirements:
+two or more Workers, independent integration proof, or other coordination that cannot
+be safely expressed by one owner plus bounded review. Reviewer presence alone is
+not a coordination requirement. Apply the
+[mode-selection criteria](coordination-necessity-and-delegation-fallback.md#specialist-reviewed-lightweight)
+rather than creating a competing mode rule here. Full Loop does not auto-load every specialist: Security, Data, Compatibility,
 Operations, and Accessibility are selected only for matching risk. Worker 429,
 timeout, or no output is an Execution Infrastructure Incident; it never permits a
 fabricated Delivery or self-review and may block verification.

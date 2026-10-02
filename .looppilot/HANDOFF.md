@@ -73,6 +73,8 @@ Finding without evidence.
 
 ## Do Not Assume
 
+- The receiving Agent MUST defer to an accessible native Plan and host execution authority.
+
 - The receiving Agent MUST re-check the latest user instruction and authorization.
 - The receiving Agent MUST re-check the working tree, native Plan, files, tests,
   and actual tool state.

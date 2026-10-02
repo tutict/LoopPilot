@@ -104,15 +104,30 @@ after    <pinned-absolute-path> -p --session-id … --model claude-opus-5 …
 
 ### 3.2 The absolute path, and a platform caveat that is not cosmetic
 
-The preserved image is stored **without a file extension**:
+**Operative frozen executable path.** The single instance every arm invokes:
+
+```text
+C:\Users\tutic\.local\share\looppilot\acceptance-pins\claude-2.1.232.exe
+```
+
+**Superseded operational path.** The preserved image was originally stored
+**without a file extension** at:
 
 ```text
 C:\Users\tutic\.local\share\claude\versions\2.1.232
 ```
 
-It is a valid `PE32+ executable for MS Windows 6.00 (console), x86-64`. Whether
-it can be invoked at that path depends on the launching shell, and the failure
-mode in one of them is silent.
+That location no longer exists: the version manager retains only its three most
+recent images and reclaimed it. §2.2's measurement and §2.3's decision record
+stand exactly as taken and are not revised — only the operational location
+changed. The artifact is the same one by digest,
+`ec9e32479bc887809003c91384c6c3a26e7691856d1916f72f6f6d21800f3bd6`, verified
+byte-identical to the measured original. The frozen version, model, Skill commit,
+Skill digest, and acceptance criteria are unchanged by this.
+
+The image is a valid `PE32+ executable for MS Windows 6.00 (console), x86-64`.
+Whether it can be invoked at an extension-less path depends on the launching
+shell, and the failure mode in one of them is silent.
 
 | Launcher | Extension-less path | Result |
 |---|---|---|
@@ -282,9 +297,9 @@ Requirement 7's sequence, reported against what was actually reached.
 | **P0** — flags on the actual `2.1.232` | **PASS** | §6.1 |
 | **P2 / B10** — implicit surfacing under the chosen flag set | **PASS** | §6.2 |
 | **P3** — clean checkout at the pinned commit | **PASS** | §6.3 |
-| **P4** — install state, `CURRENT` **and** `C2_CLEAN` | **FAIL** | §6.4 |
-| **P5** — Skill body digest | **PASS** | §6.5 |
-| **B1** — clean reinstall | **NOT PERFORMED** | §6.4; blocked by P4 |
+| **P4** — install state, `CURRENT` **and** `C2_CLEAN` | **PASS** | §6.6, re-measured at the pinned commit. Supersedes the **FAIL** in §6.4, which was measured at `9006a24` |
+| **P5** — Skill body digest | **PASS** | §6.5, reconfirmed on the installed tree in §6.6 |
+| **B1** — clean reinstall | **NOT PERFORMED** | §6.6 — no longer blocked by P4; not performed against the live Skill directory, which §8.3 governs |
 
 ### 6.1 P0 — verified against the pinned image, not an adjacent one
 
@@ -340,7 +355,12 @@ moot, because `--bare` is not used.
 `rev-parse HEAD` = `9006a241fc79ca68082dcc5d17407b55c95b9433`, and
 `git status --porcelain` empty.
 
-### 6.4 P4 — FAIL, and B1 therefore not performed
+### 6.4 P4 — FAIL at `9006a24`, and B1 therefore not performed
+
+> **Historical measurement, superseded by §6.6.** What follows is what was
+> measured at commit `9006a24`, before the B9 manifest narrowing was committed.
+> It is preserved exactly as taken and is not revised. The operative P4 result is
+> in §6.6.
 
 **The B9 manifest narrowing is not committed at the pinned commit.**
 `distribution/managed-files.txt` is a modified, uncommitted working-tree file. At
@@ -408,31 +428,122 @@ Equal to the pinned value in both cases. The whole-file divergence is recorded a
 a disclosed discrepancy in §5.2's second digest only; it fails nothing and is not
 promoted to a blocker.
 
+### 6.6 P4 — re-measured at the pinned commit `89b1a1f`, PASS
+
+§6.4's FAIL was measured at `9006a24`, where the payload manifest still carried
+the directory entries `docs/`, `evaluations/`, `scripts/`, and `tests/`. That
+narrowing is now committed: `89b1a1f3b22badc9b300eab6c4a2906b47d1728f`
+*(distribution: narrow official payload to the Skill runtime)* carries the
+51-entry enumerated manifest, and `git diff` against
+`distribution/managed-files.txt` is empty. §6.4 diagnosed the manifest as the
+whole cause and named nothing else, so committing it is the whole remedy — and
+this section measures that rather than inferring it.
+
+Measured by the §8.2 procedure, from a detached worktree at the pinned commit
+into a destination that did not previously exist. `-Force` was not used, no
+previous installed tree was reused, and no Distribution-004 semantics were
+altered.
+
+| §8.2 step | Result |
+|---|---|
+| 1–2 clean checkout | `rev-parse HEAD` = `89b1a1f3b22badc9b300eab6c4a2906b47d1728f`; `git status --porcelain` empty |
+| 4 install | `install.ps1` exit 0, reporting `Installed commit: 89b1a1f3b22b…` |
+| 5 status | `State: CURRENT`, `Revision: unchanged`, `Manifest: unchanged`, `Files current: 81`; `0` updatable, locally modified, conflicted, to add, to remove |
+| 6 C2 | `State: C2_CLEAN`, `Findings: 0`, `Files enumerated: 82`, `Files under .looppilot-backups/: 0` |
+| 7 provenance | `.looppilot-installation` present, carrying `FORMAT\|2`, `COMMIT\|89b1a1f3b22b…`, `MANIFEST\|e8448694…a495` |
+| 8 Skill digest | body-sha256 = `530bbaf7…46a`, measured on the installed tree |
+| 9 checkout removed | `git worktree remove` exit 0; the path no longer exists |
+
+**The two conjuncts were established independently, and neither was inferred
+from the other.**
+
+- **Conjunct A — provenance. PASS.** From `status.ps1` and
+  `.looppilot-installation`, which quantify over the managed set.
+- **Conjunct B — C2 isolation. PASS.** From `c2_isolation_validation.py`, which
+  enumerates the tree and reports `Installation state read: no`. It is the
+  validator as committed at the pinned commit — byte-differing from the
+  working-tree copy only in line endings, identical once newline-normalised at
+  `e7d309f7…8fc3` — and it was not modified for this measurement.
+
+§4.4 already establishes that these two predicates quantify over disjoint
+domains. `CURRENT` was therefore not read as evidence of `C2_CLEAN`; the
+`C2_CLEAN` result comes from the enumeration and from nothing else.
+
+**Validator discrimination, checked rather than assumed.** A contaminated *copy*
+of the installed tree — never the measured tree — enumerated as
+`C2_CONTAMINATED` with findings against an `evaluations/` path, a
+`docs/cross-host-acceptance.md` nested under `.looppilot-backups/op-neg/`, and a
+`CLAUDE.md`. The measured tree was then re-enumerated and still reported
+`C2_CLEAN`, `Findings: 0`. A clean result from a check that cannot fail would
+attest nothing, and this is the difference.
+
+**One sensitivity is recorded and deliberately not acted on.** The
+`# Host Acceptance Record` content rule matches text decoded as `utf-8`, so a
+file carrying a UTF-8 BOM escapes it: the identical heading was flagged without a
+BOM and not flagged with one. It changes nothing measured here — the installed
+tree contains no such file, and its finding count is `0` on either reading — and
+it is recorded rather than fixed, because modifying the validator is outside what
+this measurement was authorised to do.
+
+**Scope of what this establishes.** It establishes the property P4 names, on a
+tree built by the §8.2 procedure from the pinned commit, into the same kind of
+pristine destination as the §6.4 measurement it supersedes. It does **not**
+perform B1: the live user-scope Skill directory was not touched, because
+replacing it changes the frozen combination's Skill leg, and §8.3 requires that
+to happen as a recorded pre-run step rather than inside a preparation document.
+
 ## 7. Decision
+
+**Superseded decision, preserved.** This document previously reported:
 
 ```text
 NOT_READY_FOR_PHASE15_FIXTURES — P4 / C2_CLEAN unmet
 ```
 
-`READY_FOR_PHASE15_FIXTURES` is **not** reported. Surface-design §12 condition 1
-requires P0–P9 and P11–P13 to pass; P4 fails.
+That decision was correct on the evidence it had: §6.4 measured P4 at `9006a24`,
+where the manifest still carried the acceptance corpus. It is superseded because
+the measurement under it was superseded, not because the standard moved.
 
-Established: the host-version leg, the model leg, P0, P2/B10, P3, and P5. The
-owner's decision to retain `2.1.232` is correct and is not the cause of the
-blockage — the blockage is a repository state, not a host state.
+**Current decision, on the re-measurement in §6.6:**
 
-Not established: P4. One owner decision is open, and it is the only one.
+```text
+P4 = PASS at 89b1a1f3b22badc9b300eab6c4a2906b47d1728f
+     conjunct A — provenance, status CURRENT     PASS
+     conjunct B — C2_CLEAN, Findings: 0          PASS
 
-**How may the pinned commit's install be made `C2_CLEAN`?** Surface-design §12
-condition 2 asserts that "the payload manifest no longer carries the acceptance
-corpus, and a fresh install is verified C2-clean by enumeration". That assertion
-is true of the **working tree** and false of the **pinned commit**, which is the
-gap this section records. Both candidate resolutions amend something the current
-instructions preserve — the pinned commit on one hand, §5.3 and §8.2 on the other
-— so neither is taken here.
+READY_FOR_PHASE15_FIXTURES — still not reported
+```
+
+**P4 is no longer a blocker, and `READY` is still not claimed.** Surface-design
+§12 condition 1 requires P0–P9 and P11–P13. P4 has moved from the failing column
+to the passing one, and that is the whole of what this measurement licenses.
+P7, P8, P9, P11, P12, and P13 are not measured by this document, so condition 1
+is **unevaluated** rather than met, and the §12 conditions beyond it are
+untouched.
+
+Established: the host-version leg, the model leg, P0, P2/B10, P3, **P4**, P5, and
+P6. The owner's decision to retain `2.1.232` is correct and was never the cause
+of the earlier blockage — that blockage was a repository state, and it has been
+cleared by a repository change.
+
+Not established: P7–P9 and P11–P13, unmeasured here. B7 — the score template is
+short two critical dimensions — and B8 — no independent reviewer — are unchanged
+by this measurement and remain open. Neither is a P4 question, and neither was
+treated as a reason to defer the P4 measurement.
+
+**The §6.4 question is answered.** It asked how the pinned commit's install may
+be made `C2_CLEAN`, and recorded that both candidate resolutions would amend
+something the instructions preserved. Neither was needed. The B9 narrowing was
+committed as `89b1a1f`, so the pinned commit and the narrowed manifest are now
+the same object, and surface-design §12 condition 2's assertion — *"the payload
+manifest no longer carries the acceptance corpus, and a fresh install is verified
+C2-clean by enumeration"* — is now true of the pinned commit **by measurement**
+rather than of the working tree only.
 
 Nothing in this section creates an acceptance dimension, an evidence gate, or a
-new check. P4 and §13 row 3 both pre-exist; they fired.
+new check. P4 and §13 row 3 both pre-exist; they fired, and on re-measurement
+they passed. No fixture was run, no acceptance artifact was created, no RC gate
+was ticked, and nothing was re-pinned.
 
 ## 8. What This Document Does Not Do
 

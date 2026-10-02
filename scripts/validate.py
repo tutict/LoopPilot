@@ -14,6 +14,9 @@ from urllib.parse import unquote, urlsplit
 import yaml
 from yaml.constructor import ConstructorError
 from engineering_validation import validate_loop_engineering
+from evaluation_evidence_validation import validate_evaluation_evidence
+from installation_doc_validation import validate_installation_documentation
+from instruction_consistency_validation import validate_instruction_consistency
 from evaluation_calibration_validation import (
     EVALUATION_CALIBRATION_FILES,
     validate_evaluation_calibration,
@@ -53,6 +56,12 @@ from project_closure_validation import (
 REQUIRED_FILES = (
     "SKILL.md",
     "AGENTS.md",
+    "scripts/evaluation_evidence_validation.py",
+    "scripts/evaluation_history.json",
+    "scripts/installation_doc_validation.py",
+    "docs/evaluation-evidence-integrity.md",
+    "scripts/instruction_consistency_validation.py",
+    "tests/test_instruction_consistency.py",
     ".looppilot/README.md",
     ".looppilot/STATE.md",
     ".looppilot/HANDOFF.md",
@@ -1096,10 +1105,16 @@ def markdown_files(root: Path) -> list[Path]:
     )
 
 
-def validate_markdown_file(root: Path, path: Path, errors: list[str]) -> None:
+def validate_markdown_file(root: Path, path: Path, errors: list[str], validated_view=None) -> None:
     relative = path.relative_to(root)
     raw = path.read_bytes()
     text = raw.decode("utf-8")
+    if validated_view is not None:
+        approved_bytes, structural_text = validated_view
+        if raw != approved_bytes:
+            errors.append(f"{relative}: approved prompt bytes changed during validation")
+            return
+        text = structural_text
     if not raw.endswith(b"\n"):
         errors.append(f"{relative}: file must end with a newline")
     for line_number, line in enumerate(text.splitlines(), start=1):
@@ -1129,11 +1144,12 @@ def validate_markdown_file(root: Path, path: Path, errors: list[str]) -> None:
             errors.append(f"{relative}: broken relative link: {target}")
 
 
-def collect_mermaid_blocks(root: Path, files: list[Path]) -> list[MermaidBlock]:
+def collect_mermaid_blocks(root: Path, files: list[Path], markdown_views=None) -> list[MermaidBlock]:
     blocks: list[MermaidBlock] = []
     for path in files:
         relative = path.relative_to(root)
-        text = path.read_text(encoding="utf-8")
+        view = (markdown_views or {}).get(path)
+        text = view[1] if view is not None else path.read_text(encoding="utf-8")
         for number, match in enumerate(MERMAID_PATTERN.finditer(text), start=1):
             blocks.append(MermaidBlock(relative, number, match.group(1).rstrip() + "\n"))
     return blocks
@@ -1149,6 +1165,8 @@ def validate_repository(
     root: Path,
     extract_directory: Path | None = None,
     warnings: list[str] | None = None,
+    evidence_index: Path | None = None,
+    evidence_index_sha256: str | None = None,
 ) -> list[str]:
     root = root.resolve()
     errors: list[str] = []
@@ -1160,6 +1178,7 @@ def validate_repository(
     if errors:
         return errors
 
+    errors.extend(validate_instruction_consistency(root))
     validate_shared_state(root, errors)
     validate_repository_extensions(root, errors)
     validate_loop_engineering(root, errors)
@@ -1171,6 +1190,9 @@ def validate_repository(
     validate_phase9_calibration(root, errors)
     validate_lifecycle_consistency(root, errors, warnings)
     validate_cross_host_acceptance(root, errors)
+    markdown_views = {}
+    errors.extend(validate_evaluation_evidence(root, evidence_index, evidence_index_sha256, warnings, markdown_views))
+    errors.extend(validate_installation_documentation(root))
     validate_yaml_files(root, errors)
     validate_skill_frontmatter(root, errors)
     validate_openai_yaml(root, errors)
@@ -1180,7 +1202,7 @@ def validate_repository(
 
     files = markdown_files(root)
     for path in files:
-        validate_markdown_file(root, path, errors)
+        validate_markdown_file(root, path, errors, markdown_views.get(path))
 
     skill_words = len((root / "SKILL.md").read_text(encoding="utf-8").split())
     if skill_words not in SKILL_WORD_RANGE:
@@ -1188,7 +1210,7 @@ def validate_repository(
             f"SKILL.md: expected 1500-2500 words, observed {skill_words}"
         )
 
-    blocks = collect_mermaid_blocks(root, files)
+    blocks = collect_mermaid_blocks(root, files, markdown_views)
     sources = {block.source.as_posix() for block in blocks}
     for required_source in (
         "README.md",
@@ -1225,6 +1247,8 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help="write extracted Mermaid sources to this directory after validation",
     )
+    parser.add_argument("--evidence-index", type=Path, help="operator-approved evidence index outside the scanned repository")
+    parser.add_argument("--evidence-index-sha256", help="independently supplied SHA-256 pin for that index")
     return parser.parse_args()
 
 
@@ -1232,7 +1256,7 @@ def main() -> int:
     args = parse_args()
     warnings: list[str] = []
     try:
-        errors = validate_repository(args.root, args.extract_mermaid, warnings)
+        errors = validate_repository(args.root, args.extract_mermaid, warnings, args.evidence_index, args.evidence_index_sha256)
     except (OSError, UnicodeError) as error:
         errors = [str(error)]
     for warning in warnings:

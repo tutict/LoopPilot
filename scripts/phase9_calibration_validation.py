@@ -15,6 +15,7 @@ PHASE9_CALIBRATION_FILES = (
     "tests/test_phase9_calibration.py",
 )
 
+# Historical Phase 9 calibration baseline, not the current checkout line count.
 CORE_PROMPT_BASELINE_LINES = 562
 CORE_PROMPT_MAX_LINES = 590
 

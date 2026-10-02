@@ -55,3 +55,4 @@ docs/validation.md
 agents/
 .looppilot/
 examples/
+shortcuts/lp/SKILL.md

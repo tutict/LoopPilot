@@ -24,15 +24,22 @@ agent MUST stop work that is outside the new scope.
 
 ## Before Work
 
-Before a complex task, the agent MUST:
+Match each read to the concern it governs; avoid unnecessary exhaustive repository
+loading, not relevant inspection. Before editing, the agent MUST read applicable
+repository instructions and inspect the source needed to establish scope and constraints.
+The order is inspect -> understand applicable rules -> modify. The agent MUST NOT
+modify files before confirming applicable rules. All edits remain subject to the
+instruction hierarchy and current authorization.
 
-- read every applicable `AGENTS.md` and [`SKILL.md`](SKILL.md);
-- inspect the current host-native Goal, Plan, Todo, or equivalent state;
-- inspect the Git working tree and preserve unrelated user changes;
-- read `.looppilot/STATE.md` and `.looppilot/HANDOFF.md` when continuity is relevant;
-- re-check shared claims against current files, tools, tests, and user instructions;
-  and
-- update the native Plan instead of creating a competing detailed Plan.
+- The nearest `AGENTS.md`: any change in this repository.
+- [`SKILL.md`](SKILL.md): when the task selects, changes, or executes LoopPilot.
+- The host Goal, Plan, or Todo: when the host already has one. Update that Plan
+  instead of creating a second one.
+- Git status: before editing, and preserve unrelated changes.
+- `.looppilot/STATE.md` and `.looppilot/HANDOFF.md`: only when their status is
+  active.
+- Another protocol document: only for the concern named in `SKILL.md` section 11.
+- A shared claim: re-check the file or test it cites before repeating it.
 
 A simple one-step task SHOULD NOT create or update shared state.
 
@@ -48,8 +55,14 @@ observed evidence, or append history without replacing stale information.
 
 ## Verification
 
-Before completion, the agent MUST run task-relevant verification. Repository
-maintainers MUST follow [`docs/validation.md`](docs/validation.md).
+Before completion, run verification that can falsify the change. The agent MUST NOT scope out required verification
+under applicable higher-priority instructions, repository rules, project requirements,
+a Task Contract, or safety constraints. Only optional, objectively unrelated checks
+may be omitted based on change/dependency evidence, not inconvenience or duration.
+Disclose every skipped or scoped-down check as a verification gap with its requirement
+status, objective rationale, evidence, and residual uncertainty. Required checks remain
+unmet without an authorized waiver. Repository maintainers MUST follow
+[`docs/validation.md`](docs/validation.md) for the change they made.
 
 Reports and shared files MUST distinguish `observed`, `inferred`, `expected`, and
 `unverified` information. Only directly observed or clearly attributed results may
@@ -80,9 +93,11 @@ Authorization is action-specific and MUST NOT expand across agents or sessions:
 - local execution does not authorize deployment; and
 - credential access does not authorize credential disclosure.
 
-Without a current explicit instruction, the agent MUST NOT commit, push, publish,
-deploy, create a release, send external messages, delete important data, or perform
-irreversible operations.
+Within the latest user request and existing authority, local, reversible,
+non-destructive edits and checks with no external effects need no confirmation at
+each step. This does not expand host permissions or the Authorized Operation Set. Without a current explicit instruction, the agent MUST
+NOT commit, push, publish, deploy, create a release, send external messages,
+delete important data, or perform irreversible operations.
 
 Task-specific authorization MUST come from the latest applicable user instruction
 and MUST NOT be persisted as standing repository permission.

@@ -4,7 +4,10 @@ param(
     [ValidateSet("install", "update", "uninstall", "status")]
     [string]$Operation,
     [string]$Destination,
-    [switch]$Force
+    [switch]$Force,
+    [ValidateSet("release", "archive")]
+    [string]$SourceMode = "release",
+    [string]$ArchiveSha256
 )
 
 $ErrorActionPreference = "Stop"
@@ -16,6 +19,12 @@ $JournalName = ".looppilot-transaction"
 $StateFormat = "2"
 $LegacyStateFormats = @("1")
 $UnknownHash = "-"
+$OriginalSourceRoot = $SourceRoot
+$SnapshotRoot = $null
+$SnapshotParent = $null
+$PinnedCommit = $null
+$SnapshotDigest = $null
+$ProvenanceMode = $null
 
 function Fail([string]$Message) {
     throw "LoopPilot distribution: $Message"
@@ -108,31 +117,134 @@ function Get-SourceVersion {
 }
 
 function Get-SourceCommit {
-    $commit = $null
-    try {
-        $commit = (& git -C $SourceRoot rev-parse --verify HEAD 2>$null)
-        if ($LASTEXITCODE -ne 0) { $commit = $null }
-    } catch {
-        $commit = $null
+    if ([string]::IsNullOrWhiteSpace($script:PinnedCommit)) { Fail "source identity has not been prepared" }
+    return $script:PinnedCommit
+}
+
+function Get-PayloadDigest([string]$Root, [string[]]$Entries) {
+    $ordered = [string[]]@($Entries)
+    [Array]::Sort($ordered, [StringComparer]::Ordinal)
+    $rows = foreach ($entry in $ordered) { "$entry|$(Get-Hash (Join-Path $Root $entry))" }
+    $bytes = [Text.Encoding]::UTF8.GetBytes(($rows -join "`n") + "`n")
+    $hash = [Security.Cryptography.SHA256]::Create()
+    try { return ([BitConverter]::ToString($hash.ComputeHash($bytes))).Replace("-", "").ToLowerInvariant() }
+    finally { $hash.Dispose() }
+}
+
+function Prepare-Source {
+    if ($SourceMode -eq "release") {
+        if ($ArchiveSha256) { Fail "archive digest is not valid in release mode" }
+        if ($null -eq (Get-GitRoot)) { Fail "Git source identity unavailable; release install refused" }
+        # Refuse existing refs; every Git read also ignores replacements added later.
+        $replacementBases = @("refs/replace/")
+        if ($env:GIT_REPLACE_REF_BASE) { $replacementBases += $env:GIT_REPLACE_REF_BASE }
+        $replacements = @(& git --no-replace-objects -C $OriginalSourceRoot for-each-ref '--format=%(refname)' -- @replacementBases)
+        if ($LASTEXITCODE -ne 0) { Fail "cannot inspect Git replacement refs" }
+        if ($replacements.Count -gt 0) { Fail "Git replacement refs present; release install refused" }
+        $script:PinnedCommit = (& git --no-replace-objects -C $OriginalSourceRoot rev-parse --verify 'HEAD^{commit}')
+        if ($LASTEXITCODE -ne 0 -or $script:PinnedCommit -notmatch '^[0-9a-f]{40}$') { Fail "Git commit identity cannot be resolved; release install refused" }
+        & git --no-replace-objects -C $OriginalSourceRoot cat-file -e "$($script:PinnedCommit)^{commit}"
+        if ($LASTEXITCODE -ne 0) { Fail "Git commit object unavailable; release install refused" }
+        $dirty = @(& git --no-replace-objects -C $OriginalSourceRoot status --porcelain=v1 --untracked-files=all)
+        if ($LASTEXITCODE -ne 0) { Fail "cannot inspect Git source status" }
+        if ($dirty.Count -gt 0) { Fail "dirty Git source refused; install requires a clean source checkout" }
+        $script:ProvenanceMode = "git-release"
+    } else {
+        if ((Test-Path -LiteralPath (Join-Path $OriginalSourceRoot ".git")) -or $null -ne (Get-GitRoot)) {
+            Fail "archive mode cannot replace Git source identity"
+        }
+        if ($ArchiveSha256 -cnotmatch '^[0-9a-f]{64}$') { Fail "explicit archive mode requires -ArchiveSha256" }
+        $script:ProvenanceMode = "archive"
     }
-    if (-not [string]::IsNullOrWhiteSpace($commit)) {
-        $commit = $commit.Trim()
-    }
-    if ([string]::IsNullOrWhiteSpace($commit)) {
-        $commitFile = Join-Path $SourceRoot "distribution\commit.txt"
-        if (Test-Path -LiteralPath $commitFile -PathType Leaf) {
-            $commit = (Get-Content -Raw -LiteralPath $commitFile).Trim()
+    $script:SnapshotParent = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\', '/')
+    $script:SnapshotRoot = Join-Path $SnapshotParent ("looppilot-source-" + [guid]::NewGuid().ToString("N"))
+    if ($SnapshotRoot.StartsWith($OriginalSourceRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { Fail "snapshot must be outside source root" }
+    $payload = Join-Path $SnapshotRoot "payload"
+    New-Item -ItemType Directory -Path $payload -Force | Out-Null
+    if ($SourceMode -eq "release") {
+        $tree = @(& git --no-replace-objects -C $OriginalSourceRoot -c core.quotepath=false ls-tree -r $PinnedCommit)
+        if ($LASTEXITCODE -ne 0) { Fail "cannot read pinned tree" }
+        $expected = [System.Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
+        foreach ($row in $tree) {
+            $fields = $row -split "`t", 2
+            if ($fields.Count -ne 2 -or $fields[0] -notmatch '^(100644|100755) blob ([0-9a-f]{40})$') { Fail "unsupported snapshot entry" }
+            $blob = $Matches[2]
+            Assert-RelativePath $fields[1]
+            $expected[$fields[1]] = $blob
+            $workingPath = Join-Path $OriginalSourceRoot $fields[1]
+            if (-not (Test-Path -LiteralPath $workingPath -PathType Leaf) -or
+                ((Get-Item -LiteralPath $workingPath -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+                Fail "dirty Git source: missing or indirect tracked file $($fields[1])"
+            }
+            $workingHash = (& git --no-replace-objects -C $OriginalSourceRoot hash-object "--path=$($fields[1])" $workingPath)
+            if ($LASTEXITCODE -ne 0 -or $workingHash -ne $blob) { Fail "dirty Git source content differs from pinned commit: $($fields[1])" }
+        }
+        $archive = Join-Path $SnapshotRoot "source.zip"
+        & git --no-replace-objects -C $OriginalSourceRoot archive --format=zip "--output=$archive" $PinnedCommit
+        if ($LASTEXITCODE -ne 0) { Fail "cannot export pinned commit" }
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [IO.Compression.ZipFile]::ExtractToDirectory($archive, $payload)
+        foreach ($item in Get-ChildItem -LiteralPath $payload -Recurse -Force -ErrorAction Stop) {
+            $relative = $item.FullName.Substring($payload.Length + 1).Replace('\', '/')
+            Assert-RelativePath $relative
+            if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or
+                (-not $item.PSIsContainer -and -not $expected.ContainsKey($relative))) {
+                Fail "unexpected snapshot file: $relative"
+            }
+        }
+        foreach ($entry in $expected.Keys) {
+            $path = Join-Path $payload $entry
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { Fail "snapshot is missing a regular committed file: $entry" }
+            if (((Get-Item -LiteralPath $path -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { Fail "indirect snapshot path" }
+            $actual = (& git --no-replace-objects -C $OriginalSourceRoot hash-object --no-filters $path)
+            if ($LASTEXITCODE -ne 0 -or $actual -ne $expected[$entry]) { Fail "snapshot content does not match pinned commit: $entry" }
+        }
+    } else {
+        $inputs = @(@(Get-ManifestEntries) + @("distribution/managed-files.txt", "distribution/version.txt", "distribution/commit.txt") | Sort-Object -Unique)
+        foreach ($entry in $inputs) {
+            Assert-SourceFile $entry
+            $target = Join-Path $payload $entry
+            New-Item -ItemType Directory -Path (Split-Path -Parent $target) -Force | Out-Null
+            Copy-Item -LiteralPath (Join-Path $OriginalSourceRoot $entry) -Destination $target
         }
     }
-    if ($commit -notmatch '^[0-9a-f]{40}$') {
-        Fail "cannot determine a 40-character source commit; run from Git or provide distribution/commit.txt"
+    $script:SourceRoot = $payload
+    $script:ManifestPath = Join-Path $payload "distribution/managed-files.txt"
+    $script:VersionPath = Join-Path $payload "distribution/version.txt"
+    $marker = Join-Path $payload "distribution/commit.txt"
+    if ($SourceMode -eq "archive") {
+        $script:PinnedCommit = (Get-Content -Raw -LiteralPath $marker).Trim()
+        if ($PinnedCommit -cnotmatch '^[0-9a-f]{40}$') { Fail "invalid publisher archive commit" }
+    } elseif ((Test-Path -LiteralPath $marker) -and (Get-Content -Raw -LiteralPath $marker).Trim() -ne $PinnedCommit) {
+        Fail "source identity conflicts with snapshot commit.txt"
     }
-    return $commit
+    $null = Get-SourceVersion
+    $entries = Get-ManifestEntries
+    $script:SnapshotDigest = Get-PayloadDigest $payload $entries
+    if ($SourceMode -eq "archive" -and $SnapshotDigest -cne $ArchiveSha256) { Fail "archive snapshot digest mismatch" }
+    Get-ChildItem -LiteralPath $payload -Recurse -File -Force | ForEach-Object { $_.IsReadOnly = $true }
+    Write-Output "Install mode: $ProvenanceMode"
+    Write-Output "Source snapshot SHA-256: $SnapshotDigest"
+    Write-Output "Source validation: passed"
+    if ($SourceMode -eq "release") { Write-Output "Source clean determination: preflight passed (not a live worktree claim)" }
+    if ($SourceMode -eq "archive") { Write-Output "Archive commit is publisher-declared, not verified Git provenance" }
+}
+
+function Remove-SourceSnapshot {
+    if ($null -eq $SnapshotRoot -or -not (Test-Path -LiteralPath $SnapshotRoot)) { return }
+    $resolved = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SnapshotRoot).Path)
+    $parent = [IO.Path]::GetFullPath($SnapshotParent).TrimEnd('\') + '\'
+    if (-not $resolved.StartsWith($parent, [StringComparison]::OrdinalIgnoreCase) -or
+        (Split-Path -Leaf $resolved) -notmatch '^looppilot-source-[0-9a-f]{32}$' -or
+        ((Get-Item -LiteralPath $resolved -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+        Fail "refused unsafe snapshot cleanup path"
+    }
+    Remove-Item -LiteralPath $resolved -Recurse -Force
 }
 
 function Get-GitRoot {
     try {
-        $root = (& git -C $SourceRoot rev-parse --show-toplevel 2>$null)
+        $root = (& git --no-replace-objects -C $SourceRoot rev-parse --show-toplevel 2>$null)
         if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($root)) { return $null }
         $resolved = (Resolve-Path -LiteralPath $root.Trim()).Path
         if ($resolved -eq $SourceRoot) { return $resolved }
@@ -152,6 +264,7 @@ function Assert-SourceFile([string]$RelativePath) {
     if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
         Fail "manifest file must not be a symbolic link or reparse point: $RelativePath"
     }
+
 }
 
 function Get-ManifestEntries {
@@ -173,7 +286,7 @@ function Get-ManifestEntries {
                 Fail "manifest directory is missing: $entry"
             }
             if ($null -ne $gitRoot) {
-                $files = @(& git -C $SourceRoot ls-files -- "$trimmed/")
+                $files = @(& git --no-replace-objects -C $SourceRoot ls-files -- "$trimmed/")
                 if ($LASTEXITCODE -ne 0) { Fail "cannot enumerate tracked files for: $entry" }
                 foreach ($file in $files) {
                     if (-not [string]::IsNullOrWhiteSpace($file)) {
@@ -211,6 +324,9 @@ function Get-State([string]$Path) {
         Version = $null
         Commit = $null
         Manifest = $null
+        ProvenanceMode = "legacy-unverified"
+        SnapshotDigest = $null
+        InstalledDigest = $null
         Files = [ordered]@{}
         Customized = [ordered]@{}
         Base = [ordered]@{}
@@ -240,6 +356,14 @@ function Get-State([string]$Path) {
                 if ($parts.Count -ne 2 -or $seen.ContainsKey($kind)) { Fail "invalid installation state MANIFEST row" }
                 $seen[$kind] = $true
                 $state.Manifest = $parts[1]
+            }
+            "PROVENANCE" {
+                if ($parts.Count -ne 4 -or $seen.ContainsKey($kind) -or $parts[1] -notin @("git-release", "archive") -or
+                    $parts[2] -cnotmatch '^[0-9a-f]{64}$' -or $parts[3] -cnotmatch '^[0-9a-f]{64}$') { Fail "invalid installation state PROVENANCE row" }
+                $seen[$kind] = $true
+                $state.ProvenanceMode = $parts[1]
+                $state.SnapshotDigest = $parts[2]
+                $state.InstalledDigest = $parts[3]
             }
             "FILE" {
                 # Format 1 rows carry four fields; format 2 adds the baseline hash.
@@ -347,11 +471,13 @@ function Backup-File([string]$Root, [string]$RelativePath, [string]$BackupId) {
     Copy-Item -LiteralPath $source -Destination $backup
 }
 
-function Copy-SourceFile([string]$DestinationRoot, [string]$RelativePath) {
+function Copy-SourceFile([string]$DestinationRoot, [string]$RelativePath, [string]$ExpectedHash) {
     $source = Join-Path $SourceRoot ($RelativePath.Replace("/", "\"))
     $destinationPath = Get-DestinationPath $DestinationRoot $RelativePath
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $destinationPath) | Out-Null
     Copy-Item -LiteralPath $source -Destination $destinationPath -Force
+    (Get-Item -LiteralPath $destinationPath -Force).IsReadOnly = $false
+    if ((Get-Hash $destinationPath) -ne $ExpectedHash) { Fail "source changed during copy: $RelativePath" }
 }
 
 function Write-State(
@@ -368,6 +494,7 @@ function Write-State(
         "VERSION|$Version",
         "COMMIT|$Commit",
         "MANIFEST|$ManifestHash"
+        "PROVENANCE|$ProvenanceMode|$SnapshotDigest|$(Get-PayloadDigest $DestinationRoot $Entries)"
     )
     foreach ($entry in $Entries) {
         $path = Get-DestinationPath $DestinationRoot $entry
@@ -585,6 +712,9 @@ function Show-Installed([string]$DestinationRoot, [string]$Version, [string]$Com
     Write-Host "Destination: $DestinationRoot"
     Write-Host "Installed version: $Version"
     Write-Host "Installed commit: $Commit"
+    $receipt = Get-State (Join-Path $DestinationRoot $StateName)
+    Write-Host "Installed source mode: $($receipt.ProvenanceMode)"
+    Write-Host "Installed SHA-256: $($receipt.InstalledDigest)"
     if ($Preserved -gt 0) {
         Write-Warning "$Preserved local file(s) preserved; review .looppilot-backups before using -Force"
     }
@@ -593,9 +723,9 @@ function Show-Installed([string]$DestinationRoot, [string]$Version, [string]$Com
 function Invoke-Install {
     $destinationRoot = Get-InstallDestination $Destination
     Assert-GeneratedPathSafety $destinationRoot
+    $commit = Get-SourceCommit
     $entries = Get-ManifestEntries
     $version = Get-SourceVersion
-    $commit = Get-SourceCommit
     $manifestHash = Get-Hash $ManifestPath
     $sourceHashes = Get-SourceHashes $entries
     Assert-DestinationPreflight $destinationRoot $entries
@@ -649,7 +779,7 @@ function Invoke-Install {
             }
             Backup-File $destinationRoot $entry $backupId
         }
-        Copy-SourceFile $destinationRoot $entry
+        Copy-SourceFile $destinationRoot $entry $sourceHashes[$entry]
         $baseline[$entry] = $sourceHashes[$entry]
     }
     Write-State $destinationRoot $version $commit $manifestHash $entries ([ordered]@{}) $baseline
@@ -660,6 +790,8 @@ function Invoke-Update {
     $destinationRoot = Get-InstallDestination $Destination
     Assert-GeneratedPathSafety $destinationRoot
 
+    # Reject a dirty source before even recovering an interrupted destination.
+    $commit = Get-SourceCommit
     # An interrupted update is rolled back first so every update starts from a
     # known-good baseline and retrying is deterministic.
     $recovered = Restore-Journal $destinationRoot
@@ -704,7 +836,7 @@ function Invoke-Update {
         }
         foreach ($entry in $plan.Add) {
             Add-JournalEntry $destinationRoot "CREATE" $entry
-            Copy-SourceFile $destinationRoot $entry
+            Copy-SourceFile $destinationRoot $entry $sourceHashes[$entry]
             $baseline[$entry] = $sourceHashes[$entry]
         }
         foreach ($entry in $plan.Update) {
@@ -715,7 +847,7 @@ function Invoke-Update {
             } else {
                 Add-JournalEntry $destinationRoot "CREATE" $entry
             }
-            Copy-SourceFile $destinationRoot $entry
+            Copy-SourceFile $destinationRoot $entry $sourceHashes[$entry]
             $baseline[$entry] = $sourceHashes[$entry]
         }
         foreach ($entry in $plan.Current) {
@@ -738,7 +870,7 @@ function Invoke-Update {
                 } else {
                     Add-JournalEntry $destinationRoot "CREATE" $entry
                 }
-                Copy-SourceFile $destinationRoot $entry
+                Copy-SourceFile $destinationRoot $entry $sourceHashes[$entry]
                 $baseline[$entry] = $sourceHashes[$entry]
                 continue
             }
@@ -818,6 +950,7 @@ function Invoke-Status {
     Write-Output "Installed commit: $(if ($null -ne $state) { $state.Commit } else { 'unknown' })"
     Write-Output "Source version: $version"
     Write-Output "Source commit: $commit"
+    if ($null -ne $state) { Write-Output "Installed source mode: $($state.ProvenanceMode)" }
     Write-Output "Revision: $(if ($null -ne $state -and $state.Commit -eq $commit) { 'unchanged' } else { 'changed' })"
     Write-Output "Manifest: $(if ($null -ne $state -and $state.Manifest -eq $manifestHash) { 'unchanged' } else { 'changed' })"
     Write-Output "Interrupted update: $(if ($interrupted) { 'yes' } else { 'no' })"
@@ -870,9 +1003,12 @@ function Invoke-Uninstall {
     }
 }
 
-switch ($Operation) {
-    "install" { Invoke-Install }
-    "update" { Invoke-Update }
-    "uninstall" { Invoke-Uninstall }
-    "status" { Invoke-Status }
-}
+try {
+    if ($Operation -ne "uninstall") { Prepare-Source }
+    switch ($Operation) {
+        "install" { Invoke-Install }
+        "update" { Invoke-Update }
+        "uninstall" { Invoke-Uninstall }
+        "status" { Invoke-Status }
+    }
+} finally { Remove-SourceSnapshot }

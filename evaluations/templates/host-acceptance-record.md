@@ -49,6 +49,7 @@ limitations` names disclosed shortfalls under an `accepted-with-residuals`
 verdict; `Unverified limitations` names what this record does not establish at
 all, including every `not-evaluated` dimension, untested host versions, and the
 fact that a verdict never generalizes beyond its exact evaluated combination.
-These two fields are documented disclosure; the public validator currently
-enforces the fields listed in
-[`docs/validation.md`](../../docs/validation.md) and does not yet check them.
+The public validator enforces these record disclosures and, for accepted claims,
+validates linked evaluation packages under an explicit operator-pinned evidence
+index. See [evidence integrity](../../docs/evaluation-evidence-integrity.md).
+A structurally valid template is not a completed run or an acceptance decision.

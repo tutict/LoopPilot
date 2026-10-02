@@ -84,9 +84,12 @@ input boundary, observable trace, reviewer decision, evidence links, and
 unverified limitations. A Scenario ID references a numbered scenario in
 [`tests/scenarios.md`](../tests/scenarios.md) or a named fixture, so a later
 reader can reproduce the case rather than trust a prose description. The public
-validator checks the record fields listed in
-[`validation`](validation.md); the remaining elements are template-declared
-disclosure that an independent reviewer confirms.
+validator checks record structure and the linked package requirements in
+[evidence integrity](evaluation-evidence-integrity.md), including operator-approved
+receipt hashes, cross-artifact identities, evidence references and critical score
+consistency. The operator index is an explicit trust input, not generated proof.
+Actual capture truth and semantic review remain the responsibility of the trusted
+producer/reviewer; no maintenance result runs a host or grants acceptance.
 
 ## Acceptance Verdicts
 

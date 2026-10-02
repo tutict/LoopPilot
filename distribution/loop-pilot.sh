@@ -10,12 +10,29 @@ STATE_FORMAT="2"
 LEGACY_STATE_FORMATS="1"
 UNKNOWN_HASH="-"
 TEMP_PATHS=()
+ORIGINAL_SOURCE_ROOT=$SOURCE_ROOT
+SNAPSHOT_ROOT=''
+SNAPSHOT_PARENT=''
+PINNED_COMMIT=''
+SOURCE_MODE=release
+ARCHIVE_SHA256=''
+SNAPSHOT_DIGEST=''
+PROVENANCE_MODE=''
 
 cleanup() {
   local path
   for path in "${TEMP_PATHS[@]}"; do
     rm -f -- "$path"
   done
+  if [ -n "$SNAPSHOT_ROOT" ] && [ -d "$SNAPSHOT_ROOT" ] && [ ! -L "$SNAPSHOT_ROOT" ]; then
+    case "$SNAPSHOT_ROOT" in
+      "$SNAPSHOT_PARENT"/looppilot-source.*)
+        chmod -R u+w -- "$SNAPSHOT_ROOT"
+        rm -rf -- "$SNAPSHOT_ROOT"
+        ;;
+      *) printf 'Refused unsafe snapshot cleanup path\n' >&2 ;;
+    esac
+  fi
 }
 trap cleanup EXIT
 
@@ -25,7 +42,7 @@ fail() {
 }
 
 usage() {
-  printf 'Usage: %s {install|update|uninstall|status} [--destination DIR] [--force]\n' "$0" >&2
+  printf 'Usage: %s {install|update|uninstall|status} [--destination DIR] [--force] [--source-mode release|archive] [--archive-sha256 SHA256]\n' "$0" >&2
   exit 2
 }
 
@@ -110,16 +127,120 @@ source_version() {
 }
 
 source_commit() {
-  local commit=''
-  if command -v git >/dev/null 2>&1; then
-    commit=$(git -C "$SOURCE_ROOT" rev-parse --verify HEAD 2>/dev/null || true)
+  [ -n "$PINNED_COMMIT" ] || fail 'source identity has not been prepared'
+  printf '%s\n' "$PINNED_COMMIT"
+}
+
+stream_hash() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'
+  else shasum -a 256 | awk '{print $1}'; fi
+}
+
+payload_digest() {
+  local root=$1 entries=$2 path
+  while IFS= read -r path; do
+    printf '%s|%s\n' "$path" "$(file_hash "$root/$path")"
+  done < <(LC_ALL=C sort -u "$entries") | stream_hash
+}
+
+prepare_source() {
+  local dirty replacements tree_record metadata path mode expected actual entries input
+  case "$SOURCE_MODE" in release|archive) ;; *) fail 'invalid source mode' ;; esac
+  if [ "$SOURCE_MODE" = release ]; then
+    [ -z "$ARCHIVE_SHA256" ] || fail 'archive digest is not valid in release mode'
+    git_source_root || fail 'Git source identity unavailable; release install refused'
+    # Refuse existing refs; every Git read also ignores replacements added later.
+    replacements=$(git --no-replace-objects -C "$SOURCE_ROOT" for-each-ref --format='%(refname)' -- refs/replace/ "${GIT_REPLACE_REF_BASE:-refs/replace/}") ||
+      fail 'cannot inspect Git replacement refs'
+    [ -z "$replacements" ] || fail 'Git replacement refs present; release install refused'
+    PINNED_COMMIT=$(git --no-replace-objects -C "$SOURCE_ROOT" rev-parse --verify 'HEAD^{commit}') ||
+      fail 'Git commit identity cannot be resolved; release install refused'
+    [ "${#PINNED_COMMIT}" -eq 40 ] && ! printf '%s' "$PINNED_COMMIT" | grep -Eq '[^0-9a-f]' ||
+      fail 'unsupported source commit identity; installation state requires a 40-character Git commit'
+    git --no-replace-objects -C "$SOURCE_ROOT" cat-file -e "$PINNED_COMMIT^{commit}" ||
+      fail 'Git commit object unavailable; release install refused'
+    dirty=$(git --no-replace-objects -C "$SOURCE_ROOT" status --porcelain=v1 --untracked-files=all) ||
+      fail 'cannot inspect Git source status'
+    [ -z "$dirty" ] || fail 'dirty Git source refused; install requires a clean source checkout'
+    PROVENANCE_MODE=git-release
+  else
+    [ ! -e "$SOURCE_ROOT/.git" ] && [ ! -L "$SOURCE_ROOT/.git" ] ||
+      fail 'archive mode cannot replace Git source identity'
+    if git_source_root; then fail 'archive mode cannot replace Git source identity'; fi
+    [ "${#ARCHIVE_SHA256}" -eq 64 ] && ! printf '%s' "$ARCHIVE_SHA256" | grep -Eq '[^0-9a-f]' ||
+      fail 'explicit archive mode requires --archive-sha256'
+    PROVENANCE_MODE=archive
   fi
-  if [ -z "$commit" ] && [ -f "$SOURCE_ROOT/distribution/commit.txt" ]; then
-    commit=$(tr -d '\r\n' < "$SOURCE_ROOT/distribution/commit.txt")
+  SNAPSHOT_PARENT=$(CDPATH= cd -P -- "${TMPDIR:-/tmp}" && pwd)
+  SNAPSHOT_ROOT=$(mktemp -d "$SNAPSHOT_PARENT/looppilot-source.XXXXXXXX")
+  case "$SNAPSHOT_ROOT/" in "$ORIGINAL_SOURCE_ROOT/"*) fail 'snapshot must be outside source root' ;; esac
+  mkdir "$SNAPSHOT_ROOT/payload"
+  if [ "$SOURCE_MODE" = release ]; then
+    git --no-replace-objects -C "$ORIGINAL_SOURCE_ROOT" ls-tree -rz "$PINNED_COMMIT" > "$SNAPSHOT_ROOT/tree" || fail 'cannot read pinned tree'
+    : > "$SNAPSHOT_ROOT/expected-files"
+    while IFS= read -r -d '' tree_record; do
+      metadata=${tree_record%%$'\t'*}; path=${tree_record#*$'\t'}
+      assert_relative "$path"
+      printf '%s\n' "$path" >> "$SNAPSHOT_ROOT/expected-files"
+      mode=${metadata%% *}
+      case "$mode" in 100644|100755) ;; *) fail "unsupported snapshot entry: $path" ;; esac
+      expected=${metadata##* }
+      [ -f "$ORIGINAL_SOURCE_ROOT/$path" ] && [ ! -L "$ORIGINAL_SOURCE_ROOT/$path" ] || fail "dirty Git source: missing or indirect tracked file $path"
+      actual=$(git --no-replace-objects -C "$ORIGINAL_SOURCE_ROOT" hash-object --path="$path" "$ORIGINAL_SOURCE_ROOT/$path") || fail 'cannot verify tracked worktree content'
+      [ "$actual" = "$expected" ] || fail "dirty Git source content differs from pinned commit: $path"
+    done < "$SNAPSHOT_ROOT/tree"
+    command -v tar >/dev/null 2>&1 || fail 'tar is required for release snapshots'
+    git --no-replace-objects -C "$ORIGINAL_SOURCE_ROOT" archive --format=tar --output="$SNAPSHOT_ROOT/source.tar" "$PINNED_COMMIT" ||
+      fail 'cannot export pinned commit'
+    tar -xf "$SNAPSHOT_ROOT/source.tar" -C "$SNAPSHOT_ROOT/payload" || fail 'cannot extract pinned snapshot'
+    find "$SNAPSHOT_ROOT/payload" -mindepth 1 -print0 > "$SNAPSHOT_ROOT/actual-nodes" || fail 'cannot enumerate snapshot'
+    while IFS= read -r -d '' actual; do
+      path=${actual#"$SNAPSHOT_ROOT/payload/"}
+      assert_relative "$path"
+      [ ! -L "$actual" ] || fail "unexpected snapshot file: $path"
+      if [ -f "$actual" ]; then
+        grep -F -x -q -- "$path" "$SNAPSHOT_ROOT/expected-files" || fail "unexpected snapshot file: $path"
+      elif [ ! -d "$actual" ]; then
+        fail "unexpected snapshot file: $path"
+      fi
+    done < "$SNAPSHOT_ROOT/actual-nodes"
+    while IFS= read -r -d '' tree_record; do
+      metadata=${tree_record%%$'\t'*}; path=${tree_record#*$'\t'}; expected=${metadata##* }
+      [ -f "$SNAPSHOT_ROOT/payload/$path" ] && [ ! -L "$SNAPSHOT_ROOT/payload/$path" ] ||
+        fail "snapshot is missing a regular committed file: $path"
+      actual=$(git --no-replace-objects -C "$ORIGINAL_SOURCE_ROOT" hash-object --no-filters "$SNAPSHOT_ROOT/payload/$path") || fail 'snapshot validation failed'
+      [ "$actual" = "$expected" ] || fail "snapshot content does not match pinned commit: $path"
+    done < "$SNAPSHOT_ROOT/tree"
+  else
+    entries="$SNAPSHOT_ROOT/archive-inputs"
+    manifest_entries > "$entries"
+    printf '%s\n' distribution/managed-files.txt distribution/version.txt distribution/commit.txt >> "$entries"
+    while IFS= read -r input; do
+      assert_source_file "$input"
+      mkdir -p -- "$(dirname -- "$SNAPSHOT_ROOT/payload/$input")"
+      cp -p -- "$ORIGINAL_SOURCE_ROOT/$input" "$SNAPSHOT_ROOT/payload/$input"
+    done < <(LC_ALL=C sort -u "$entries")
   fi
-  [ "${#commit}" -eq 40 ] && ! printf '%s' "$commit" | grep -Eq '[^0-9a-f]' ||
-    fail 'cannot determine a 40-character source commit; run from Git or provide distribution/commit.txt'
-  printf '%s\n' "$commit"
+  SOURCE_ROOT="$SNAPSHOT_ROOT/payload"
+  MANIFEST_PATH="$SOURCE_ROOT/distribution/managed-files.txt"
+  VERSION_PATH="$SOURCE_ROOT/distribution/version.txt"
+  if [ "$SOURCE_MODE" = archive ]; then
+    PINNED_COMMIT=$(tr -d '\r\n' < "$SOURCE_ROOT/distribution/commit.txt")
+    [ "${#PINNED_COMMIT}" -eq 40 ] && ! printf '%s' "$PINNED_COMMIT" | grep -Eq '[^0-9a-f]' || fail 'invalid publisher archive commit'
+  elif [ -f "$SOURCE_ROOT/distribution/commit.txt" ]; then
+    [ "$(tr -d '\r\n' < "$SOURCE_ROOT/distribution/commit.txt")" = "$PINNED_COMMIT" ] || fail 'source identity conflicts with snapshot commit.txt'
+  fi
+  source_version >/dev/null
+  entries="$SNAPSHOT_ROOT/payload-entries"
+  manifest_entries > "$entries"
+  SNAPSHOT_DIGEST=$(payload_digest "$SOURCE_ROOT" "$entries")
+  if [ "$SOURCE_MODE" = archive ]; then
+    [ "$SNAPSHOT_DIGEST" = "$ARCHIVE_SHA256" ] || fail 'archive snapshot digest mismatch'
+  fi
+  chmod -R a-w -- "$SOURCE_ROOT"
+  printf 'Install mode: %s\nSource snapshot SHA-256: %s\nSource validation: passed\n' "$PROVENANCE_MODE" "$SNAPSHOT_DIGEST"
+  if [ "$SOURCE_MODE" = release ]; then printf 'Source clean determination: preflight passed (not a live worktree claim)\n'; fi
+  if [ "$SOURCE_MODE" = archive ]; then printf 'Archive commit is publisher-declared, not verified Git provenance\n'; fi
 }
 
 assert_relative() {
@@ -136,7 +257,7 @@ assert_relative() {
 git_source_root() {
   local root=''
   command -v git >/dev/null 2>&1 || return 1
-  root=$(git -C "$SOURCE_ROOT" rev-parse --show-toplevel 2>/dev/null || true)
+  root=$(git --no-replace-objects -C "$SOURCE_ROOT" rev-parse --show-toplevel 2>/dev/null || true)
   [ -n "$root" ] || return 1
   root=$(CDPATH= cd -P -- "$root" && pwd)
   [ "$root" = "$SOURCE_ROOT" ]
@@ -146,6 +267,7 @@ assert_source_file() {
   assert_relative "$1"
   [ -f "$SOURCE_ROOT/$1" ] || fail "manifest file is missing: $1"
   [ ! -L "$SOURCE_ROOT/$1" ] || fail "manifest file must not be a symbolic link: $1"
+
 }
 
 manifest_entries() {
@@ -164,7 +286,7 @@ manifest_entries() {
     if [ "$trimmed" != "$entry" ]; then
       [ -d "$SOURCE_ROOT/$trimmed" ] || fail "manifest directory is missing: $entry"
       if [ "$git_root" -eq 1 ]; then
-        git -C "$SOURCE_ROOT" ls-files -- "$trimmed/" >> "$raw" ||
+        git --no-replace-objects -C "$SOURCE_ROOT" ls-files -- "$trimmed/" >> "$raw" ||
           fail "cannot enumerate tracked files for: $entry"
       else
         while IFS= read -r absolute; do
@@ -250,6 +372,11 @@ validate_state() {
     }
     $1 == "MANIFEST" {
       if (NF != 2 || manifest_seen++ || length($2) != 64 || $2 ~ /[^0-9a-f]/) ok=0
+      next
+    }
+    $1 == "PROVENANCE" {
+      if (NF != 4 || provenance_seen++ || ($2 != "git-release" && $2 != "archive") ||
+          length($3) != 64 || $3 ~ /[^0-9a-f]/ || length($4) != 64 || $4 ~ /[^0-9a-f]/) ok=0
       next
     }
     $1 == "FILE" {
@@ -373,10 +500,13 @@ backup_file() {
 }
 
 copy_source_file() {
-  local destination_root=$1 entry=$2 destination
+  local destination_root=$1 entry=$2 expected_hash=$3 destination
   destination="$destination_root/$entry"
   mkdir -p -- "$(dirname -- "$destination")"
   cp -p -- "$SOURCE_ROOT/$entry" "$destination"
+  chmod u+w -- "$destination"
+  [ "$(file_hash "$destination")" = "$expected_hash" ] ||
+    fail "source changed during copy: $entry"
 }
 
 build_source_hashes() {
@@ -403,6 +533,7 @@ write_state() {
     printf 'VERSION|%s\n' "$version"
     printf 'COMMIT|%s\n' "$commit"
     printf 'MANIFEST|%s\n' "$manifest_hash"
+    printf 'PROVENANCE|%s|%s|%s\n' "$PROVENANCE_MODE" "$SNAPSHOT_DIGEST" "$(payload_digest "$destination_root" "$entries_file")"
     while IFS= read -r entry; do
       [ -n "$entry" ] || continue
       [ -f "$destination_root/$entry" ] || fail "managed file is missing while writing state: $entry"
@@ -514,6 +645,8 @@ show_installed() {
   printf 'Destination: %s\n' "$1"
   printf 'Installed version: %s\n' "$2"
   printf 'Installed commit: %s\n' "$3"
+  printf 'Installed source mode: %s\n' "$(awk -F'|' '$1 == "PROVENANCE" {print $2}' "$1/$STATE_NAME")"
+  printf 'Installed SHA-256: %s\n' "$(awk -F'|' '$1 == "PROVENANCE" {print $4}' "$1/$STATE_NAME")"
   if [ "$5" -gt 0 ]; then
     printf 'Warning: %s local file(s) preserved; review .looppilot-backups before using --force\n' "$5" >&2
   fi
@@ -588,7 +721,7 @@ install_action() {
       fi
       backup_file "$destination_root" "$entry" "$backup_id"
     fi
-    copy_source_file "$destination_root" "$entry"
+    copy_source_file "$destination_root" "$entry" "$(source_hash "$entry" "$hashes_file")"
     printf '%s|%s\n' "$entry" "$(source_hash "$entry" "$hashes_file")" >> "$baseline_file"
   done < "$entries_file"
   : > "$customized_file"
@@ -602,6 +735,8 @@ update_action() {
   destination_root=$(resolve_destination)
   preflight_generated_paths "$destination_root"
 
+  # Reject a dirty source before even recovering an interrupted destination.
+  commit=$(source_commit)
   # An interrupted update is rolled back first so every update starts from a
   # known-good baseline and retrying is deterministic.
   recovered=$(restore_journal "$destination_root")
@@ -664,7 +799,7 @@ update_action() {
     else
       journal_entry "$destination_root" CREATE "$entry"
     fi
-    copy_source_file "$destination_root" "$entry"
+    copy_source_file "$destination_root" "$entry" "$(source_hash "$entry" "$hashes_file")"
     printf '%s|%s\n' "$entry" "$(source_hash "$entry" "$hashes_file")" >> "$baseline_file"
   done < <(plan_paths UPDATE "$plan_file"; plan_paths ADD "$plan_file")
 
@@ -693,7 +828,7 @@ update_action() {
       else
         journal_entry "$destination_root" CREATE "$entry"
       fi
-      copy_source_file "$destination_root" "$entry"
+      copy_source_file "$destination_root" "$entry" "$(source_hash "$entry" "$hashes_file")"
       printf '%s|%s\n' "$entry" "$(source_hash "$entry" "$hashes_file")" >> "$baseline_file"
       continue
     fi
@@ -779,6 +914,9 @@ status_action() {
   printf 'State format: %s\n' "$state_format"
   printf 'Installed version: %s\n' "$installed_version"
   printf 'Installed commit: %s\n' "$installed_commit"
+  if [ -f "$state_path" ]; then
+    printf 'Installed source mode: %s\n' "$(awk -F'|' '$1 == "PROVENANCE" {mode=$2} END {print mode ? mode : "legacy-unverified"}' "$state_path")"
+  fi
   printf 'Source version: %s\n' "$version"
   printf 'Source commit: %s\n' "$commit"
   if [ "$installed_commit" = "$commit" ]; then
@@ -854,10 +992,14 @@ while [ "$#" -gt 0 ]; do
   case "$1" in
     --destination) [ "$#" -ge 2 ] || usage; DESTINATION=$2; shift 2 ;;
     --force) FORCE=1; shift ;;
+    --source-mode) [ "$#" -ge 2 ] || usage; SOURCE_MODE=$2; shift 2 ;;
+    --archive-sha256) [ "$#" -ge 2 ] || usage; ARCHIVE_SHA256=$2; shift 2 ;;
     -h|--help) usage ;;
     *) usage ;;
   esac
 done
+
+case "$operation" in install|update|status) prepare_source ;; esac
 
 case "$operation" in
   install) install_action ;;

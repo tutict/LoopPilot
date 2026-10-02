@@ -62,14 +62,16 @@ results does not justify another iteration.
 
 ## When It Activates
 
-Strong activation signals include:
+Activate for multiple dependent steps whose outcome must be checked, diagnosis or
+recovery of a failed attempt, or explicit invocation. Checked multi-step non-coding
+work includes research, writing, analysis, planning deliverables, and information
+organization. Tools or file edits alone are not triggers. Product Risk sets review,
+validation, and evidence depth; Coordination Necessity determines Full Loop, not
+whether the work is coding. The Supervisor owns the mode decision.
 
-- multiple dependent steps;
-- tools, file changes, external actions, or several deliverables;
-- tests, source checks, file inspection, or other real verification;
-- a likely need to recover from an initial failure;
-- gradual progress toward explicit acceptance criteria; or
-- an explicit LoopPilot invocation.
+The managed `lp` shortcut is the only short-trigger owner and reads the same installed
+`SKILL.md` as `/loop-pilot`; it never falls back to a repository-local body. See
+[installation and alias binding](docs/installation.md#short-alias-binding).
 
 LoopPilot should not implicitly activate for a factual answer, one-sentence rewrite,
 casual conversation, brainstorming-only request, or advice-only request. Explicit

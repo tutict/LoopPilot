@@ -102,8 +102,11 @@ cohesion, dependencies, integration risk, and recoverability. The
 explicit before Task decomposition.
 
 The protocol has two depths. Lightweight Mode protects simple work from ceremony.
-Full Loop Mode is reserved for work whose risk and recovery needs justify contracts,
-Ledgers, Findings, Closure, and Checkpoint artifacts. Architecture patterns are
+Full Loop Mode is reserved for coordination needs that justify contracts, Ledgers,
+Findings, Closure, and Checkpoint artifacts. Assess Product Risk and set minimum
+review depth before reassessing Coordination Necessity; risk or specialist review
+alone does not select Full Loop. Bounded work may retain Lightweight while meeting
+all risk-required checks and reviews. Architecture patterns are
 selected by fitness; none is a universal compliance target.
 ## Evidence Before Completion
 

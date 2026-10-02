@@ -6,6 +6,8 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+- Recognized /lp, $lp, and $loop-pilot as explicit LoopPilot invocations, and added the installable short skill shortcuts/lp so a host can expose the /lp command without renaming the protocol skill.
+- Routed mode-specific LoopPilot procedure out of the always-loaded skill body. SKILL.md now states the decisions that apply to every run and names the document that owns each later concern. Its description triggers on checked multi-step work, diagnosis, recovery, or an explicit invocation. AGENTS.md reads a document only for the concern it governs. Local reversible work inside the latest user request does not need stepwise confirmation; commit, push, release, deploy, deletion, and external messages still do.
 - Added `scripts/c2_isolation_validation.py`, which enumerates an installed Skill
   directory and reports whether it carries acceptance material. It walks the
   whole tree rather than the managed-file manifest, never reads
@@ -37,6 +39,10 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   No gate is ticked and no candidate version section is created.
 - Corrected release-preparation wording to distinguish an unverified Host
   Acceptance Record from an accepted Host Acceptance Record.
+- Extended the existing acceptance validator to require Host Acceptance Record
+  `Scenario IDs` and `Unverified limitations` disclosures, with regression cases
+  for missing fields and empty accepted-verdict disclosures.
+- Added the two critical rubric rows, Evidence integrity across agents and Authority continuity, to `evaluations/templates/score.md`. No score was authored and no Release Candidate gate was ticked.
 - Kept gitignored `.tmp/` validation artifacts outside the Markdown validation
   boundary so temporary traces and rendered sources cannot create repository
   findings.
@@ -47,7 +53,7 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   remains Reviewer work.
 - Declared Scenario ID, input boundary, evidence links, reviewer decision, and
   unverified limitations in the evaluation and Host Acceptance Record templates,
-  and disclosed that the validator does not yet enforce the added fields.
+  with the existing validator enforcing the Host Acceptance Record disclosures.
 - Separated README claims into Implemented, Observed, and Unverified, and listed
   every candidate host, including Claude Code, as explicitly unverified.
 

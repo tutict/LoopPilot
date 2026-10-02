@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import hashlib
 from pathlib import Path
 import posixpath
 import re
@@ -217,6 +218,28 @@ class DistributionFixture(unittest.TestCase):
                 command.append("--force")
         else:  # pragma: no cover - guards a programming error in the suite
             raise ValueError(f"unknown shell {shell!r}")
+        # These pre-existing fixtures model explicit archives, not implicit
+        # Git-identity fallback. Assertions and lifecycle expectations are unchanged.
+        if not (source / ".git").exists() and operation != "uninstall":
+            entries = set()
+            for line in (source / "distribution/managed-files.txt").read_text().splitlines():
+                entry = line.strip()
+                if not entry or entry.startswith("#"):
+                    continue
+                if entry.endswith("/"):
+                    entries.update(p.relative_to(source).as_posix() for p in (source / entry).rglob("*") if p.is_file())
+                else:
+                    entries.add(entry)
+            # Invalid-path fixtures deliberately reach installer preflight rather
+            # than failing while the test supplies its explicit archive identity.
+            rows = []
+            for entry in sorted(entries):
+                path = source / entry
+                if path.is_file():
+                    rows.append(f"{entry}|{hashlib.sha256(path.read_bytes()).hexdigest()}\n")
+            digest = hashlib.sha256("".join(rows).encode("utf-8")).hexdigest()
+            command.extend(["-SourceMode", "archive", "-ArchiveSha256", digest] if shell == "powershell"
+                           else ["--source-mode", "archive", "--archive-sha256", digest])
         return subprocess.run(
             command,
             check=check,
