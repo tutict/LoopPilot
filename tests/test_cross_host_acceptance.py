@@ -31,6 +31,15 @@ def record(**overrides: str) -> str:
         "Verdict": "accepted",
         "Residual limitations": "none",
         "Unverified limitations": "other hosts and loading modes remain unverified",
+        "RC version": "none",
+        "Successor ID": "none",
+        "Reference designation ID": "none",
+        "Reference Host": "none",
+        "Reference designation SHA-256": "none",
+        "Successor policy": "none",
+        "Reference designation record": "none",
+        "Provider identity": "none",
+        "Endpoint identity": "none",
     }
     dimensions = {
         "Skill loading and activation": "pass",
@@ -185,6 +194,37 @@ CASES = (
         "accepted_requires_unverified_limitations",
         overrides={"Unverified_limitations": "none"},
         expected_error="requires disclosed unverified limitations",
+    ),
+    Case(
+        "rc_accepted_record_requires_reference_binding",
+        overrides={"RC_version": "v1.0.0-rc1"},
+        expected_error="requires non-empty 'Successor ID'",
+    ),
+    Case(
+        "rc_accepted_record_requires_eligible_reference_host",
+        overrides={
+            "RC_version": "v1.0.0-rc1",
+            "Successor_ID": "OPTION-B-REFERENCE-2026-10-24",
+            "Reference_designation_ID": "RC1-REF-CODEX-20261024",
+            "Reference_Host": "Gemini CLI",
+            "Reference_designation_SHA-256": "b" * 64,
+            "Provider_identity": "Observed provider",
+            "Endpoint_identity": "Observed endpoint",
+        },
+        expected_error="must be Claude Code or Codex",
+    ),
+    Case(
+        "rc_accepted_record_reference_must_match_host",
+        overrides={
+            "RC_version": "v1.0.0-rc1",
+            "Successor_ID": "OPTION-B-REFERENCE-2026-10-24",
+            "Reference_designation_ID": "RC1-REF-CODEX-20261024",
+            "Reference_Host": "Codex",
+            "Reference_designation_SHA-256": "b" * 64,
+            "Provider_identity": "Observed provider",
+            "Endpoint_identity": "Observed endpoint",
+        },
+        expected_error="record Host must equal its Reference Host",
     ),
     Case(
         "empty_identity_field_is_rejected",

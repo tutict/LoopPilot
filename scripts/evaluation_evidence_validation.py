@@ -13,7 +13,8 @@ from urllib.parse import unquote, urlsplit
 
 from evaluation_disclosure_validation import is_placeholder, disclosure_error, pending_todo
 
-from cross_host_acceptance_validation import _is_record, _record_surface, _field, _dimension_rows, EVIDENCE_VERDICTS, VERDICTS
+from cross_host_acceptance_validation import _is_record, _record_surface, _field, _dimension_rows, _none, EVIDENCE_VERDICTS, VERDICTS
+from option_b_validation import validate_option_b_run_binding
 
 DOCS = ("environment.md", "prompt.md", "trace.md", "score.md")
 DIMENSIONS = ("Goal fidelity", "Plan quality", "Evidence quality", "Adaptation quality", "Loop efficiency", "Safety", "Completion honesty", "Evidence integrity across agents", "Authority continuity", "Host-native integration")
@@ -23,6 +24,7 @@ SHA256 = re.compile(r"^[0-9a-f]{64}$")
 IDENTIFIER = re.compile(r"^[A-Za-z][A-Za-z0-9._ -]{0,99}$")
 LINK = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 RUN_KEYS = {"schema_version", "run_id", "evaluation_id", "scenario_id", "scenario_shape", "scenario_path", "scenario_sha256", "host", "host_version", "model", "commit", "loading_mode", "trace_author", "started_at", "ended_at", "status", "exit_code", "trace_path", "trace_sha256", "evidence"}
+RUN_RC_KEYS = RUN_KEYS | {"rc_binding", "runtime_identity"}
 REVIEW_KEYS = {"schema_version", "run_id", "evaluation_id", "run_sha256", "reviewer", "decision", "artifacts", "disclosures"}
 
 
@@ -256,9 +258,17 @@ def _validated_disclosures(package, run, review, fields, events, reader):
     return values
 
 
-def _package(package, index, reader):
+def _package(package, index, reader, repository_root=None):
     run = reader.json(_inside(package, "run.json"))
-    _keys(run, RUN_KEYS, "run")
+    _require(isinstance(run, dict), "run schema object invalid")
+    run_version = run.get("schema_version")
+    if run_version == 1:
+        expected_keys = RUN_KEYS
+    elif run_version == 2:
+        expected_keys = RUN_RC_KEYS
+    else:
+        raise EvidenceError("run schema version invalid")
+    _keys(run, expected_keys, "run", version=run_version)
     review = reader.json(_inside(package, "review.json"))
     _keys(review, REVIEW_KEYS, "review", version=2)
     for name in ("run_id", "evaluation_id", "scenario_id", "host", "host_version", "model", "loading_mode", "trace_author"):
@@ -314,8 +324,25 @@ def _package(package, index, reader):
         _require(event["run_id"] == run["run_id"] and event["kind"] in {"input", "result", "observation"}, "trace event run identity invalid")
         _require(event["artifact"] in run["evidence"], "trace event evidence not recorded")
         _require(event["sha256"] == run["evidence"][event["artifact"]], "trace event evidence digest mismatch")
+        if event["kind"] == "observation":
+            observation_path = _inside(package, event["artifact"])
+            try:
+                event["payload"] = reader.json(observation_path)
+            except (EvidenceError, OSError, UnicodeError, ValueError, TypeError):
+                event["payload"] = None
         events[event["id"]] = event
         kinds.add(event["kind"])
+    if run_version == 2:
+        validate_option_b_run_binding(
+            repository_root or package.parent.parent.parent,
+            run,
+            events,
+            run["evidence"],
+            package_errors := [],
+            reader.data,
+        )
+        if package_errors:
+            raise EvidenceError("; ".join(package_errors))
     _require({"input", "result"} <= kinds, "trace lacks input/result evidence")
     captured_inputs = [reader.text(_inside(package, event["artifact"])).replace("\r\n", "\n")
                        for event in events.values() if event["kind"] == "input"]
@@ -323,6 +350,26 @@ def _package(package, index, reader):
     _require(any(value == expected_input or value == expected_input + "\n" for value in captured_inputs),
              "captured input does not match declared scenario input")
     environment = fields["environment.md"]
+    if run_version == 2:
+        binding = run["rc_binding"]
+        identity = run["runtime_identity"]
+        projections = {
+            "RC version": binding["rc_version"], "Successor ID": binding["successor_id"],
+            "Reference designation ID": binding["designation_id"],
+            "Reference designation record": binding["designation_record"],
+            "Reference Host": binding["reference_host"],
+            **{"Configured " + name: value for name, value in identity["configured"].items()},
+        }
+        for label, expected in projections.items():
+            if label in environment:
+                _require(environment[label] == expected, f"environment {label} mismatch")
+        for label, name in (("Host version", "host_version"), ("Provider", "provider"),
+                            ("Endpoint", "endpoint"), ("Model", "model")):
+            label += " identity evidence"
+            if label in environment:
+                expected = run["trace_path"] + "#" + identity["event_ids"][name]
+                _require(LINK.findall(environment[label]) == [expected],
+                         f"environment {label} must cite its runtime observation event")
     for label in ("Available tools and state", "Granted authority", "Material environment constraints"):
         _real(environment.get(label), label)
     for label, key in (("Host", "host"), ("Host version", "host_version"), ("Model", "model"), ("LoopPilot commit", "commit"), ("Skill loading mode", "loading_mode")):
@@ -381,11 +428,36 @@ def _record_links(root, path, text, packages, index, reader):
     ids = [part.strip() for part in fields.get("Evaluation IDs", "").split(',')]
     _require(ids and len(ids) == len(set(ids)), "duplicate/missing referenced evaluation IDs")
     linked = []
+    summary_rc = fields.get("RC version")
+    summary_is_rc = not _none(summary_rc)
     for identifier in ids:
         package = packages.get(path.parent / identifier)
         _require(package is not None, f"accepted record references unvalidated/historical evaluation {identifier}")
         _require(package["eligible"], f"evaluation {identifier} is not eligible for accepted record")
         run = package["run"]
+        if summary_is_rc:
+            _require(run.get("schema_version") == 2,
+                     "RC accepted summary requires version-2 RC receipts")
+            binding = run.get("rc_binding")
+            _require(isinstance(binding, dict), "RC accepted summary requires an RC binding")
+            for label, key in (("RC version", "rc_version"), ("Successor ID", "successor_id"),
+                               ("Successor policy", "successor_policy"), ("Reference Host", "reference_host"),
+                               ("Reference designation ID", "designation_id"),
+                               ("Reference designation record", "designation_record"),
+                               ("Reference designation SHA-256", "designation_sha256")):
+                _require(fields.get(label) == binding.get(key), f"record/run {label} mismatch")
+            observed = run.get("runtime_identity", {}).get("observed", {})
+            _require(fields.get("Provider identity") == observed.get("provider"),
+                     "record/run Provider identity mismatch")
+            _require(fields.get("Endpoint identity") == observed.get("endpoint"),
+                     "record/run Endpoint identity mismatch")
+            role = fields.get("RC evidence role", "reference").casefold()
+            _require(role == binding.get("evidence_role"), "record/run RC evidence role mismatch")
+            if role == "reference":
+                _require(fields.get("Reference Host") == run.get("host"),
+                         "record/run Reference Host mismatch")
+        elif run.get("schema_version") == 2:
+            raise EvidenceError("RC receipts cannot support a non-RC accepted summary")
         for label, key in (("Host", "host"), ("Host version", "host_version"), ("Model", "model"), ("LoopPilot commit", "commit"), ("Skill loading mode", "loading_mode"), ("Trace author", "trace_author")):
             _require(fields.get(label) == run[key], f"record/run {label} mismatch")
         _require(fields.get("Independent reviewer") == package["review"]["reviewer"], "record/run reviewer mismatch")
@@ -486,7 +558,7 @@ def validate_evaluation_evidence(root: Path, evidence_index: Path | None = None,
     run_ids = set()
     for path in sorted(packages):
         try:
-            result = _package(path, index, reader)
+            result = _package(path, index, reader, root)
             _require(result["run"]["run_id"] not in run_ids, "duplicate run ID across packages")
             run_ids.add(result["run"]["run_id"])
             verified[path] = result

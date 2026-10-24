@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.0.0-rc1 — 2026-10-24 (development candidate; NOT_RELEASE_READY)
+
+- Added the bounded `OPTION-B-REFERENCE-2026-10-24` successor: each applicable
+  future RC chooses one Reference from Claude Code and Codex before formal arms.
+  This RC chooses Codex; actual runtime identity and formal acceptance remain
+  unverified. Gate 4 is unmet; no release tag or accepted RC is declared.
+- Bound version-2 RC run receipts and accepted summaries to the committed
+  designation, successor Git boundary, exact observed identity, public source
+  events, and existing operator-approved review receipts. Version-1 non-RC
+  packages remain supported; historical artifacts remain pinned and ineligible.
+- Added public-entry positive/negative regressions and synchronized candidate
+  records, templates, checklist, and validation documentation. Thresholds and
+  Candidate disclosures are unchanged. Static PASS never substitutes for Host
+  Acceptance, installation Hash B, or C2 isolation checks.
+
 ## Unreleased
 
 - Recognized /lp, $lp, and $loop-pilot as explicit LoopPilot invocations, and added the installable short skill shortcuts/lp so a host can expose the /lp command without renaming the protocol skill.

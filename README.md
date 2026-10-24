@@ -305,7 +305,11 @@ Candidate. Verdicts come from observed
 reference real evaluation runs; the public validator checks record structure and
 verdict constraints. Defining the procedure verifies no host: every combination
 remains `unverified` until an observed accepted record supports a narrower
-verdict. Reference-host preparation notes live in
+verdict. The [bounded Option B successor](docs/release/option-b-reference-successor.md)
+lets each applicable future RC select exactly one Reference from Claude Code and
+Codex before formal acceptance. [This candidate](docs/release/rc-candidate-decision.md)
+selects Codex, retains unknown runtime identity, and is `NOT_RELEASE_READY` with
+Gate 4 unmet. Historical Claude Code preparation notes live in
 [evaluations/claude-code](evaluations/claude-code/README.md).
 
 ### Evidence-Calibrated Protocol Selection
@@ -471,12 +475,14 @@ observed before a Release Candidate is prepared.
 - Prompt-only hosts have weak state continuity and may require user-attributed
   evidence.
 - The lifecycle and pseudocode are conceptual, not executable interfaces.
-- Every candidate host is explicitly unverified. Claude Code, Codex, Gemini CLI,
+- Every host remains explicitly unverified. Claude Code, Codex, Gemini CLI,
   GitHub Copilot, and every other host have no accepted Host Acceptance Record,
   so this repository claims no compatibility with any of them. A host moves off
   this list only through an observed
   [Host Acceptance Record](docs/cross-host-acceptance.md), and its verdict then
   covers only that exact host, host version, model, and loading mode.
+  For `v1.0.0-rc1`, Codex is the designated Reference; Claude Code, Gemini CLI,
+  GitHub Copilot, and other hosts remain Candidates with their disclosure duties.
 - Real concurrent scheduling, runtime permission isolation, distributed locking,
   automatic merging, and cross-session delegated recovery are not implemented.
 - Automatic-trigger accuracy and behavioral reliability still require observed

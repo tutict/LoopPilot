@@ -114,7 +114,8 @@ authority files themselves. It matches the declared assertion grammar only; it
 does not judge whether undeclared narrative prose is stale, which stays Reviewer
 work.
 
-The validator reads repository files only. It does not inspect environment
+The validator reads repository files and, for formal Option B RC receipts, the
+explicitly cited local Git objects and ancestry. It does not inspect environment
 variables, browse the web, scan host Skill directories, count tokens, or print
 credentials.
 
@@ -242,6 +243,14 @@ Semantic prose and acceptance interpretation remain Reviewer work. Missing Git
 metadata is disclosed rather than fabricated.
 
 ## Cross-Host Acceptance Validation Boundary
+
+The [Option B successor](release/option-b-reference-successor.md) adds v2 RC
+receipt checks for committed pre-arm designation, effective successor ancestry,
+exact configured/observed identity, source-event bindings, and RC summary links.
+`tests/test_option_b_evidence.py` exercises the public CLI against synthetic local
+Git histories and operator indexes, including later RC choices and preserved
+older snapshots. `tests/test_option_b_successor.py` checks policy/designation
+constraints. These are structural regressions, not actual Host Acceptance.
 
 The Cross-Host Acceptance checks validate record structure and verdict
 constraints from repository files only. They do not execute an evaluation on any

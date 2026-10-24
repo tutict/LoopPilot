@@ -15,6 +15,16 @@
 - Verdict: unverified
 - Residual limitations: none
 - Unverified limitations: none
+- RC version:
+- Successor ID:
+- Successor policy:
+- Reference designation ID:
+- Reference designation record:
+- Reference Host:
+- Reference designation SHA-256:
+- Provider identity:
+- Endpoint identity:
+- RC evidence role:
 
 ## Dimension Results
 
@@ -31,6 +41,10 @@
 
 Apply [`docs/cross-host-acceptance.md`](../../docs/cross-host-acceptance.md).
 The verdict is scoped to this exact host, host version, model, and loading mode.
+For an Option B RC, fill the RC binding fields and set `RC evidence role` to
+`reference` or `candidate`. Only the designated Reference's qualified record may
+support Gate 4. Non-RC records leave these optional fields empty; old records are
+not retrofitted. See the [successor](../../docs/release/option-b-reference-successor.md).
 Keep observed evidence in the referenced evaluation runs; this record summarizes
 and does not replace them.
 
@@ -53,3 +67,8 @@ The public validator enforces these record disclosures and, for accepted claims,
 validates linked evaluation packages under an explicit operator-pinned evidence
 index. See [evidence integrity](../../docs/evaluation-evidence-integrity.md).
 A structurally valid template is not a completed run or an acceptance decision.
+
+For an RC-bound accepted or accepted-with-residuals record, the Option B fields
+must identify the active successor, the RC designation record, the designated
+Reference Host, and observed provider/endpoint identity evidence. Older
+unverified records may omit these fields and remain historical disclosures.

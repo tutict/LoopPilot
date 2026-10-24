@@ -38,6 +38,7 @@ from cross_host_acceptance_validation import (
     CROSS_HOST_ACCEPTANCE_FILES,
     validate_cross_host_acceptance,
 )
+from option_b_validation import OPTION_B_FILES, validate_option_b
 from lifecycle_consistency_validation import (
     LIFECYCLE_CONSISTENCY_FILES,
     validate_lifecycle_consistency,
@@ -91,6 +92,7 @@ REQUIRED_FILES = (
     *PHASE9_CALIBRATION_FILES,
     *LIFECYCLE_CONSISTENCY_FILES,
     *CROSS_HOST_ACCEPTANCE_FILES,
+    *OPTION_B_FILES,
     "docs/validation.md",
     "docs/release/v1.0-rc-checklist.md",
     "docs/loop-engineering-model.md",
@@ -1190,6 +1192,7 @@ def validate_repository(
     validate_phase9_calibration(root, errors)
     validate_lifecycle_consistency(root, errors, warnings)
     validate_cross_host_acceptance(root, errors)
+    validate_option_b(root, errors)
     markdown_views = {}
     errors.extend(validate_evaluation_evidence(root, evidence_index, evidence_index_sha256, warnings, markdown_views))
     errors.extend(validate_installation_documentation(root))

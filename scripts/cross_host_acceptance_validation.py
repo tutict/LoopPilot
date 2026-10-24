@@ -36,6 +36,18 @@ REQUIRED_FIELDS = (
     "Residual limitations",
     "Unverified limitations",
 )
+OPTION_B_FIELDS = (
+    "RC version",
+    "Successor ID",
+    "Successor policy",
+    "Reference designation ID",
+    "Reference designation record",
+    "Reference Host",
+    "Reference designation SHA-256",
+    "Provider identity",
+    "Endpoint identity",
+    "RC evidence role",
+)
 IDENTITY_FIELDS = ("Host", "Host version", "Model", "Skill loading mode", "Date")
 REQUIRED_DIMENSIONS = (
     "Skill loading and activation",
@@ -50,6 +62,7 @@ REQUIRED_DIMENSIONS = (
 REQUIRED_FIXTURE_SHAPES = ("lightweight", "full loop")
 MINIMUM_CRITICAL_SCORE = 2
 SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
 DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 SCORE_PATTERN = re.compile(r"^[0-3]$")
 
@@ -121,8 +134,9 @@ def _record_surface(path: Path, text: str) -> str:
 
 
 def _validate_record(location: str, text: str, errors: list[str]) -> None:
-    fields = {name: _field(text, name) for name in REQUIRED_FIELDS}
-    for name, value in fields.items():
+    fields = {name: _field(text, name) for name in (*REQUIRED_FIELDS, *OPTION_B_FIELDS)}
+    for name in REQUIRED_FIELDS:
+        value = fields.get(name)
         if value is None:
             errors.append(f"{location}: Host Acceptance Record missing field {name!r}")
     for name in IDENTITY_FIELDS:
@@ -255,6 +269,37 @@ def _validate_record(location: str, text: str, errors: list[str]) -> None:
         errors.append(
             f"{location}: verdict {verdict} requires disclosed unverified limitations"
         )
+    rc_version = fields.get("RC version")
+    has_rc_fields = any(not _none(fields.get(name)) for name in OPTION_B_FIELDS)
+    if has_rc_fields:
+        for name in OPTION_B_FIELDS:
+            if _none(fields.get(name)):
+                errors.append(
+                    f"{location}: RC-bound verdict requires non-empty {name!r}"
+                )
+        if rc_version and not re.fullmatch(r"v\d+\.\d+\.\d+-rc\d+", rc_version):
+            errors.append(f"{location}: RC version {rc_version!r} is invalid")
+        if fields.get("Successor ID") != "OPTION-B-REFERENCE-2026-10-24":
+            errors.append(f"{location}: Successor ID is not the active Option B successor")
+        if fields.get("Successor policy") != "docs/release/option-b-reference-successor.md":
+            errors.append(f"{location}: Successor policy is not the active Option B policy")
+        if fields.get("Reference designation record") != "docs/release/rc-candidate-reference.md":
+            errors.append(f"{location}: Reference designation record is not the active RC record")
+        if not re.fullmatch(r"RC\d+-REF-[A-Z0-9-]+", fields.get("Reference designation ID") or ""):
+            errors.append(f"{location}: Reference designation ID is invalid")
+        if (fields.get("Reference Host") or "").casefold() not in {"claude code", "codex"}:
+            errors.append(f"{location}: Reference Host must be Claude Code or Codex")
+        if (fields.get("Reference Host") or "").casefold() != (fields.get("Host") or "").casefold():
+            if (fields.get("RC evidence role") or "reference").casefold() != "candidate":
+                errors.append(f"{location}: record Host must equal its Reference Host")
+        if not SHA256.fullmatch(fields.get("Reference designation SHA-256") or ""):
+            errors.append(f"{location}: Reference designation SHA-256 is invalid")
+        for name in ("Provider identity", "Endpoint identity"):
+            if _none(fields.get(name)):
+                errors.append(f"{location}: {name} must be observed or explicitly disclosed")
+        role = fields.get("RC evidence role")
+        if role not in {"reference", "candidate"}:
+            errors.append(f"{location}: RC evidence role must be reference or candidate")
     for label in ("Unverified limitations", "Residual limitations"):
         value = fields.get(label)
         if label == "Residual limitations" and verdict != "accepted-with-residuals":

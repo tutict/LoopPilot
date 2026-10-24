@@ -63,7 +63,8 @@ constitute acceptance. A new run/accepted claim without the index fails closed.
 
 ## Run and Review Receipts
 
-`run.json` has exactly these fields (unknown or duplicate JSON keys fail):
+Non-RC `run.json` uses `schema_version: 1` and exactly these fields (unknown or
+duplicate JSON keys and unsupported schema versions fail):
 
 - `schema_version`, `run_id`, `evaluation_id`, `scenario_id`, `scenario_shape`;
 - `scenario_path`, `scenario_sha256`;
@@ -86,8 +87,9 @@ map. Preserve original public evidence, not private reasoning, behind those even
 
 New `review.json` receipts use `schema_version: 2` and exactly `run_id`,
 `evaluation_id`, `run_sha256`, `reviewer`, `decision`, `artifacts`, and `disclosures`.
-The receipt binds the exact four Markdown hashes and run receipt. Run, scenario and
-operator-index schemas remain version 1; historical files are never upgraded here.
+The receipt binds the exact four Markdown hashes and run receipt. Non-RC run,
+scenario, and operator-index schemas remain version 1. RC runs use the version-2
+extension below; historical files are never upgraded here.
 A version-1 hash-only review lacks the required state evidence and cannot authorize
 new publication. Producers must assemble and separately approve a complete version-2
 receipt rather than infer missing disclosures.
@@ -174,6 +176,76 @@ approval does not make bare TODO or TODO limitations sufficient. Concrete unreso
 TODO limitations are permitted and do not imply all states verified. A failed run is
 valid evidence but is not eligible to support an accepted summary. No Host Acceptance
 record, verdict rule or release gate is changed by these maintenance checks.
+
+## Option B RC Run Extension
+
+Applicable formal RC runs use `schema_version: 2`, all version-1 run fields, and
+exactly two additional objects: `rc_binding` and `runtime_identity`. They retain
+the existing version-2 review and externally pinned operator index; neither
+self-authored identity data nor a Git commit grants trust or acceptance.
+
+`rc_binding` has exactly:
+
+- `rc_version`, `successor_id`, `successor_policy`, `policy_sha256`;
+- `designation_id`, `designation_record`, `designation_sha256`, `designation_commit`;
+- `reference_host`, `evidence_role` (`reference` or `candidate`);
+- `effective_successor_commit`, `effective_successor_tree`, `run_commit`, `run_tree`.
+
+The named [successor](release/option-b-reference-successor.md) and its approved
+policy version govern the RC. Digests are raw SHA-256; Git identities are full
+lowercase 40-character SHAs. The first synchronized commit must contain the policy,
+approval, public validator integrations, and Option B regressions; no parent may
+already contain that complete set. The tested baseline must descend from that
+boundary, and its tree must match Git. A later designation commit contains the
+exact finalized record and its baseline commit/tree. Both commits must be present
+in current history. The designation records timezone-aware `Finalized at`, and
+its commit must precede the arm's `started_at`; the effective boundary precedes
+finalization. Git timestamps check recorded consistency, not independently trusted
+wall-clock truth. Producer and independent Reviewer must establish real timing.
+Git reads ignore replacement objects so replacement refs cannot forge the recorded
+ancestry, trees, policy, or designation contents.
+
+The choice is immutable for the same RC, finalized before arms, and never chosen
+after results. A product baseline precedes its designation commit to avoid a
+self-referencing commit SHA. The committed designation snapshot binds the run;
+when a later RC uses the same current-record path, earlier RC receipts retain
+their own committed snapshots. No old accepted record is rewritten or upgraded.
+
+`runtime_identity` contains exactly `configured`, `observed`, and `event_ids`.
+Configured has `provider`, `model`, and `endpoint` declarations; observed adds
+`host_version` to those three actual identity fields. Every observed field maps
+to an observation event ID in `event_ids`. Unknown or placeholder identity blocks
+formal acceptance. Requested model aliases may differ from the observed upstream
+model; the Reference's exact configured and observed combination must match its
+finalized designation. Candidate runs preserve their own observed combination and
+use `candidate`; they cannot satisfy the Reference gate.
+
+Each identity observation event points to a hashed local JSON payload containing
+exactly `schema_version: 1`, `kind: runtime-identity`, `run_id`, timezone-aware
+`observed_at` within the arm, `basis: actual-runtime-observation`, `identity`,
+`source_artifact`, and `source_sha256`. Identity contains `host`, `host_version`,
+`provider`, `model`, and `endpoint` matching the receipt. The distinct source must
+be a registered hash-bound local public capture artifact. Shared observation events
+may cover multiple identity fields. A configuration file or provider label alone
+does not establish the payload's semantics; trusted capture and independent review
+must verify that its source identifies the actual upstream runtime. The validator
+checks declared provenance and consistency and never certifies a model by itself.
+
+RC acceptance summaries must disclose the RC version, successor and policy,
+designation ID/path/digest, Reference Host, evidence role, provider, and endpoint.
+Every linked package must be version 2 and match those bindings and the existing
+summary identity/reviewer constraints. RC receipts cannot be hidden beneath a
+non-RC summary, and version-1 runs cannot support an RC summary. Only qualified
+`reference` records for the selected Host can support Gate 4. Thresholds, shape
+coverage, B7, residual disclosure, independent review, and historical restrictions
+remain unchanged. Hash B and applicable C2 installation/fixture checks are formal
+preconditions, not established by this receipt schema or maintenance suite.
+
+Environment RC/configuration fields, when included, are projections and must
+equal the authoritative v2 receipt. Identity-evidence fields must link to their
+specific runtime observation events. A Candidate summary's `Reference Host`
+still describes the RC choice and must match the receipt even though its own
+`Host` describes the different evaluated Candidate.
 
 ## Maintenance Testing and Historical Boundaries
 
