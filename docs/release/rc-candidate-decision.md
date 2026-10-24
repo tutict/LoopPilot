@@ -12,10 +12,11 @@
 - Host/model identity status: unverified
 - Static validation status: passed-for-rc1-preflight-20261024
 - Full regression status: passed-fresh-1141-tests-for-rc1-preflight-20261024
-- Independent review status: pending-for-rc1-preflight-facts
+- Independent review status: approved-facts-submission-461b9ba; not-formal-behavior-review
 - Release tag: not-created
 - Remote branch: codex/option-b-rc-candidate; publication result recorded separately
 - Latest preflight record: docs/release/rc1-preflight-20261024.md
+- Facts review record: docs/release/rc1-preflight-review-20261024/REVIEW-TASK-002.md
 
 This decision records RC candidate preparation. It does not record Host Acceptance,
 does not satisfy Gate 4, and does not authorize a release tag, release publication,
@@ -42,6 +43,9 @@ The temporary install has not been selected as the formal loading surface.
 Trusted actual provider/model/endpoint evidence and an independently approved
 operator index remain unavailable. No expected Hash B binding or finalized
 Codex arm/combination was established. The Reference remains Codex, formal arms
-remain not run, and Gate 4 remains unmet. Fresh verification and fact review are
-required for this update; the earlier implementation review is not reused as
-formal behavior review or Phase 11/Gate 6 closure.
+remain not run, and Gate 4 remains unmet. This task freshly passed 1,141 tests
+and the required maintenance checks. Independent Standards/Spec review approved
+actual facts submission `461b9baeb15855d19b0a315edda5d6f083df6ddb`; its original
+response is preserved with the review. That approval is not formal behavior
+review or Phase 11/Gate 6 closure. Publication is observed separately after the
+final review/status archive commit exists.

@@ -156,8 +156,13 @@ operator trust or this RC's behavioral verdict. Local evidence is required.
 
 Fresh maintenance verification completed for this task. The previous task's
 1,141-test PASS is historical evidence and was not reused. The independent
-Standards/Spec review of the actual facts commit is still pending; preliminary
-fact review found no remaining substantive issue after the capture-gap correction.
+Standards/Spec review approved actual facts submission
+`461b9baeb15855d19b0a315edda5d6f083df6ddb`, tree
+`e2a5b41ac2433260a775f0400702c02126f45b59`. The
+[structured decision](rc1-preflight-review-20261024/REVIEW-TASK-002.md) and
+[original final response](rc1-preflight-review-20261024/reviewer-final-response.json)
+preserve its scope, findings and limits. The original empty-capture gap was
+corrected by disclosure, not by replacing the missing evidence.
 
 | Actual check | Fresh observed result |
 | --- | --- |
@@ -184,22 +189,24 @@ The optional initial diagnostic's missing raw capture remains explicitly disclos
 above. Actual runtime/Hash B/index/isolation/reviewer prerequisites are still
 unmet, not waived by maintenance PASS. Phase 11 and Gate 6 remain separate.
 
-Only this report, its public-safe preflight captures and the current candidate
-fact pointer are proposed for publication. Configuration declarations remain
-local/ignored. A useful verified facts commit may be pushed normally after review;
-the candidate must remain `NOT_RELEASE_READY`, with no release tag or deployment.
+Only this report, its public-safe preflight captures, the current candidate fact
+pointer and completed facts-review archive are proposed for publication.
+Configuration declarations remain local/ignored. The facts submission is approved;
+final status/review metadata still receives static and actual-commit boundary
+checks before a normal fast-forward push. Publication is observed separately,
+without a self-referencing commit hash in this report. The candidate remains
+`NOT_RELEASE_READY`, with no release tag or deployment.
 
 ## Resume point
 
-Fresh full verification session `65966` completed with exit 0; inspect
-`.tmp/rc1-preflight-20261024/fresh-full-regression.log` for its actual result.
-Static, compilation, Skill, whitespace and 35 fresh Mermaid renders also passed.
-The preliminary Reviewer confirmed the qualified original-capture gap and all
-21 checksums, with no remaining substantive preliminary fact/scope finding.
-Final review must inspect the actual facts commit after fresh checks complete;
-it is not granted by these preliminary observations. Complete that review and
-record its decision without changing implementation or evidence bytes. Preserve this
-report's blocked/not-run boundaries, archive completed coordination records and
-recheck the remote target before any publication. Formal arms remain stopped
-until the missing trusted identity, selected installation/Hash B, applicable
-Codex procedure, isolation, index and ordering prerequisites are actually met.
+The completed fresh maintenance run and independent actual-facts-commit review
+are recorded above. The full log is retained locally at
+`.tmp/rc1-preflight-20261024/fresh-full-regression.log`, SHA-256
+`15ff00438b0314f2c47050204c9ca8af45ae490692f5bb4e7b034eb388f99288`.
+Next substantive action: obtain the trusted runtime provenance and independent
+operator inputs named in the precondition matrix, establish the selected
+candidate loading/Hash B and applicable Codex procedure/isolation/reviewer path,
+then verify all mandatory prerequisites. Finalize and commit the exact combination
+before any formal arm; retain Codex and the existing thresholds. Formal arms
+remain stopped until these facts exist. No recorded approval or checksum fills
+those gaps or grants new authority.
