@@ -1,0 +1,23 @@
+[
+  {
+    "command": [
+      "cmd.exe",
+      "/d",
+      "/c",
+      "C:\\Users\\tutic\\AppData\\Roaming\\npm\\codex.cmd",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "codex-cli 0.160.0",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "C:\\Users\\tutic\\AppData\\Local\\OpenAI\\Codex\\bin\\2993767bd1dfb009\\codex.exe",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "codex-cli 0.164.0-alpha.11.1",
+    "stderr": ""
+  }
+]

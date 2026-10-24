@@ -1,0 +1,5 @@
+Exception: C:\Users\tutic\AppData\Local\Temp\lp-rc1-status-source-20261024\distribution\loop-pilot.ps1:30
+Line |
+  30 |      throw "LoopPilot distribution: $Message"
+     |      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | LoopPilot distribution: dirty Git source content differs from pinned commit: distribution/managed-files.txt

@@ -1,0 +1,15 @@
+{
+  "command": [
+    "C:\\Users\\tutic\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe",
+    "-NoProfile",
+    "-File",
+    "C:\\Users\\tutic\\AppData\\Local\\Temp\\lp-rc1-status-source-20261024\\status.ps1",
+    "-Destination",
+    "C:\\Users\\tutic\\.agents\\skills\\loop-pilot"
+  ],
+  "exit_code": 0,
+  "process_only_git_override": "core.autocrlf=false",
+  "persistent_configuration_modified": false,
+  "stdout_sha256": "314da38603a4a13d229280b13a5361ec66dd01fffebaa44eacd977cf9d3055de",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

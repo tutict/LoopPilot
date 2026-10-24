@@ -1,0 +1,47 @@
+[
+  {
+    "command": [
+      "git",
+      "--no-replace-objects",
+      "-C",
+      "C:\\Users\\tutic\\AppData\\Local\\Temp\\lp-rc1-status-source-20261024",
+      "ls-tree",
+      "HEAD",
+      "--",
+      "distribution/managed-files.txt"
+    ],
+    "exit_code": 0,
+    "stdout": "100644 blob 2139bf2a3d55051466eed4a658b2142400cc02a4\tdistribution/managed-files.txt",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "--no-replace-objects",
+      "-C",
+      "C:\\Users\\tutic\\AppData\\Local\\Temp\\lp-rc1-status-source-20261024",
+      "hash-object",
+      "--path=distribution/managed-files.txt",
+      "C:\\Users\\tutic\\AppData\\Local\\Temp\\lp-rc1-status-source-20261024\\distribution\\managed-files.txt"
+    ],
+    "exit_code": 0,
+    "stdout": "3588a2b2695d33dd9a86613112a8a24be18fabf9",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "--no-replace-objects",
+      "-c",
+      "core.autocrlf=false",
+      "-C",
+      "C:\\Users\\tutic\\AppData\\Local\\Temp\\lp-rc1-status-source-20261024",
+      "hash-object",
+      "--path=distribution/managed-files.txt",
+      "C:\\Users\\tutic\\AppData\\Local\\Temp\\lp-rc1-status-source-20261024\\distribution\\managed-files.txt"
+    ],
+    "exit_code": 0,
+    "stdout": "2139bf2a3d55051466eed4a658b2142400cc02a4",
+    "stderr": ""
+  }
+]
