@@ -172,6 +172,10 @@ checks, and `git diff --check` on pushes and pull requests. It does not publish
 generated artifacts, perform live research, scan host Skills, or calculate real
 tokens. A local pass does not imply a remote workflow pass.
 
+On hosted Linux CI, Mermaid uses the runner's system Google Chrome through a
+temporary Puppeteer `executablePath` configuration. Chromium's sandbox remains
+enabled; the job fails if that browser is unavailable.
+
 ## Validation Boundary
 
 These checks do not measure implicit activation accuracy, completion behavior,
