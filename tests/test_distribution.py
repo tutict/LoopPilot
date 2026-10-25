@@ -9,12 +9,13 @@ import shutil
 import subprocess
 import unittest
 from urllib.parse import unquote, urlsplit
-import uuid
+from installer_test_support import (
+    cleanup_workspace, installer_environment, new_workspace, require_shells, selected_shell,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
-WORK_ROOT = ROOT / ".tmp" / "distribution-tests"
-POWERSHELL = shutil.which("powershell.exe") or shutil.which("pwsh")
+POWERSHELL = selected_shell("LOOPPILOT_TEST_POWERSHELL", shutil.which("powershell.exe") or shutil.which("pwsh"))
 GIT = shutil.which("git")
 LINK_PATTERN = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
 
@@ -57,7 +58,8 @@ def _find_bash() -> str | None:
     return found
 
 
-BASH = _find_bash()
+BASH = selected_shell("LOOPPILOT_TEST_BASH", _find_bash())
+require_shells(POWERSHELL, BASH)
 
 
 def _posix_path(path: Path) -> str:
@@ -141,12 +143,8 @@ class DistributionFixture(unittest.TestCase):
     """Isolated source-package fixtures shared by the distribution suites."""
 
     def setUp(self) -> None:
-        self.work = WORK_ROOT / uuid.uuid4().hex
-        self.work.mkdir(parents=True)
-        self.addCleanup(self._cleanup_work)
-
-    def _cleanup_work(self) -> None:
-        shutil.rmtree(self.work, ignore_errors=True)
+        self.work = new_workspace("lp-dist-", ROOT)
+        self.addCleanup(cleanup_workspace, self.work, self.work.parent, "lp-dist-")
 
     def _make_source(
         self,
@@ -184,7 +182,7 @@ class DistributionFixture(unittest.TestCase):
         check: bool = True,
         shell: str = "powershell",
     ) -> subprocess.CompletedProcess[str]:
-        environment = os.environ.copy()
+        environment = installer_environment()
         environment["GIT_CEILING_DIRECTORIES"] = str(ROOT)
         if shell == "powershell":
             if POWERSHELL is None:
@@ -257,7 +255,7 @@ class DistributionFixture(unittest.TestCase):
             harness.write_text(
                 "$ErrorActionPreference = 'Stop'\n$ErrorView = 'NormalView'\n"
                 + "$parameters = @{\n" + "".join(rows) + "}\n"
-                + f"& '{script}' @parameters\n", encoding="utf-8",
+                + f"& '{script}' @parameters\n", encoding="utf-8-sig",
             )
             command = command[:6] + [str(harness)]
         return subprocess.run(

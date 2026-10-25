@@ -138,6 +138,11 @@ Claude Code 或 Codex 的 skills 目录时继续；没有目标或存在歧义�
 RC 和验收资料链接指向源码仓库；这些验收资料不随官方 Skill 载荷分发。
 分发检查的历史观察见[安装验证记录](INSTALLATION-VALIDATION.md)。
 
+安装 CI 矩阵覆盖 Windows PowerShell 5.1／7 和 Git Bash、Ubuntu Bash／PowerShell 7，
+以及 macOS 系统 Bash 3.2／PowerShell 7。每个 job 保存实际系统与架构、shell 版本、
+原生安装生命周期日志和回执摘要。只有实际成功的运行才构成对应环境的分发证据，
+不证明 AI 宿主行为兼容性。详见[平台维护验证](docs/installation.md#platform-maintenance-verification)。
+
 ## 轻量工作与 Full Loop
 
 **Lightweight Mode** 适用于一名负责人加适度审查即可安全完成的有边界工作。

@@ -185,10 +185,23 @@ function Prepare-Source {
                 Fail "dirty Git source: missing or indirect tracked file $($fields[1])"
             }
             $workingHash = (& git --no-replace-objects -C $OriginalSourceRoot hash-object "--path=$($fields[1])" $workingPath)
-            if ($LASTEXITCODE -ne 0 -or $workingHash -ne $blob) { Fail "dirty Git source content differs from pinned commit: $($fields[1])" }
+            if ($LASTEXITCODE -ne 0 -or $workingHash -isnot [string] -or $workingHash -cnotmatch '^[0-9a-f]{40}$') {
+                Fail "cannot verify tracked worktree content: $($fields[1])"
+            }
+            if ($workingHash -ne $blob) {
+                # A clean checkout may retain a committed mixed-EOL file whose
+                # current clean filter would normalize its exact original bytes.
+                $rawHash = (& git --no-replace-objects -C $OriginalSourceRoot hash-object --no-filters $workingPath)
+                if ($LASTEXITCODE -ne 0 -or $rawHash -isnot [string] -or $rawHash -cnotmatch '^[0-9a-f]{40}$') {
+                    Fail "cannot verify raw tracked worktree content: $($fields[1])"
+                }
+                if ($rawHash -ne $blob) { Fail "dirty Git source content differs from pinned commit: $($fields[1])" }
+            }
         }
         $archive = Join-Path $SnapshotRoot "source.zip"
-        & git --no-replace-objects -C $OriginalSourceRoot archive --format=zip "--output=$archive" $PinnedCommit
+        # Archive must preserve Git blobs, independent of this checkout's EOL
+        # defaults. This invocation does not change user/repository configuration.
+        & git --no-replace-objects -C $OriginalSourceRoot -c core.autocrlf=false -c core.eol=lf archive --format=zip "--output=$archive" $PinnedCommit
         if ($LASTEXITCODE -ne 0) { Fail "cannot export pinned commit" }
         Add-Type -AssemblyName System.IO.Compression.FileSystem
         [IO.Compression.ZipFile]::ExtractToDirectory($archive, $payload)

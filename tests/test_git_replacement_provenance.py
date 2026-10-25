@@ -12,6 +12,7 @@ import tempfile
 import unittest
 
 from test_distribution import BASH, GIT, POWERSHELL, ROOT, _posix_path
+from installer_test_support import bash_shebang
 
 
 PAYLOAD_A = b"original payload A\n"
@@ -112,7 +113,7 @@ class ReplacementCases:
             source_dir = shlex.quote(self.source.as_posix())
             destination = shlex.quote(_posix_path(self.dest))
             extra = f" --source-mode archive --archive-sha256 {digest(PAYLOAD_A)}" if archive else ""
-            command = [BASH, "-c", f"cd -P {source_dir} && exec bash ./distribution/loop-pilot.sh {operation} --destination {destination}{extra}"]
+            command = [BASH, "-c", f'cd -P {source_dir} && exec "$BASH" ./distribution/loop-pilot.sh {operation} --destination {destination}{extra}']
             if injection:
                 boundary, original, replacement, mutate = injection
                 wrapper_dir = self.work / "bin"
@@ -120,7 +121,7 @@ class ReplacementCases:
                 q = lambda p: shlex.quote(_posix_path(Path(p)))
                 wrapper = wrapper_dir / "git"
                 wrapper.write_text(
-                    "#!/usr/bin/env bash\nset -e\n"
+                    bash_shebang(BASH) + "set -e\n"
                     f"if [[ \" $* \" == *' {boundary} '* && ! -e {q(marker)} ]]; then\n"
                     f"  {q(GIT)} -C {q(self.source)} replace {original} {replacement}\n"
                     + (f"  printf 'replacement payload B\\n' > {q(self.source / 'SKILL.md')}\n" if mutate else "")
@@ -147,7 +148,7 @@ class ReplacementCases:
                     + f"  [IO.File]::WriteAllText({q(marker)}, 'injected')\n }}\n"
                     f" & {q(GIT)} @args\n $global:LASTEXITCODE = $LASTEXITCODE\n}}\n"
                     f"& {q(self.source / 'distribution/loop-pilot.ps1')} -Operation {operation} -Destination {q(self.dest)}\n",
-                    encoding="utf-8")
+                    encoding="utf-8-sig")
                 command = [POWERSHELL, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(harness)]
         result = subprocess.run(command, env=self.env, capture_output=True, text=True,
                                 encoding="utf-8", errors="replace")

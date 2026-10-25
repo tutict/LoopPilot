@@ -384,6 +384,12 @@ refuse release installation; commit.txt is never a fallback. Force does not over
 source identity or cleanliness. The clean check is a preflight observation, not a live worktree claim or the copy
 source. Another actor may change the original checkout afterward; the pinned SHA
 remains the selected source.
+For a clean tracked file, the current Git clean-filter hash must match its pinned
+blob, or its raw bytes must match that blob exactly. The raw comparison is used
+only after a successful, well-formed filtered hash differs. Failed commands,
+empty/malformed hashes and mismatches in both representations refuse the operation.
+This accepts committed CRLF or mixed-EOL bytes without changing user Git settings;
+real edits, including assume-unchanged edits, remain rejected.
 The current receipt format uses 40-character SHA-1 commit identities; unsupported
 Git object formats are refused rather than producing an unreadable receipt. Payload
 content digests remain SHA-256.
@@ -399,6 +405,11 @@ read-only for this pipeline. Manifest expansion, version/commit marker validatio
 source hashes and all subsequent copy operations read that snapshot, never the
 original working-tree payload. Each copied file must match its snapshot hash. A
 worktree edit after the clean boundary cannot change the selected payload or version.
+The archive command alone sets `core.autocrlf=false` and `core.eol=lf` to prevent
+Git's archive defaults from rewriting committed blob bytes. Source checks still
+use the caller's settings, every exported blob is checked without filters, and
+no repository or global configuration is written. Explicit export attributes that
+change bytes or the file set are still rejected by snapshot verification.
 
 ### Explicit Archive Mode
 
@@ -444,3 +455,32 @@ staging is an implementation boundary, not a sandbox against privileged local ac
 No Python or other Skill runtime dependency is introduced; these are native installer
 operations. Installation and provenance checks do not authorize release or prove host
 command discovery.
+
+## Platform Maintenance Verification
+
+The CI installation matrix requires Windows PowerShell 5.1 and 7 with Git Bash,
+Ubuntu Bash and PowerShell 7, and macOS system `/bin/bash` 3.2 with PowerShell 7.
+Each job records the actual OS, architecture, executable paths and versions.
+These are packaging targets until the particular job succeeds, never certified
+AI-host combinations. Bash wrappers continue with the interpreter that started
+them; shell scripts are checked out with LF through repository attributes.
+
+Maintenance tests accept explicit absolute executable paths through
+`LOOPPILOT_TEST_POWERSHELL` and `LOOPPILOT_TEST_BASH`. Invalid explicit paths fail
+without fallback. `LOOPPILOT_TEST_REQUIRE_SHELLS=1` makes a missing required shell
+an error rather than a skipped case. These variables are test-only, not installer
+options. Version checks in the CI runner independently confirm the selected shell.
+
+`scripts/verify_installation.py` runs the installer regression modules and the
+official install/status/update/uninstall entry points in an owned external
+temporary directory. It checks every managed file against the selected commit,
+the receipt commit and SHA-256 digest, both README payloads, clean C2 packaging
+boundaries through the regression suite, and preservation of user files. Output
+contains raw command streams, receipts, tool metadata and an integrity-only JSON
+summary. Required-shell skips fail the job. Temporary changes are process-local;
+no live Skill or host configuration is updated. CI uploads these maintenance
+artifacts, which grant no operator trust or formal acceptance. The
+[Validate workflow history](https://github.com/tutict/LoopPilot/actions/workflows/validate.yml)
+links each source commit to its platform jobs and downloadable evidence; read the
+individual `result.json` for actual architecture, versions and verdict rather
+than treating a matrix target as an observed compatibility result.
