@@ -4,11 +4,66 @@ All notable changes to this project will be documented in this file.
 
 The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.0.0-rc1 — 2026-10-24 (development candidate; NOT_RELEASE_READY)
+
+- Added the bounded `OPTION-B-REFERENCE-2026-10-24` successor: each applicable
+  future RC chooses one Reference from Claude Code and Codex before formal arms.
+  This RC chooses Codex; actual runtime identity and formal acceptance remain
+  unverified. Gate 4 is unmet; no release tag or accepted RC is declared.
+- Bound version-2 RC run receipts and accepted summaries to the committed
+  designation, successor Git boundary, exact observed identity, public source
+  events, and existing operator-approved review receipts. Version-1 non-RC
+  packages remain supported; historical artifacts remain pinned and ineligible.
+- Added public-entry positive/negative regressions and synchronized candidate
+  records, templates, checklist, and validation documentation. Thresholds and
+  Candidate disclosures are unchanged. Static PASS never substitutes for Host
+  Acceptance, installation Hash B, or C2 isolation checks.
+
 ## Unreleased
 
+- Fixed the PowerShell distribution snapshot cleanup boundary to use the host's
+  native directory separators, preserving the existing path and reparse-point
+  safety checks on non-Windows PowerShell hosts.
+- Recognized /lp, $lp, and $loop-pilot as explicit LoopPilot invocations, and added the installable short skill shortcuts/lp so a host can expose the /lp command without renaming the protocol skill.
+- Routed mode-specific LoopPilot procedure out of the always-loaded skill body. SKILL.md now states the decisions that apply to every run and names the document that owns each later concern. Its description triggers on checked multi-step work, diagnosis, recovery, or an explicit invocation. AGENTS.md reads a document only for the concern it governs. Local reversible work inside the latest user request does not need stepwise confirmation; commit, push, release, deploy, deletion, and external messages still do.
+- Added `scripts/c2_isolation_validation.py`, which enumerates an installed Skill
+  directory and reports whether it carries acceptance material. It walks the
+  whole tree rather than the managed-file manifest, never reads
+  `.looppilot-installation`, and matches path suffixes to any depth, so a corpus
+  preserved under `.looppilot-backups/<operation-id>/` is detected instead of
+  being invisible to a destination-relative comparison. Measured on two real
+  installations from one commit: a fresh install into an absent destination
+  reports `CURRENT` and `C2_CLEAN`, while the same commit reached by upgrade
+  reports `CURRENT` and `C2_CONTAMINATED` with 79 findings, all of them under a
+  backup root. `status` reporting `CURRENT` is therefore not a sufficient
+  condition for isolation — it quantifies over managed files, and the acceptance
+  corpus is unmanaged — and the acceptance pre-flight now asserts both
+  properties. No installer, manifest, or backup behavior changed.
+
+- Narrowed the official distribution payload to the Skill runtime by enumerating
+  `docs/` explicitly and dropping `evaluations/`, `tests/`, `scripts/`,
+  `docs/release/`, `docs/evaluations/`, `docs/cross-host-acceptance.md`, and
+  `requirements-dev.txt`, so an installed Skill carries no acceptance rubric,
+  scenarios, verdict rules, or prior scores. The payload falls from 161 files to
+  81; every `SKILL.md` and `AGENTS.md` relative reference still resolves, and two
+  tests now assert both properties. Retiring the removed files is existing update
+  behavior, so a customized copy is still preserved and reported rather than
+  deleted. Documented residual: 17 links in `README.md`, `CONTRIBUTING.md`,
+  `docs/installation.md`, and `docs/full-loop-migration-plan.md` point at
+  material an installation no longer contains. They remain valid in the
+  repository and were deliberately left unedited.
 - Added the v1.0 Release Candidate checklist under `docs/release/`, required it
   as a repository file, and stated that ticking the checklist is not acceptance.
-  No gate is satisfied and no candidate version section is created.
+  No gate is ticked and no candidate version section is created.
+- Corrected release-preparation wording to distinguish an unverified Host
+  Acceptance Record from an accepted Host Acceptance Record.
+- Extended the existing acceptance validator to require Host Acceptance Record
+  `Scenario IDs` and `Unverified limitations` disclosures, with regression cases
+  for missing fields and empty accepted-verdict disclosures.
+- Added the two critical rubric rows, Evidence integrity across agents and Authority continuity, to `evaluations/templates/score.md`. No score was authored and no Release Candidate gate was ticked.
+- Kept gitignored `.tmp/` validation artifacts outside the Markdown validation
+  boundary so temporary traces and rendered sources cannot create repository
+  findings.
 - Rejected a canonical lifecycle assertion copied into a supporting `.looppilot/`
   artifact outside a declared projection or closure section, so a duplicated
   lifecycle value without source, boundary, and derived-status metadata is
@@ -16,7 +71,7 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   remains Reviewer work.
 - Declared Scenario ID, input boundary, evidence links, reviewer decision, and
   unverified limitations in the evaluation and Host Acceptance Record templates,
-  and disclosed that the validator does not yet enforce the added fields.
+  with the existing validator enforcing the Host Acceptance Record disclosures.
 - Separated README claims into Implemented, Observed, and Unverified, and listed
   every candidate host, including Claude Code, as explicitly unverified.
 

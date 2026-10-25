@@ -29,6 +29,18 @@ the smallest additional authorization only when it is necessary for the next use
 action. The agent MUST NOT bypass a check or invent a result to reach a preferred outcome.
 
 
+## Verification Scoping
+
+The agent MUST NOT scope out required verification under applicable higher-priority
+instructions, repository rules, project requirements, a Task Contract, or safety
+constraints. Optional checks may be omitted only on objective change/dependency
+evidence that they cannot validate the affected behavior; inconvenience or duration
+is not irrelevance. Report every skipped or scoped-down check as a verification gap,
+including requirement status, rationale, evidence, and residual uncertainty. A blocked
+required check stays unmet unless explicitly waived by the proper authority.
+No-confirmation removes repeated prompting for already-authorized local, reversible,
+non-destructive work with no external effects; it grants no permission.
+
 ## Shared-State Threats
 
 Shared state introduces continuity risks that the Agent MUST handle explicitly:
@@ -246,7 +258,7 @@ forced to release while a Release-required Contract must not close unfulfilled.
 | Threat | Required response |
 |---|---|
 | File count used as mode authority | Re-evaluate problem, risk, boundaries, and recovery value |
-| Lightweight reaches a Major or Blocker | Stop and create a Full Loop Contract before more implementation |
+| Lightweight reaches a Major or Blocker | Stop and preserve evidence; reassess Product Risk, minimum review depth, then Coordination Necessity; create a Full Loop Contract only if coordination requires it; otherwise revalidate the bounded path without waiving checks, reviews, or budget stops |
 | Artifact Budget treated as a hard state | Restore its provisional heuristic meaning and explain excess |
 | 429 or timeout labeled Product Finding | Record an Execution Infrastructure Incident unless product evidence exists |
 | No-output Worker marked complete | Reject the claim; no Delivery exists without observable output |

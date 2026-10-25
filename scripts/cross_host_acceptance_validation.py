@@ -5,6 +5,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from evaluation_disclosure_validation import disclosure_error
+
 CROSS_HOST_ACCEPTANCE_FILES = (
     "scripts/cross_host_acceptance_validation.py",
     "tests/test_cross_host_acceptance.py",
@@ -25,12 +27,26 @@ REQUIRED_FIELDS = (
     "Skill loading mode",
     "Evaluation IDs",
     "Scenario coverage",
+    "Scenario IDs",
     "Trace author",
     "Independent reviewer",
     "Lowest critical rubric score",
     "Date",
     "Verdict",
     "Residual limitations",
+    "Unverified limitations",
+)
+OPTION_B_FIELDS = (
+    "RC version",
+    "Successor ID",
+    "Successor policy",
+    "Reference designation ID",
+    "Reference designation record",
+    "Reference Host",
+    "Reference designation SHA-256",
+    "Provider identity",
+    "Endpoint identity",
+    "RC evidence role",
 )
 IDENTITY_FIELDS = ("Host", "Host version", "Model", "Skill loading mode", "Date")
 REQUIRED_DIMENSIONS = (
@@ -46,6 +62,7 @@ REQUIRED_DIMENSIONS = (
 REQUIRED_FIXTURE_SHAPES = ("lightweight", "full loop")
 MINIMUM_CRITICAL_SCORE = 2
 SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
 DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 SCORE_PATTERN = re.compile(r"^[0-3]$")
 
@@ -99,9 +116,27 @@ def _is_record(text: str) -> bool:
     return False
 
 
+
+def _record_surface(path: Path, text: str) -> str:
+    """Classify a package prompt by its header, not its preserved input.
+
+    This is not an exemption from validation: the evidence validator must still
+    validate the complete package and reject acceptance claims in its header or
+    boundary disclosure. A record renamed prompt.md retains its record title.
+    """
+    normalized = text.replace("\r\n", "\n")
+    if (path.name == "prompt.md" and (path.parent / "run.json").is_file()
+            and normalized.startswith("# Prompt\n")):
+        marker = re.search(r"^## Exact User Input[ \t]*\n\n", normalized, re.M)
+        if marker is not None:
+            return normalized[:marker.start()]
+    return text
+
+
 def _validate_record(location: str, text: str, errors: list[str]) -> None:
-    fields = {name: _field(text, name) for name in REQUIRED_FIELDS}
-    for name, value in fields.items():
+    fields = {name: _field(text, name) for name in (*REQUIRED_FIELDS, *OPTION_B_FIELDS)}
+    for name in REQUIRED_FIELDS:
+        value = fields.get(name)
         if value is None:
             errors.append(f"{location}: Host Acceptance Record missing field {name!r}")
     for name in IDENTITY_FIELDS:
@@ -166,6 +201,10 @@ def _validate_record(location: str, text: str, errors: list[str]) -> None:
         errors.append(
             f"{location}: verdict {verdict} requires at least one referenced evaluation run"
         )
+    if _none(fields.get("Scenario IDs")):
+        errors.append(
+            f"{location}: verdict {verdict} requires disclosed Scenario IDs"
+        )
     coverage = fields.get("Scenario coverage")
     if _none(coverage):
         errors.append(
@@ -226,6 +265,50 @@ def _validate_record(location: str, text: str, errors: list[str]) -> None:
         errors.append(
             f"{location}: verdict accepted-with-residuals requires disclosed residual limitations"
         )
+    if _none(fields.get("Unverified limitations")):
+        errors.append(
+            f"{location}: verdict {verdict} requires disclosed unverified limitations"
+        )
+    rc_version = fields.get("RC version")
+    has_rc_fields = any(not _none(fields.get(name)) for name in OPTION_B_FIELDS)
+    if has_rc_fields:
+        for name in OPTION_B_FIELDS:
+            if _none(fields.get(name)):
+                errors.append(
+                    f"{location}: RC-bound verdict requires non-empty {name!r}"
+                )
+        if rc_version and not re.fullmatch(r"v\d+\.\d+\.\d+-rc\d+", rc_version):
+            errors.append(f"{location}: RC version {rc_version!r} is invalid")
+        if fields.get("Successor ID") != "OPTION-B-REFERENCE-2026-10-24":
+            errors.append(f"{location}: Successor ID is not the active Option B successor")
+        if fields.get("Successor policy") != "docs/release/option-b-reference-successor.md":
+            errors.append(f"{location}: Successor policy is not the active Option B policy")
+        if fields.get("Reference designation record") != "docs/release/rc-candidate-reference.md":
+            errors.append(f"{location}: Reference designation record is not the active RC record")
+        if not re.fullmatch(r"RC\d+-REF-[A-Z0-9-]+", fields.get("Reference designation ID") or ""):
+            errors.append(f"{location}: Reference designation ID is invalid")
+        if (fields.get("Reference Host") or "").casefold() not in {"claude code", "codex"}:
+            errors.append(f"{location}: Reference Host must be Claude Code or Codex")
+        if (fields.get("Reference Host") or "").casefold() != (fields.get("Host") or "").casefold():
+            if (fields.get("RC evidence role") or "reference").casefold() != "candidate":
+                errors.append(f"{location}: record Host must equal its Reference Host")
+        if not SHA256.fullmatch(fields.get("Reference designation SHA-256") or ""):
+            errors.append(f"{location}: Reference designation SHA-256 is invalid")
+        for name in ("Provider identity", "Endpoint identity"):
+            if _none(fields.get(name)):
+                errors.append(f"{location}: {name} must be observed or explicitly disclosed")
+        role = fields.get("RC evidence role")
+        if role not in {"reference", "candidate"}:
+            errors.append(f"{location}: RC evidence role must be reference or candidate")
+    for label in ("Unverified limitations", "Residual limitations"):
+        value = fields.get(label)
+        if label == "Residual limitations" and verdict != "accepted-with-residuals":
+            continue
+        if not _none(value):
+            error = disclosure_error(value)
+            if error:
+                errors.append(f"{location}: {label} {error}")
+
 
 
 def validate_cross_host_acceptance(root: Path, errors: list[str]) -> None:
@@ -261,7 +344,7 @@ def validate_cross_host_acceptance(root: Path, errors: list[str]) -> None:
         relative = path.relative_to(root)
         if relative.parts[:2] == ("evaluations", "templates"):
             continue
-        text = path.read_text(encoding="utf-8")
+        text = _record_surface(path, path.read_text(encoding="utf-8"))
         location = relative.as_posix()
         if not _is_record(text):
             verdict = _field(text, "Verdict")

@@ -17,15 +17,24 @@ design that Phase 11 froze.
 
 ## Host Matrix
 
-- Claude Code is the reference host. Its acceptance record gates the Release
-  Candidate.
-- Codex, Gemini CLI, and GitHub Copilot are the named candidate hosts from the
-  documented compatibility limitations.
+The named [Option B successor](release/option-b-reference-successor.md) applies
+only at its first synchronized committed boundary and to an RC that explicitly
+binds that policy. Earlier boundaries keep Claude Code as Reference and Codex,
+Gemini CLI, and GitHub Copilot as Candidates. A draft amendment changes no role.
+
+- The applicable RC's Reference Host is the unique Host named by its effective
+  Reference designation record. Under the Option B successor, the eligible choices
+  are Claude Code and Codex; the designation is per RC and does not grant a verdict.
+- The eligible Host not selected as Reference remains a Candidate Host. Gemini CLI,
+  GitHub Copilot, and other hosts retain their existing candidate/unverified
+  disclosures.
 - Any other host MAY be evaluated with the same procedure and templates.
 
-Acceptance is scoped to one host, host version, model, and Skill loading mode
-combination. A verdict for one combination MUST NOT be generalized to another
-combination, to a later host version, or to hosts as a class.
+Acceptance is scoped to one RC designation, one host, host version, model, provider,
+endpoint, commit/tree, and Skill loading mode combination. A verdict for one
+combination MUST NOT be generalized to another combination, to a later host
+version, or to hosts as a class. The designation MUST be fixed before the first
+formal acceptance arm; preparation failure cannot switch it automatically.
 
 ## Acceptance Dimensions
 
@@ -84,9 +93,12 @@ input boundary, observable trace, reviewer decision, evidence links, and
 unverified limitations. A Scenario ID references a numbered scenario in
 [`tests/scenarios.md`](../tests/scenarios.md) or a named fixture, so a later
 reader can reproduce the case rather than trust a prose description. The public
-validator checks the record fields listed in
-[`validation`](validation.md); the remaining elements are template-declared
-disclosure that an independent reviewer confirms.
+validator checks record structure and the linked package requirements in
+[evidence integrity](evaluation-evidence-integrity.md), including operator-approved
+receipt hashes, cross-artifact identities, evidence references and critical score
+consistency. The operator index is an explicit trust input, not generated proof.
+Actual capture truth and semantic review remain the responsibility of the trusted
+producer/reviewer; no maintenance result runs a host or grants acceptance.
 
 ## Acceptance Verdicts
 
@@ -122,18 +134,27 @@ The v1.0 Release Candidate MAY be prepared only when all of the following hold:
 1. `python scripts/validate.py` passes at the release boundary.
 2. The full regression suite passes at the release boundary.
 3. Independent review of the Phase 11 calibration has passed.
-4. The reference host has an observed `accepted` or `accepted-with-residuals`
-   Host Acceptance Record at a commit boundary contained in the release.
+4. The RC's effective Reference designation record names exactly one Reference
+   Host, and that Host has an observed `accepted` or `accepted-with-residuals`
+   Host Acceptance Record at a commit boundary contained in the release. The
+   record must bind the successor ID, designation ID, RC version, host/version,
+   model identity, provider/endpoint evidence, loading mode, commit/tree, runs,
+   and independent review.
 5. Every named candidate host either has a Host Acceptance Record or remains
    explicitly listed as unverified in the README limitations.
 6. No open major or critical Finding remains against the frozen protocol.
 7. The CHANGELOG contains a release section naming the candidate version.
 
 Candidate-host acceptance is desirable but not a Release Candidate gate;
-undisclosed compatibility claims are. Release Candidate preparation is not a
-release, not deployment, and not user acknowledgement.
+undisclosed compatibility claims are. Gate 4's existing acceptance thresholds and
+Gate 5's disclosure obligation are unchanged by the successor. Release Candidate
+preparation is not a release, not deployment, and not user acknowledgement.
 
 The tracking form of this list lives in
 [`docs/release/v1.0-rc-checklist.md`](release/v1.0-rc-checklist.md), which
 records the observed evidence behind each gate. That checklist is a preparation
 aid; ticking it is not acceptance.
+
+An explicitly `NOT_RELEASE_READY` development candidate branch may preserve the
+version identifier, review, and static checks while gates remain unmet. It is not
+an accepted RC, cannot receive a release tag, and does not satisfy the seven gates.

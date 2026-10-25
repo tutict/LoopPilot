@@ -1,0 +1,59 @@
+# Official managed payload. Directory entries use tracked files in a Git checkout.
+# The payload is the Skill runtime only. Acceptance material is deliberately
+# excluded and is not distributed: evaluations/, tests/, scripts/, docs/release/,
+# docs/evaluations/, docs/cross-host-acceptance.md, requirements-dev.txt.
+# docs/ is enumerated literally because the manifest format has no exclusion
+# syntax; a new runtime document must be added to this list to be distributed.
+install.ps1
+install.sh
+update.ps1
+update.sh
+uninstall.ps1
+uninstall.sh
+status.ps1
+status.sh
+INSTALLATION-VALIDATION.md
+distribution/managed-files.txt
+distribution/version.txt
+distribution/loop-pilot.ps1
+distribution/loop-pilot.sh
+.github/workflows/validate.yml
+SKILL.md
+README.md
+README.zh-CN.md
+AGENTS.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
+docs/architecture-pattern-selection.md
+docs/baseline-evidence-and-verification-surface.md
+docs/coordination-necessity-and-delegation-fallback.md
+docs/design-rationale.md
+docs/evaluation-synthesis-and-protocol-calibration.md
+docs/final-assignment-behavioral-evidence.md
+docs/final-protocol-calibration.md
+docs/full-loop-checkpoint-and-context-recovery.md
+docs/full-loop-contracts-and-ledgers.md
+docs/full-loop-delivery-review-and-closure.md
+docs/full-loop-migration-plan.md
+docs/host-capabilities.md
+docs/installation.md
+docs/lifecycle-authority-and-derived-projections.md
+docs/lifecycle.md
+docs/loop-engineering-model.md
+docs/mmgh-behavioral-evidence.md
+docs/mode-selection-and-escalation.md
+docs/multi-agent-coordination.md
+docs/phase9-second-protocol-calibration.md
+docs/project-closure-and-final-delivery.md
+docs/project-closure.md
+docs/project-engineering-context.md
+docs/protocol-load-profiles.md
+docs/protocol-modes-and-state-sources.md
+docs/safety-and-stopping.md
+docs/v1-migration.md
+docs/validation.md
+agents/
+.looppilot/
+examples/
+shortcuts/lp/SKILL.md

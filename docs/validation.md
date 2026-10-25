@@ -114,7 +114,8 @@ authority files themselves. It matches the declared assertion grammar only; it
 does not judge whether undeclared narrative prose is stale, which stays Reviewer
 work.
 
-The validator reads repository files only. It does not inspect environment
+The validator reads repository files and, for formal Option B RC receipts, the
+explicitly cited local Git objects and ancestry. It does not inspect environment
 variables, browse the web, scan host Skill directories, count tokens, or print
 credentials.
 
@@ -137,9 +138,15 @@ trace, or grant a verdict.
 The evaluation templates additionally declare a Scenario ID, prompt and input
 boundary, evidence links, reviewer decision, and unverified limitations for each
 run, and the Host Acceptance Record template declares Scenario IDs and unverified
-limitations. Those additional fields are template-declared disclosure confirmed
-by an independent reviewer; the validator enforces the record fields listed
-above and does not yet check them. `docs/release/v1.0-rc-checklist.md` is a
+limitations. The validator requires Scenario IDs and unverified limitations on
+Host Acceptance Records, and requires both fields to be disclosed for an
+`accepted` or `accepted-with-residuals` verdict. New run-package completeness, cross-artifact identity, local event/evidence links,
+B7 score rows and receipt hashes are enforced by the evidence integrity validator.
+It requires an operator-provided index outside the repository with an explicit
+SHA-256 pin for new runs and accepted summaries; it never creates that authority.
+Capture truth and semantic review still rely on trusted producers/reviewers, not
+self-computed hashes. Historical packages stay hash-pinned and acceptance-ineligible.
+The validator does not run a host or independently certify the trust authority. `docs/release/v1.0-rc-checklist.md` is a
 required repository file, so the Release Candidate gates cannot be silently
 deleted; its ticks are not validated, because the checklist is not acceptance.
 
@@ -164,6 +171,10 @@ real YAML and duplicate-key checks, every extracted Mermaid render, output-size
 checks, and `git diff --check` on pushes and pull requests. It does not publish
 generated artifacts, perform live research, scan host Skills, or calculate real
 tokens. A local pass does not imply a remote workflow pass.
+
+On hosted Linux CI, Mermaid uses the runner's system Google Chrome through a
+temporary Puppeteer `executablePath` configuration. Chromium's sandbox remains
+enabled; the job fails if that browser is unavailable.
 
 ## Validation Boundary
 
@@ -237,6 +248,14 @@ metadata is disclosed rather than fabricated.
 
 ## Cross-Host Acceptance Validation Boundary
 
+The [Option B successor](release/option-b-reference-successor.md) adds v2 RC
+receipt checks for committed pre-arm designation, effective successor ancestry,
+exact configured/observed identity, source-event bindings, and RC summary links.
+`tests/test_option_b_evidence.py` exercises the public CLI against synthetic local
+Git histories and operator indexes, including later RC choices and preserved
+older snapshots. `tests/test_option_b_successor.py` checks policy/designation
+constraints. These are structural regressions, not actual Host Acceptance.
+
 The Cross-Host Acceptance checks validate record structure and verdict
 constraints from repository files only. They do not execute an evaluation on any
 host, observe activation, measure rubric scores, verify reviewer independence,
@@ -254,3 +273,53 @@ freeze preservation. The checks inspect repository structure only. They do not
 select a mode, execute Workers, verify a product baseline, run experiment arms,
 infer test discovery, validate a dynamic holdout, score a comparison, or turn an
 incomplete control archive into evidence.
+
+## Architecture Repair Regression Properties
+
+`tests/test_architecture_repair.py` directly checks neutral shipped STATE/HANDOFF
+content and recovery guards, verification hierarchy and scope-out disclosure,
+separate risk/coordination axes, non-coding cases, and bounded confirmation wording.
+These are static contract checks, not behavioral Host Acceptance. It also exercises
+the maintenance-only alias binding against installed hashes, repository shadows,
+and out-of-band copies, and both installers against clean/dirty Git sources.
+The original four shared-state mutation tests are unchanged. The Phase 9 negative
+budget mutation is sized from the actual current core; the 590-line ceiling is
+unchanged and the 562-line constant remains an explicitly historical baseline.
+Run the full regression as well as these properties after protocol edits. Added
+tests increase the total beyond the original 910; report both counts without
+silently dropping the original cases. No test result closes P11A-4 or a release gate.
+
+
+## Second Repair Negative Validation
+
+`tests/test_repair_v2.py` exercises pinned Git snapshots, deterministic worktree
+mutation during export/install and update, corrupted/missing/non-commit HEAD,
+conflicting snapshot identity, exported-byte mismatch, explicit archive digests and
+no-fallback rules in both native installers. Existing archive lifecycle fixtures now
+select archive mode explicitly; their prior assertions remain unchanged. Synthetic
+Git fixtures omit archive-only metadata and control line-ending conversion.
+
+`tests/test_instruction_consistency.py` and the public validator check known pre-edit
+instruction contradictions and the seven structured mode cases in the coordination
+criteria. The finite check separates risk/review depth from coordination/mode and
+rejects specialist-only escalation. It is neither an AI judge nor a runtime planner;
+it cannot prove arbitrary natural-language equivalence or host behavior. Neither
+suite closes P11A-4 or substitutes for Host Acceptance.
+
+
+## P11-A4 / B7 and Installation Documentation Checks
+
+`tests/test_evaluation_evidence.py` checks missing/placeholder disclosures, scenario
+and trace mismatches, trusted-index and receipt pins, local event references, reviewer
+identity, B7 row/score/total rules, and historical protection. The package/schema
+contract is in `docs/evaluation-evidence-integrity.md`; `--evidence-index` and
+`--evidence-index-sha256` are mandatory for new evaluative claims, not for unchanged
+historical preparation. `tests/test_installation_doc_consistency.py` checks the
+managed-layout block against the manifest and keeps generated receipts distinct.
+
+Historical Phase15 evidence and prior review dispositions are not rewritten. A
+maintenance PASS with zero eligible new runs is not Host Acceptance or gate closure.
+The previous acceptance tests retain their assertions but now supply linked local
+process specimens, synthetic independent-review data and explicit temporary TEST
+trust indexes, rather than bare `trace reference` prose. No test trust index is a
+production authority, and no test-mode bypass exists in the validator.

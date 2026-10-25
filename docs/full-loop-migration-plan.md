@@ -132,8 +132,9 @@ correctness fixes are in scope.
 
 The [acceptance procedure](cross-host-acceptance.md) defines per-host verdicts,
 evidence requirements, the Host Acceptance Record, and the Release Candidate
-checklist inside the feature freeze. No observed Host Acceptance Record exists
-yet, so no host verdict has changed and the Release Candidate is not prepared.
+checklist inside the feature freeze. No observed accepted Host Acceptance Record
+exists yet, so no host verdict has changed and the Release Candidate is not
+prepared.
 
 ## Migration Rules
 

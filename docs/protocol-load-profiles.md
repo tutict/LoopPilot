@@ -9,11 +9,14 @@ required by risk or recovery.
 
 ```mermaid
 flowchart LR
-    C[Core] --> L[Lightweight]
-    C --> F[Full Loop]
+    C[Core] --> R[Assess Product Risk]
+    R --> V[Set minimum review validation and evidence depth]
+    V --> Q{Coordination required?}
+    Q -->|No| L[Lightweight or applicable non-Full-Loop path]
+    Q -->|Yes| F[Full Loop]
     F --> P[Project Finalization]
-    L -. escalate on hard trigger .-> F
-    C -. no real gap .-> N[No Implementation]
+    L -->|Hard trigger requires stop and reassessment| R
+    C -->|No real gap| N[No Implementation]
 ```
 
 ## Core Profile
@@ -31,6 +34,10 @@ Load for every task:
   relevant.
 
 Core does not itself create a Project, Loop, Task, Finding, or Checkpoint.
+Use the [ordered mode reassessment](mode-selection-and-escalation.md#authority-and-timing)
+before choosing or changing profiles. Risk increases or specialist review alone
+change required depth, not mode. A retained mode never waives mandatory checks,
+reviews, correction limits, or budget-stop controls.
 
 ## Lightweight Profile
 

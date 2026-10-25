@@ -1,0 +1,15 @@
+# Preserve original capture bytes; recognize only their Windows CRLF endings.
+* -text
+cli-version-probes.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+live-c2.log -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+live-installation-receipt.txt -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+live-status-command.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+live-status.stdout.log -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+running-codex-component.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+source-byte-diagnostic.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+source-rejection-reproduction.stderr.log -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+stage-c2.log -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+stage-install.stdout.log -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+stage-status.stdout.log -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+staged-installation-receipt.txt -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+staged-installation.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

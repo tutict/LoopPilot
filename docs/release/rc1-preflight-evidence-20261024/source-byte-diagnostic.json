@@ -1,0 +1,9 @@
+{
+  "git_status": "",
+  "path": "distribution/managed-files.txt",
+  "blob_sha256": "7a1b910d040298bd7d174f36b58175b2316e3a461bc22f4c85d36e21b52f5557",
+  "worktree_sha256": "7a1b910d040298bd7d174f36b58175b2316e3a461bc22f4c85d36e21b52f5557",
+  "blob_crlf": 1,
+  "worktree_crlf": 1,
+  "equal_after_crlf_normalization": true
+}

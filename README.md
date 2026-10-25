@@ -1,7 +1,34 @@
 # LoopPilot
 
-LoopPilot is a proactive, host-native execution strategy for carrying complex work
-toward evidence-backed completion without granting unlimited autonomy.
+English | [简体中文](README.zh-CN.md)
+
+LoopPilot is a host-native, runtime-free execution-control Skill for AI agents.
+It guides an agent to plan, execute, verify, adapt, and stop with evidence while
+staying within the user's authorization.
+
+[Install](#install-or-copy) · [Use](#minimal-use) ·
+[Protocol](SKILL.md) · [Documentation](#repository-guide) ·
+[Contributing](CONTRIBUTING.md)
+
+Use it for checked multi-step work: implementation, diagnosis, research, writing,
+and recovery. It reuses the host's own planning, tools, and task state.
+
+## Current RC Status
+
+| Item | Current recorded status |
+| --- | --- |
+| Development candidate | `v1.0.0-rc1` — `NOT_RELEASE_READY` |
+| Designated Reference Host | Codex, fixed for this RC under the Option B successor |
+| Formal acceptance | `NOT_RUN`; Gate 4 remains `UNMET` |
+| Host compatibility | Every host remains explicitly `unverified` |
+
+The [candidate decision](docs/release/rc-candidate-decision.md) and
+[latest preflight](docs/release/rc1-preflight-20261024.md) record the evidence and
+blockers. Component versions and installation checks have been observed; trusted
+actual provider/model/endpoint identity, formal loading and Hash B binding,
+complete isolation, and independent behavior review remain unresolved.
+Repository tests and independent facts review do not establish Host Acceptance.
+The [RC checklist](docs/release/v1.0-rc-checklist.md) retains the release gates.
 
 ## What It Is
 
@@ -15,8 +42,9 @@ combination of context, planning, tools, and task state. It tells that agent to:
 5. adapt only when evidence changes the best path; and
 6. stop with an accurate outcome and remaining gaps.
 
-The initial repository is Markdown only. It does not provide an independent runtime,
-agent framework, scheduler, memory service, CLI, backend, or fixed integration API.
+The Skill is a Markdown protocol with no runtime dependency. The repository also
+includes installers and maintenance validators; these do not provide an independent
+agent runtime, framework, scheduler, memory service, backend, or fixed integration API.
 
 ## Why It Is Not a Retry Prompt
 
@@ -62,14 +90,16 @@ results does not justify another iteration.
 
 ## When It Activates
 
-Strong activation signals include:
+Activate for multiple dependent steps whose outcome must be checked, diagnosis or
+recovery of a failed attempt, or explicit invocation. Checked multi-step non-coding
+work includes research, writing, analysis, planning deliverables, and information
+organization. Tools or file edits alone are not triggers. Product Risk sets review,
+validation, and evidence depth; Coordination Necessity determines Full Loop, not
+whether the work is coding. The Supervisor owns the mode decision.
 
-- multiple dependent steps;
-- tools, file changes, external actions, or several deliverables;
-- tests, source checks, file inspection, or other real verification;
-- a likely need to recover from an initial failure;
-- gradual progress toward explicit acceptance criteria; or
-- an explicit LoopPilot invocation.
+The managed `lp` shortcut is the only short-trigger owner and reads the same installed
+`SKILL.md` as `/loop-pilot`; it never falls back to a repository-local body. See
+[installation and alias binding](docs/installation.md#short-alias-binding).
 
 LoopPilot should not implicitly activate for a factual answer, one-sentence rewrite,
 casual conversation, brainstorming-only request, or advice-only request. Explicit
@@ -213,7 +243,8 @@ Review Reports, Findings, three-layer acceptance, Loop Closure, and Checkpoints.
 
 The existing shared-state protocol remains
 [Lightweight Mode](docs/protocol-modes-and-state-sources.md). Full Loop Mode is a
-documented migration target for multi-Loop, high-risk, or cross-context delivery;
+documented migration target for multi-Loop or cross-context delivery whose
+coordination needs require it;
 it is not an implemented runtime or a claim of host compatibility.
 
 Start with the [Loop Engineering model](docs/loop-engineering-model.md), the
@@ -302,8 +333,13 @@ Candidate. Verdicts come from observed
 [Host Acceptance Records](evaluations/templates/host-acceptance-record.md) that
 reference real evaluation runs; the public validator checks record structure and
 verdict constraints. Defining the procedure verifies no host: every combination
-remains `unverified` until its record exists. Reference-host preparation notes
-live in [evaluations/claude-code](evaluations/claude-code/README.md).
+remains `unverified` until an observed accepted record supports a narrower
+verdict. The [bounded Option B successor](docs/release/option-b-reference-successor.md)
+lets each applicable future RC select exactly one Reference from Claude Code and
+Codex before formal acceptance. [This candidate](docs/release/rc-candidate-decision.md)
+selects Codex, retains unknown runtime identity, and is `NOT_RELEASE_READY` with
+Gate 4 unmet. Historical Claude Code preparation notes live in
+[evaluations/claude-code](evaluations/claude-code/README.md).
 
 ### Evidence-Calibrated Protocol Selection
 
@@ -350,13 +386,34 @@ or external actions.
 
 ## Install or Copy
 
-LoopPilot has no runtime dependency for Skill users:
+LoopPilot has no runtime dependency for Skill users. Distribution-001 provides
+stateful installers that preserve the complete repository-relative payload:
 
-1. Copy or clone the repository to a location the host can read.
-2. Expose [SKILL.md](SKILL.md) using the host's documented skill or instruction
-   mechanism.
-3. Preserve the relative docs and examples if the host can load them on demand.
-4. Invoke LoopPilot only for an appropriate task.
+```powershell
+.\install.ps1 -Destination "$HOME\.codex\skills\loop-pilot"
+```
+
+```bash
+./install.sh --destination "$HOME/.codex/skills/loop-pilot"
+```
+
+The destination may instead be supplied through `LOOPPILOT_INSTALL_DIR`. Without
+an explicit destination, the scripts use a single detectable Claude Code or Codex
+skills directory and stop if detection is absent or ambiguous. Directory detection
+does not establish host compatibility; every host remains unverified until an
+accepted Host Acceptance Record exists.
+
+Use `update.ps1` or `update.sh` from the new source package to upgrade. Use
+`uninstall.ps1` or `uninstall.sh` to remove only state-recorded, unmodified managed
+files. Local modifications, unrelated files, and backups are preserved by default.
+See the [installation and distribution guide](docs/installation.md) for layout,
+ownership, conflict, backup, upgrade, and uninstall behavior. Observed packaging
+checks are recorded separately in
+[installation validation](INSTALLATION-VALIDATION.md).
+
+Manual copying remains possible: copy or clone the repository, expose
+[SKILL.md](SKILL.md) through the host's documented Skill or instruction mechanism,
+and preserve its relative supporting files.
 
 Repository maintainers can install the isolated development dependency and run the
 repeatable checks described in [validation](docs/validation.md).
@@ -376,7 +433,8 @@ narration and promises of future asynchronous work are outside the contract.
 LoopPilot describes capability levels, not certified product integrations. Evidence
 quality and persistence depend on the host's actual tools and state. A prompt-only
 host cannot claim background execution, durable recovery, or direct verification it
-does not possess. Formal compatibility requires a separate, tested adapter.
+does not possess. A qualified Host Acceptance Record must bind any compatibility
+verdict to the exact observed host, version, model, and loading combination.
 
 ## Validation Status
 
@@ -415,8 +473,10 @@ another project, host, or model.
 
 No evidence in this repository supports any of the following:
 
-- Actual host behavior. Every host, including the Claude Code reference host,
-  is `unverified` because no Host Acceptance Record exists yet.
+- Actual host behavior. Every host, including this RC's designated Codex Reference,
+  is `unverified` because no qualified RC-bound accepted Host Acceptance Record
+  exists. Earlier Claude Code preparation and historical records retain their
+  original scope and verdicts.
 - Production reliability, longitudinal governance behavior, release, and
   deployment.
 - Automatic agent compliance, including implicit activation accuracy, automatic
@@ -438,7 +498,7 @@ These are syntax and repository-structure checks, not behavioral compatibility
 evidence. The [evaluation templates](evaluations/README.md) prepare that future
 work without claiming results, and the
 [v1.0 RC checklist](docs/release/v1.0-rc-checklist.md) tracks what must be
-observed before a Release Candidate is prepared.
+observed before a development candidate can qualify for release.
 
 ## Current Limitations
 
@@ -447,12 +507,14 @@ observed before a Release Candidate is prepared.
 - Prompt-only hosts have weak state continuity and may require user-attributed
   evidence.
 - The lifecycle and pseudocode are conceptual, not executable interfaces.
-- Every candidate host is explicitly unverified. Claude Code, Codex, Gemini CLI,
-  GitHub Copilot, and every other host have no Host Acceptance Record, so this
-  repository claims no compatibility with any of them. A host moves off this
-  list only through an observed
+- Every host remains explicitly unverified. Claude Code, Codex, Gemini CLI,
+  GitHub Copilot, and every other host have no accepted Host Acceptance Record,
+  so this repository claims no compatibility with any of them. A host moves off
+  this list only through an observed
   [Host Acceptance Record](docs/cross-host-acceptance.md), and its verdict then
   covers only that exact host, host version, model, and loading mode.
+  For `v1.0.0-rc1`, Codex is the designated Reference; Claude Code, Gemini CLI,
+  GitHub Copilot, and other hosts remain Candidates with their disclosure duties.
 - Real concurrent scheduling, runtime permission isolation, distributed locking,
   automatic merging, and cross-session delegated recovery are not implemented.
 - Automatic-trigger accuracy and behavioral reliability still require observed
@@ -462,14 +524,15 @@ observed before a Release Candidate is prepared.
 
 - Run Cross-Host Acceptance with the
   [defined procedure](docs/cross-host-acceptance.md) and close the
-  [v1.0 RC checklist](docs/release/v1.0-rc-checklist.md) before preparing a
-  Release Candidate.
+  [v1.0 RC checklist](docs/release/v1.0-rc-checklist.md) before qualifying the
+  development candidate for release.
 - Record reproducible evaluation traces without turning examples into fake evidence.
 - Add narrowly scoped host notes only when an adapter and tests support them.
 - Refine false-positive activation and unnecessary-loop cases.
 
 ## Repository Guide
 
+- [简体中文 README](README.zh-CN.md): Chinese introduction, usage, and evidence boundaries.
 - [SKILL.md](SKILL.md): executable instructions.
 - [Lifecycle](docs/lifecycle.md): conceptual states and transitions.
 - [Host capabilities](docs/host-capabilities.md): adaptation boundaries.
@@ -488,6 +551,9 @@ observed before a Release Candidate is prepared.
   procedure, verdicts, and the Release Candidate checklist.
 - [v1.0 RC checklist](docs/release/v1.0-rc-checklist.md): Release Candidate gates
   and their required evidence. The checklist is not acceptance.
+- [Current candidate decision](docs/release/rc-candidate-decision.md) and
+  [RC1 preflight](docs/release/rc1-preflight-20261024.md): current recorded facts,
+  unmet prerequisites, and safe next steps.
 - [Validation](docs/validation.md): repeatable maintenance checks and their boundary.
 - [Full Loop Contracts and Ledgers](docs/full-loop-contracts-and-ledgers.md):
   Phase 2 templates, state enums, completion projection, and authority rules.

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "kind": "untrusted-integrity-manifest",
+  "authority": "none; self-computed checksums are not operator approval",
+  "files": {
+    ".gitattributes": "9706b4d9e59ee2c5508925c7207f5cc88cb23898fd6b4e47f208cc3e1bd803cc",
+    "app-core-version.stdout.txt": "230c7fb4eaba503976290892b76e256e03f47a421b784363888ac852cceeb4cf",
+    "cli-version-probes.json": "a7e9855b9faf8b8eb3b8accc9b6e319f302a8f13aa5c9d92298cb986bc918376",
+    "live-c2.log": "a7fbc807f8493bb8eb99710e45b696569fe7976fcb8dceeebfa2685d40e4a6ec",
+    "live-installation-receipt.txt": "92b84d724e3ab4120a57154182851b7bbd7824f2ac24941dbd6490712af7f0c9",
+    "live-status-command.json": "284b73a991b93ae853f12f9b67386b1c0116f5ecfc42c26b4bd0e48a1ca8e8fa",
+    "live-status.stdout.log": "314da38603a4a13d229280b13a5361ec66dd01fffebaa44eacd977cf9d3055de",
+    "observations.json": "d2c9eced4f8eb32779493b3a125b337133ef984ab63cd71037f48fd74208f291",
+    "path-cli-version.stdout.txt": "f6464b8cc67af75deb2589fe1dbcde152fc15ffb76a91de1cf0686b4623afb1e",
+    "running-codex-component.json": "0621841ba6ffa0289af95b959b33b172525ec64c097b7ff601b97d5b2efc4f63",
+    "source-byte-diagnostic.json": "becf4f785a2fbf5f68f5a7cf97d3faa2b6b8470ef1896ac4804e1990ab279bb7",
+    "source-check-initial-failure.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source-filter-comparison.json": "44291c8f5de0c1479f19d57da58d569ffc5bd448936ab0bfacfd716480e3abb6",
+    "source-rejection-reproduction.json": "7a2c2efb763fc041a29bb544efb708376977b4610294469e6217f6516a7c83c9",
+    "source-rejection-reproduction.stderr.log": "c9fa1098404b289b6c640e2da5c75b17a9b4d815d29b2b423a375ed2a9f35570",
+    "source-rejection-reproduction.stdout.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stage-c2.log": "fb2e4f89fd236a294ffd07593457cd61dd28b70c4df0d1a1f259f2c0670cd7a7",
+    "stage-install.stdout.log": "1f06b09fa1dc2620a869e30ab38ec31bb591a4ab9e6eeb5beaee1b452f35aa03",
+    "stage-status.stdout.log": "72f88266a895d2d817ae40324f45fe6781603251faf642023bf7a5f6a475b459",
+    "staged-installation-receipt.txt": "79ee60e7cd617a617079c233507be8fe626cb1a92321f8285a8190f58179b38a",
+    "staged-installation.json": "9ca6f73b0e76f3e897473b232009e112ade41e2ec85bcc1cb51608b85281f1ac"
+  }
+}

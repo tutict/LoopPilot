@@ -26,7 +26,12 @@ evidence-backed heuristic, not a mathematical rule or Normative Invariant.
 
 ## Coordination Necessity
 
-Before selecting Full Loop, record the following:
+Use the [ordered mode reassessment](mode-selection-and-escalation.md#authority-and-timing):
+assess Product Risk, set the minimum review, validation, and evidence depth, then
+reassess Coordination Necessity. Select Full Loop only when coordination requires
+it; otherwise Lightweight or the applicable non-Full-Loop path remains allowed.
+Risk-only changes preserve mode; specialist review adds scrutiny, not coordination
+by definition. Before selecting Full Loop, record the following:
 
 | Question | Evidence |
 | --- | --- |
@@ -47,8 +52,8 @@ Use the resulting evidence proportionally:
 - High product risk and low coordination necessity tends to Lightweight with
   appropriate Review.
 - High product risk and high coordination necessity tends to Full Loop.
-- Low product risk and high coordination necessity requires a specific assessment
-  of the actual coordination need.
+- Low product risk and high coordination necessity requires Full Loop when the
+  actual need cannot be safely expressed by one owner plus bounded review.
 - Low product risk and low coordination necessity tends to Lightweight.
 
 File count remains supporting evidence only.
@@ -60,12 +65,46 @@ Compatibility, Accessibility, or Operations. It remains Lightweight; a
 specialist-reviewed Lightweight configuration is not a new mode or state. Spec and
 Standards remain permanent review axes and specialists do not replace them.
 
-Escalate Lightweight when a Major or Blocker Finding appears, multiple
+Stop affected implementation and escalate for mode reassessment when a Major or
+Blocker Finding appears, multiple
 implementation owners become necessary, a dedicated Integration Record is needed,
 cross-responsibility coordination emerges, corrections exceed the recorded budget,
 the Change Contract becomes dishonest, active recovery is required, or formal
 Rework cannot be expressed honestly in Lightweight. The presence of a Security
-Reviewer alone does not require Full Loop.
+Reviewer alone does not require Full Loop. Preserve evidence, reassess risk and its
+minimum checks, then coordination; do not send a stop directly to a Full Loop
+Contract. A non-Full-Loop decision does not permit continuing past unresolved stop
+conditions, required review or verification gaps, or the correction/resource budget.
+
+### Deterministic Mode Cases
+
+These finite maintenance cases make the existing two-axis rule checkable. They do
+not create a runtime decision engine, a third mode, or authority for a Worker.
+The Supervisor still evaluates scope, hard triggers, Findings and boundary evidence;
+the Integrator records the decision. `required` coordination means real governance
+that cannot be safely expressed by one owner plus bounded review, not merely several
+steps or reviewer presence. `Full Loop gate` means evaluate and satisfy the existing
+Contract Barrier for that coordination need. Risk sets review, validation and evidence
+depth. Non-coding work has the same coordination rule.
+
+| Case | Product risk | Coordination need | Specialist Reviewer | Work type | Permitted path | Risk-required minimum | Additional specialist review |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| M1 | low | none | no | coding | Lightweight allowed | standard | none |
+| M2 | high | none | no | coding | Lightweight allowed | enhanced | none |
+| M3 | low | required | no | coding | Full Loop gate | standard | none |
+| M4 | low | none | yes | coding | Lightweight allowed | standard | targeted |
+| M5 | high | required | yes | coding | Full Loop gate | enhanced | targeted |
+| M6 | low | none | no | non-coding | Lightweight allowed | standard | none |
+| M7 | low | required | no | non-coding | Full Loop gate | standard | none |
+
+The public maintenance validator checks these relationships, bounded procedural
+shortcut clauses, and ordered risk/review/coordination paths in routed Mermaid
+mode diagrams. It is a bounded deterministic check, not natural-language or
+host behavior validation. The risk-required minimum is a floor, not actual performed
+depth or a maximum. Specialist review adds targeted domain scrutiny above that floor;
+it does not rewrite the risk floor or change mode by itself. The additional-review
+column describes the case's assigned scope, not evidence that review has occurred.
+Specialists never substitute for Spec or Standards or automatically prove coordination need.
 
 ## Worker Failure Budget
 

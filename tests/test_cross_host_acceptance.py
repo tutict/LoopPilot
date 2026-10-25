@@ -6,27 +6,40 @@ import tempfile
 import unittest
 from dataclasses import dataclass
 from pathlib import Path
+from datetime import datetime, timezone
+from evaluation_evidence_fixture import make_package, approve_record, digest
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
-RECORD_PATH = Path("evaluations") / "claude-code" / "host-acceptance.md"
+RECORD_PATH = Path("evaluations") / "test-host" / "host-acceptance.md"
 
 
 def record(**overrides: str) -> str:
     fields = {
-        "Host": "Claude Code",
-        "Host version": "2.1.0",
-        "Model": "claude-example",
+        "Host": "Local validation executor",
+        "Host version": "1.0",
+        "Model": "deterministic-subprocess",
         "LoopPilot commit": "a" * 40,
         "Skill loading mode": "explicit",
         "Evaluation IDs": "EVAL-001, EVAL-002",
         "Scenario coverage": "lightweight-fix, full-loop-feature",
+        "Scenario IDs": "scenario 68, scenario 69",
         "Trace author": "evaluator-a",
         "Independent reviewer": "reviewer-b",
         "Lowest critical rubric score": "3",
-        "Date": "2026-07-30",
+        "Date": datetime.now(timezone.utc).date().isoformat(),
         "Verdict": "accepted",
         "Residual limitations": "none",
+        "Unverified limitations": "other hosts and loading modes remain unverified",
+        "RC version": "none",
+        "Successor ID": "none",
+        "Reference designation ID": "none",
+        "Reference Host": "none",
+        "Reference designation SHA-256": "none",
+        "Successor policy": "none",
+        "Reference designation record": "none",
+        "Provider identity": "none",
+        "Endpoint identity": "none",
     }
     dimensions = {
         "Skill loading and activation": "pass",
@@ -71,9 +84,11 @@ UNVERIFIED_STUB = {
     "LoopPilot commit": "none",
     "Evaluation IDs": "none",
     "Scenario coverage": "none",
+    "Scenario IDs": "none",
     "Trace author": "none",
     "Independent reviewer": "none",
     "Lowest critical rubric score": "none",
+    "Unverified limitations": "none",
     "Skill loading and activation": "not-evaluated",
     "Mode selection": "not-evaluated",
     "Authority and stopping": "not-evaluated",
@@ -129,6 +144,7 @@ CASES = (
     Case("accepted_with_not_evaluated_dimension_is_rejected", overrides={"Evidence_honesty": "not-evaluated"}, expected_error="forbids dimension result 'not-evaluated'"),
     Case("accepted_requires_full_commit_boundary", overrides={"LoopPilot_commit": "abc1234"}, expected_error="requires a 40-character lowercase"),
     Case("accepted_requires_evaluation_runs", overrides={"Evaluation_IDs": "none"}, expected_error="requires at least one referenced evaluation run"),
+    Case("accepted_requires_scenario_ids", overrides={"Scenario_IDs": "none"}, expected_error="requires disclosed Scenario IDs"),
     Case("accepted_requires_scenario_coverage", overrides={"Scenario_coverage": "none"}, expected_error="requires disclosed scenario coverage"),
     Case(
         "accepted_requires_full_loop_fixture",
@@ -175,6 +191,42 @@ CASES = (
         expected_error="requires disclosed residual limitations",
     ),
     Case(
+        "accepted_requires_unverified_limitations",
+        overrides={"Unverified_limitations": "none"},
+        expected_error="requires disclosed unverified limitations",
+    ),
+    Case(
+        "rc_accepted_record_requires_reference_binding",
+        overrides={"RC_version": "v1.0.0-rc1"},
+        expected_error="requires non-empty 'Successor ID'",
+    ),
+    Case(
+        "rc_accepted_record_requires_eligible_reference_host",
+        overrides={
+            "RC_version": "v1.0.0-rc1",
+            "Successor_ID": "OPTION-B-REFERENCE-2026-10-24",
+            "Reference_designation_ID": "RC1-REF-CODEX-20261024",
+            "Reference_Host": "Gemini CLI",
+            "Reference_designation_SHA-256": "b" * 64,
+            "Provider_identity": "Observed provider",
+            "Endpoint_identity": "Observed endpoint",
+        },
+        expected_error="must be Claude Code or Codex",
+    ),
+    Case(
+        "rc_accepted_record_reference_must_match_host",
+        overrides={
+            "RC_version": "v1.0.0-rc1",
+            "Successor_ID": "OPTION-B-REFERENCE-2026-10-24",
+            "Reference_designation_ID": "RC1-REF-CODEX-20261024",
+            "Reference_Host": "Codex",
+            "Reference_designation_SHA-256": "b" * 64,
+            "Provider_identity": "Observed provider",
+            "Endpoint_identity": "Observed endpoint",
+        },
+        expected_error="record Host must equal its Reference Host",
+    ),
+    Case(
         "empty_identity_field_is_rejected",
         overrides={"Host_version": ""},
         expected_error="field 'Host version' requires a value",
@@ -214,6 +266,8 @@ CASES = (
     Case("template_verdict_must_stay_unverified", operation="template_verdict", expected_error="template verdict must stay unverified"),
     Case("template_dimensions_stay_not_evaluated", operation="template_dimension", expected_error="must stay not-evaluated"),
     Case("template_missing_field_is_rejected", operation="template_field", expected_error="template missing field 'Trace author'"),
+    Case("template_missing_scenario_ids_is_rejected", operation="template_scenario_ids", expected_error="template missing field 'Scenario IDs'"),
+    Case("template_missing_unverified_limitations_is_rejected", operation="template_unverified_limitations", expected_error="template missing field 'Unverified limitations'"),
     Case("missing_template_is_rejected", operation="remove_template", expected_error="host-acceptance-record.md"),
     Case("missing_protocol_document_is_rejected", operation="remove_doc", expected_error="cross-host-acceptance.md"),
 )
@@ -236,8 +290,12 @@ class CrossHostAcceptanceTests(unittest.TestCase):
     def validate(self, fixture: Path) -> subprocess.CompletedProcess[str]:
         environment = os.environ.copy()
         environment["PYTHONDONTWRITEBYTECODE"] = "1"
+        command = [sys.executable, str(fixture / "scripts" / "validate.py"), "--root", str(fixture)]
+        authority = fixture.parent / "operator" / "evidence-index.json"
+        if authority.exists():
+            command += ["--evidence-index", str(authority), "--evidence-index-sha256", digest(authority)]
         return subprocess.run(
-            [sys.executable, str(fixture / "scripts" / "validate.py"), "--root", str(fixture)],
+            command,
             cwd=fixture, env=environment, capture_output=True, text=True, check=False,
         )
 
@@ -249,6 +307,12 @@ class CrossHostAcceptanceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             fixture = self.copy_repository(directory)
             template = fixture / "evaluations" / "templates" / "host-acceptance-record.md"
+            authority = Path(directory) / "operator" / "evidence-index.json"
+            if case.operation in {"record", "nested_template_record", "blank_evidence", "duplicate_row"}:
+                # Preserve old assertion expectations while supplying real local
+                # process evidence and explicit TEST authority, never host acceptance.
+                for identifier, scenario, shape in (("EVAL-001", "scenario 68", "lightweight"), ("EVAL-002", "scenario 69", "full-loop")):
+                    make_package(fixture, authority, evaluation_id=identifier, scenario_id=scenario, shape=shape)
             if case.operation == "record":
                 self.write(fixture / RECORD_PATH, record(**(case.overrides or {})))
             elif case.operation == "nested_template_record":
@@ -277,6 +341,12 @@ class CrossHostAcceptanceTests(unittest.TestCase):
             elif case.operation == "template_field":
                 text = template.read_text(encoding="utf-8")
                 self.write(template, text.replace("- Trace author: none\n", ""))
+            elif case.operation == "template_scenario_ids":
+                text = template.read_text(encoding="utf-8")
+                self.write(template, text.replace("- Scenario IDs: none\n", ""))
+            elif case.operation == "template_unverified_limitations":
+                text = template.read_text(encoding="utf-8")
+                self.write(template, text.replace("- Unverified limitations: none\n", ""))
             elif case.operation == "remove_template":
                 template.unlink()
             elif case.operation == "remove_doc":
@@ -284,6 +354,10 @@ class CrossHostAcceptanceTests(unittest.TestCase):
             elif case.operation != "repository":
                 self.fail(f"unknown operation {case.operation}")
 
+            for created in (fixture / RECORD_PATH, fixture / "evaluations/claude-code/templates/record.md"):
+                if created.exists():
+                    self.write(created, created.read_text(encoding="utf-8").replace("trace reference", "[trace](EVAL-001/evidence/events.jsonl#result-1)"))
+                    approve_record(fixture, created, authority)
             result = self.validate(fixture)
             output = result.stdout + result.stderr
             if case.expected_error:

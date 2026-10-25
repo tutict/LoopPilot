@@ -1,0 +1,23 @@
+Install mode: git-release
+Source snapshot SHA-256: 13b9c17ed822fbb5e8962d1036318c189116ecdb404da604248864fbcb66d7ef
+Source validation: passed
+Source clean determination: preflight passed (not a live worktree claim)
+LoopPilot installation status
+Destination: C:\Users\tutic\AppData\Local\Temp\lp-rc1-preflight-stage-20261024
+State: CURRENT
+State format: 2
+Installed version: unreleased
+Installed commit: 061ca98daf0b87b282930a0c130e395150a20a61
+Source version: unreleased
+Source commit: 061ca98daf0b87b282930a0c130e395150a20a61
+Installed source mode: git-release
+Revision: unchanged
+Manifest: unchanged
+Interrupted update: no
+Files current: 82
+Files updatable: 0
+Files locally modified: 0
+Files conflicted: 0
+Files to add: 0
+Files to remove: 0
+Files preserved on remove: 0

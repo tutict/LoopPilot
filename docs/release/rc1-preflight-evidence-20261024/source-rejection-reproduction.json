@@ -1,0 +1,17 @@
+{
+  "classification": "new controlled reproduction, not the original failed capture",
+  "recorded_at": "2026-10-24T14:40:59.077209+00:00",
+  "command": [
+    "C:\\Users\\tutic\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powershell\\pwsh.exe",
+    "-NoProfile",
+    "-File",
+    "C:\\Users\\tutic\\AppData\\Local\\Temp\\lp-rc1-status-source-20261024\\status.ps1",
+    "-Destination",
+    "C:\\Users\\tutic\\.agents\\skills\\loop-pilot"
+  ],
+  "exit_code": 1,
+  "original_capture_gap": "original source-check-initial-failure.log is zero bytes; original error was observed in the host tool result, not preserved in that file",
+  "git_override": "none; ordinary inherited Git configuration",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "c9fa1098404b289b6c640e2da5c75b17a9b4d815d29b2b423a375ed2a9f35570"
+}

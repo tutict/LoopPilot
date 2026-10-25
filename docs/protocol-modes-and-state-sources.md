@@ -13,9 +13,10 @@ Project Status nor Loop Status.
 
 ## Lightweight Mode
 
-Lightweight Mode is appropriate for a simple task or one small Loop, a clear and
-low-risk change, one or few Workers, little review specialization, and work that can
-finish in one or a few contexts. It continues to use:
+Lightweight Mode is appropriate for bounded work safely expressed by one owner
+plus bounded review, with no coordination need requiring Full Loop. High Product
+Risk or specialist review alone does not disqualify it: risk determines the minimum
+review, validation, and evidence depth. It continues to use:
 
 - .looppilot/STATE.md for a compact parent summary;
 - .looppilot/HANDOFF.md for unfinished recovery facts;
@@ -28,14 +29,16 @@ A simple task MUST NOT be escalated merely because Full Loop artifacts exist in 
 specification. Protocol overhead MUST remain lower than its engineering value.
 The provisional Lightweight target is four to seven artifacts. File count is
 supporting evidence only. A Major or Blocker, hard risk trigger, contract drift,
-or material budget growth requires stop or Full Loop reassessment.
+or material budget growth requires a stop and ordered mode reassessment, not a
+direct mode switch. Required reviews, checks, and budget-stop controls remain.
 
 ## Full Loop Mode
 
-Full Loop Mode is appropriate for multiple independently accepted Loops, multiple
-Workers, an explicit Task DAG, independent or specialist Reviewers, Finding and
-rework cycles, complex business or data behavior, high security or operational
-risk, separate commit boundaries, or recovery across context limits.
+Full Loop Mode is appropriate when coordination requires multiple independently
+accepted Loops or implementation owners, non-trivial integration ordering, formal
+Rework, or active recovery that one owner plus bounded review cannot safely express.
+Specialist Reviewers and high security, data, or operational risk set review depth;
+they do not independently select Full Loop.
 
 Its target structure is:
 
@@ -70,16 +73,20 @@ transition semantics, completion projection, and role boundaries are defined in
 
 ```mermaid
 flowchart TD
-    S["Assess outcome, risk, dependencies, and recovery"] --> Q{"Multiple Loops, DAG, specialist review, or cross-context recovery?"}
-    Q -->|no| L["Use Lightweight Mode"]
-    Q -->|yes| F["Use Full Loop Mode target protocol"]
+    S["Assess Product Risk from outcome and boundaries"] --> R["Set minimum review validation and evidence depth"]
+    R --> Q{"Coordination required?"}
+    Q -->|No| L["Use Lightweight or applicable non-Full-Loop path"]
+    Q -->|Yes| F["Use Full Loop Mode target protocol"]
     L --> P["Keep ceremony proportional"]
     F --> C["Define authoritative contracts, Ledgers, Closure, and Checkpoint"]
 ```
 
 The Supervisor selects the mode after understanding the user problem and relevant
 engineering concerns. A mode change is a scope and recovery decision, not an
-automatic response to file count.
+automatic response to file count, risk alone, or specialist presence. Follow the
+[ordered reassessment](mode-selection-and-escalation.md#authority-and-timing) on
+new evidence; risk-only changes preserve mode unless coordination independently
+requires a change.
 
 ## Full Loop Sources of Truth
 

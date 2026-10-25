@@ -28,3 +28,12 @@ chain-of-thought and MUST score each observed trace with [`tests/evaluation-rubr
 For an A/B comparison, evaluators SHOULD keep the task fixture, host, model, authority,
 and available tools constant. They SHOULD change only whether and how LoopPilot is
 loaded and MUST report both runs even when either run fails.
+
+## Current Evidence Validation Boundary
+
+New packages follow the [evidence integrity contract](../docs/evaluation-evidence-integrity.md).
+Presence, values, cross-artifact links, raw evidence hashes and corresponding approved
+run/review receipts are checked under an explicit operator-pinned index outside the
+repository. The validator cannot turn self-authored hashes into observed evidence.
+Pinned historical packages remain immutable, unverified and ineligible for new
+accepted summaries; they are not silently upgraded to the current schema.

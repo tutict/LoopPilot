@@ -6,15 +6,30 @@ The Supervisor decides the mode. The Integrator records that decision. Mode
 Selection does not own Project Status or Loop Status and does not change the
 authority of PROJECT.md or LOOP-MAP.md.
 
-Mode is selected before implementation in this order:
+Mode is selected before implementation and reassessed on new evidence in this order:
+
+1. Assess Product Risk from the current problem, scope, Findings, and boundary evidence.
+2. Set the minimum review, validation, and evidence depth for that risk, retaining
+   Spec and Standards and adding risk-matched specialist review where required.
+3. Reassess Coordination Necessity independently: can one owner plus bounded review
+   safely express delivery, integration, correction, and recovery?
+4. Select Full Loop only if that coordination requires it; otherwise Lightweight
+   or the applicable non-Full-Loop path remains allowed. No Implementation is
+   correct when no real gap remains. Risk-only changes preserve mode unless new
+   coordination evidence independently requires a mode change.
+
+This reassessment is a Supervisor decision recorded by the Integrator, not a new
+runtime planner, lifecycle, or permission. A risk increase can require deeper
+checks and a stop to reassess without requiring a Full Loop Contract.
 
 ```mermaid
 flowchart LR
-    P[Problem and Scope] --> R[Risk and Boundary Evidence]
-    R --> G[Mode Selection Gate]
-    G --> L[Lightweight Change]
-    G --> F[Full Loop Contract Barrier]
-    G --> N[No Implementation]
+    P[Problem and Scope] --> R[Assess Product Risk]
+    R --> V[Set minimum review validation and evidence depth]
+    V --> G{Coordination required?}
+    G -->|No| L[Lightweight or applicable non-Full-Loop path]
+    G -->|Yes| F[Full Loop Contract Barrier]
+    P -->|No real gap| N[No Implementation]
 ```
 
 No Implementation is correct when investigation finds no real gap. An Agent must
@@ -31,6 +46,24 @@ independently useful Deliveries, non-trivial integration ordering, formal Rework
 or active recovery. It determines whether Full Loop is warranted. High product risk
 does not by itself prove that multiple Workers are required. See
 [coordination necessity](coordination-necessity-and-delegation-fallback.md).
+
+## Coding and Non-Coding Cases
+
+The two axes remain separate for every kind of work:
+
+| Scenario | Review depth | Mode decision |
+| --- | --- | --- |
+| High product risk / low coordination | Deep risk-matched review, validation, and evidence | Supervisor may justify one-owner Lightweight after evaluating hard triggers; high risk alone does not require multiple Workers |
+| Low product risk / high coordination | Risk-matched review, never omit Spec or Standards | Full Loop when coordination cannot be safely expressed by one owner and bounded review |
+| Multi-step non-coding / low coordination | Verify sources, facts, structure, or analysis as relevant | Lightweight by default for bounded documents, research, analysis, planning deliverables, or information organization |
+| Multi-step non-coding / real coordination | Risk-matched review plus integration evidence | Evaluate Full Loop; non-coding is not an exemption from coordination requirements |
+
+Real coordination evidence includes shared factual state with concurrent ownership,
+multi-role dependency, parallel Workers, Integrator coordination, a dependency chain
+across deliveries, or an explicit coordination requirement. Shared notes or several
+sequential steps alone do not prove that Full Loop is necessary. The Supervisor must
+decide from the actual boundary evidence, and re-evaluate on escalation evidence.
+Advice-only planning still does not implicitly activate execution.
 
 ## Lightweight Tendency
 
@@ -54,7 +87,10 @@ justify Full Loop.
 
 ## Full Loop Hard Triggers
 
-Evaluate Full Loop first when any hard trigger is present:
+The following are hard reassessment triggers, not direct Full Loop selectors.
+Stop affected Lightweight implementation and run the ordered reassessment above.
+Risk or scope evidence sets the required checks first; coordination evidence then
+determines whether a Full Loop Contract is necessary:
 
 - a cross-language or cross-runtime contract;
 - sensitive data, API keys, permissions, network trust, or another security
@@ -70,15 +106,18 @@ Evaluate Full Loop first when any hard trigger is present:
 - failure impact spanning domains or Loops; or
 - a release-required or production-delivery obligation.
 
-A hard trigger creates a Full Loop tendency, not an automatic runtime decision.
-Lifecycle consistency does not create another mode: Product Risk still determines
-review and evidence depth, while Coordination Necessity determines Full Loop.
-The Supervisor records actual evidence, grouping rationale, why Lightweight is
-insufficient, and expected protocol cost before the Contract Barrier.
+A hard trigger requires reassessment, not an automatic runtime decision.
+Newly discovered high risk or a specialist Reviewer is not a hidden direct trigger
+for Full Loop. Lifecycle consistency does not create another mode: Product Risk
+still determines review and evidence depth, while Coordination Necessity determines
+Full Loop. Before a Full Loop Contract Barrier, the Supervisor records actual
+coordination evidence, grouping rationale, why Lightweight is insufficient, and
+expected protocol cost. Without that coordination need, record the bounded path
+and its risk-required minimum checks; do not waive checks to retain Lightweight.
 
 ## Lightweight Escalation
 
-Stop or escalate a Lightweight change when any of these occurs:
+Stop affected implementation and escalate for mode reassessment when any of these occurs:
 
 - a Major or Blocker Finding;
 - scope expands into another language or runtime;
@@ -98,12 +137,25 @@ flowchart TD
     D -->|Major or Blocker| S[Stop Lightweight Work]
     D -->|Hard Trigger or Contract Drift| S
     S --> E[Preserve Lightweight Evidence]
-    E --> F[Create Full Loop Contract]
+    E --> R[Assess Product Risk]
+    R --> V[Set minimum review validation and evidence depth]
+    V --> Q{Coordination required?}
+    Q -->|Yes| F[Create Full Loop Contract]
     F --> B[Repass Contract Barrier]
+    Q -->|No| L[Revalidate bounded Lightweight or applicable non-Full-Loop path]
+    L --> H[Resume only after required checks and stop conditions are satisfied]
 ```
 
-Escalation records the reason, preserves existing evidence, and creates the
-formal Full Loop Contract. Lightweight self-review does not become Full Loop
+Escalation records the reason, preserves existing evidence, and repeats the ordered
+risk, minimum-review-depth, and coordination assessment. If coordination requires
+Full Loop, create the formal Contract and repass Contract Barrier before further
+implementation. Otherwise the Supervisor may retain Lightweight or the applicable
+non-Full-Loop path after revalidating scope, review and verification obligations,
+correction limits, and recovery feasibility. A material scope change can keep work
+stopped even without a mode change. Major or Blocker Findings, repeated corrections,
+contract drift, and budget-stop controls cannot be bypassed by retaining a mode.
+If required checks, review, safe recovery, or authority are unavailable, remain
+stopped and disclose the gap. Lightweight self-review does not become Full Loop
 Review, and an earlier correction is not automatically relabeled as Rework.
 
 ## Lightweight Artifact Budget and Accounting
