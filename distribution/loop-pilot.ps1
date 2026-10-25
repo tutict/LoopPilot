@@ -30,6 +30,13 @@ function Fail([string]$Message) {
     throw "LoopPilot distribution: $Message"
 }
 
+function Trim-PathSeparators([string]$Path) {
+    return $Path.TrimEnd([char[]]@(
+        [IO.Path]::DirectorySeparatorChar,
+        [IO.Path]::AltDirectorySeparatorChar
+    ))
+}
+
 function Assert-RelativePath([string]$RelativePath) {
     if ([string]::IsNullOrWhiteSpace($RelativePath) -or
         [IO.Path]::IsPathRooted($RelativePath) -or
@@ -156,9 +163,10 @@ function Prepare-Source {
         if ($ArchiveSha256 -cnotmatch '^[0-9a-f]{64}$') { Fail "explicit archive mode requires -ArchiveSha256" }
         $script:ProvenanceMode = "archive"
     }
-    $script:SnapshotParent = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\', '/')
+    $script:SnapshotParent = Trim-PathSeparators ([IO.Path]::GetFullPath([IO.Path]::GetTempPath()))
     $script:SnapshotRoot = Join-Path $SnapshotParent ("looppilot-source-" + [guid]::NewGuid().ToString("N"))
-    if ($SnapshotRoot.StartsWith($OriginalSourceRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { Fail "snapshot must be outside source root" }
+    $sourcePrefix = (Trim-PathSeparators ([IO.Path]::GetFullPath($OriginalSourceRoot))) + [IO.Path]::DirectorySeparatorChar
+    if ($SnapshotRoot.StartsWith($sourcePrefix, [StringComparison]::OrdinalIgnoreCase)) { Fail "snapshot must be outside source root" }
     $payload = Join-Path $SnapshotRoot "payload"
     New-Item -ItemType Directory -Path $payload -Force | Out-Null
     if ($SourceMode -eq "release") {
@@ -233,7 +241,7 @@ function Prepare-Source {
 function Remove-SourceSnapshot {
     if ($null -eq $SnapshotRoot -or -not (Test-Path -LiteralPath $SnapshotRoot)) { return }
     $resolved = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $SnapshotRoot).Path)
-    $parent = [IO.Path]::GetFullPath($SnapshotParent).TrimEnd('\') + '\'
+    $parent = (Trim-PathSeparators ([IO.Path]::GetFullPath($SnapshotParent))) + [IO.Path]::DirectorySeparatorChar
     if (-not $resolved.StartsWith($parent, [StringComparison]::OrdinalIgnoreCase) -or
         (Split-Path -Leaf $resolved) -notmatch '^looppilot-source-[0-9a-f]{32}$' -or
         ((Get-Item -LiteralPath $resolved -Force).Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {

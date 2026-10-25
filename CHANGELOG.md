@@ -21,6 +21,9 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+- Fixed the PowerShell distribution snapshot cleanup boundary to use the host's
+  native directory separators, preserving the existing path and reparse-point
+  safety checks on non-Windows PowerShell hosts.
 - Recognized /lp, $lp, and $loop-pilot as explicit LoopPilot invocations, and added the installable short skill shortcuts/lp so a host can expose the /lp command without renaming the protocol skill.
 - Routed mode-specific LoopPilot procedure out of the always-loaded skill body. SKILL.md now states the decisions that apply to every run and names the document that owns each later concern. Its description triggers on checked multi-step work, diagnosis, recovery, or an explicit invocation. AGENTS.md reads a document only for the concern it governs. Local reversible work inside the latest user request does not need stepwise confirmation; commit, push, release, deploy, deletion, and external messages still do.
 - Added `scripts/c2_isolation_validation.py`, which enumerates an installed Skill

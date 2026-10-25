@@ -20,6 +20,7 @@ distribution/loop-pilot.sh
 .github/workflows/validate.yml
 SKILL.md
 README.md
+README.zh-CN.md
 AGENTS.md
 CHANGELOG.md
 CONTRIBUTING.md

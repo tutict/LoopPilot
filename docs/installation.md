@@ -42,6 +42,7 @@ the supporting documents:
 |-- SKILL.md
 |-- AGENTS.md
 |-- README.md
+|-- README.zh-CN.md
 |-- CHANGELOG.md
 |-- CONTRIBUTING.md
 |-- LICENSE
