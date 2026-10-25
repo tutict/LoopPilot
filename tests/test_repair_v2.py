@@ -36,9 +36,12 @@ class ImmutableInstallerTests(DistributionFixture):
             self.git(source, "commit", "-m", "synthetic source A")
         return source
 
-    def tool(self, shell, source, dest, *, operation="install", mode=None, digest=None, force=False, race=False, corrupt_export=False, extra_export=False):
+    def tool(self, shell, source, dest, *, operation="install", mode=None, digest=None, force=False, race=False, corrupt_export=False, extra_export=False, temporary_root=None):
         env = os.environ.copy()
         env["GIT_CEILING_DIRECTORIES"] = str(ROOT)
+        if temporary_root is not None:
+            for key in ("TEMP", "TMP", "TMPDIR"):
+                env[key] = str(temporary_root.resolve())
         extra = []
         if shell == "bash":
             if not BASH:
@@ -132,6 +135,35 @@ class ImmutableInstallerTests(DistributionFixture):
         self.assertNotEqual(0, result.returncode, result.stdout + result.stderr)
         self.assertFalse((dest / ".looppilot-installation").exists())
         self.assertFalse((dest / "SKILL.md").exists())
+
+    def test_powershell_removes_only_its_external_snapshot(self):
+        source = self.source("snapshot-cleanup", git=False)
+        temporary_root = self.work / "external-temp"
+        preserved = temporary_root / ("looppilot-source-" + "a" * 32) / "keep.txt"
+        preserved.parent.mkdir(parents=True)
+        preserved.write_bytes(b"unrelated temporary content\n")
+        dest = self.work / "installed"
+        result = self.tool(
+            "powershell", source, dest, mode="archive",
+            digest=payload_digest(source, ["SKILL.md"]), temporary_root=temporary_root,
+        )
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        self.assertEqual((source / "SKILL.md").read_bytes(), (dest / "SKILL.md").read_bytes())
+        self.assertEqual(b"unrelated temporary content\n", preserved.read_bytes())
+        self.assertEqual([preserved.parent], list(temporary_root.iterdir()))
+
+    def test_powershell_refuses_snapshot_inside_source_before_install(self):
+        source = self.source("snapshot-inside-source", git=False)
+        temporary_root = source / "internal-temp"
+        temporary_root.mkdir()
+        dest = self.work / "installed"
+        result = self.tool(
+            "powershell", source, dest, mode="archive",
+            digest=payload_digest(source, ["SKILL.md"]), temporary_root=temporary_root,
+        )
+        self.refused(result, dest)
+        self.assertIn("snapshot must be outside source root", result.stdout + result.stderr)
+        self.assertEqual([], list(temporary_root.iterdir()))
 
     def test_worktree_mutation_cannot_change_pinned_release_payload(self):
         for shell in ("bash", "powershell"):
