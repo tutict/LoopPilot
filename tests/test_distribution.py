@@ -189,6 +189,7 @@ class DistributionFixture(unittest.TestCase):
         if shell == "powershell":
             if POWERSHELL is None:
                 self.skipTest("PowerShell is unavailable")
+            powershell_parameters = {"Operation": operation, "Destination": str(destination)}
             command = [
                 POWERSHELL,
                 "-NoLogo",
@@ -204,6 +205,7 @@ class DistributionFixture(unittest.TestCase):
             ]
             if force:
                 command.append("-Force")
+                powershell_parameters["Force"] = True
         elif shell == "bash":
             if BASH is None:
                 self.skipTest("Bash is unavailable")
@@ -240,6 +242,24 @@ class DistributionFixture(unittest.TestCase):
             digest = hashlib.sha256("".join(rows).encode("utf-8")).hexdigest()
             command.extend(["-SourceMode", "archive", "-ArchiveSha256", digest] if shell == "powershell"
                            else ["--source-mode", "archive", "--archive-sha256", digest])
+            if shell == "powershell":
+                powershell_parameters.update(SourceMode="archive", ArchiveSha256=digest)
+        if shell == "powershell":
+            # Keep diagnostics machine-readable instead of depending on the
+            # host's ANSI formatting and terminal-width wrapping. Exit codes,
+            # installer arguments and every behavioral assertion stay intact.
+            harness = self.work / "invoke-powershell.ps1"
+            rows = []
+            for name, value in powershell_parameters.items():
+                literal = "$true" if value is True else "'" + value.replace("'", "''") + "'"
+                rows.append(f"    {name} = {literal}\n")
+            script = str(source / "distribution" / "loop-pilot.ps1").replace("'", "''")
+            harness.write_text(
+                "$ErrorActionPreference = 'Stop'\n$ErrorView = 'NormalView'\n"
+                + "$parameters = @{\n" + "".join(rows) + "}\n"
+                + f"& '{script}' @parameters\n", encoding="utf-8",
+            )
+            command = command[:6] + [str(harness)]
         return subprocess.run(
             command,
             check=check,

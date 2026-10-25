@@ -64,6 +64,7 @@ class ImmutableInstallerTests(DistributionFixture):
                     f"  printf 'changed-version\\n' > '{_posix_path(source / 'distribution/version.txt')}'\n"
                     "fi\n"
                     f"exec '{_posix_path(Path(GIT))}' \"$@\"\n", encoding="utf-8", newline="\n")
+                (wrappers / "git").chmod(0o755)
                 command = [BASH, "-c", f'export PATH="{_posix_path(wrappers)}:$PATH"; exec bash '
                            f'"{_posix_path(source / "distribution/loop-pilot.sh")}" {operation} '
                            f'--destination "{_posix_path(dest)}"']
@@ -118,6 +119,7 @@ class ImmutableInstallerTests(DistributionFixture):
                     "if [[ \" $* \" == *' archive '* && $rc == 0 ]]; then\n"
                     f" '{_posix_path(Path(sys.executable))}' '{_posix_path(mutator)}' {mutation_option} \"$@\"\n rc=$?\nfi\nexit \"$rc\"\n",
                     encoding="utf-8", newline="\n")
+                (wrappers / "git").chmod(0o755)
                 command = [BASH, "-c", f'export PATH="{_posix_path(wrappers)}:$PATH"; exec bash '
                            f'"{_posix_path(source / "distribution/loop-pilot.sh")}" install --destination "{_posix_path(dest)}"']
             else:
