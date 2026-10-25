@@ -47,6 +47,9 @@ def smoke(output, commit):
     from test_distribution import BASH, POWERSHELL, _expand_official_manifest, _posix_path
 
     env = installer_environment()
+    # The maintenance observer prints the Unicode destination in its raw log.
+    # Keep that child stream independent of Windows' legacy console code page.
+    env["PYTHONIOENCODING"] = "utf-8"
     payload = sorted(_expand_official_manifest())
     assert {"README.md", "README.zh-CN.md"}.issubset(payload)
     blobs = {p: run(["git", "--no-replace-objects", "show", f"{commit}:{p}"]) for p in payload}

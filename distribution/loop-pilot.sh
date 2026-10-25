@@ -27,7 +27,7 @@ cleanup() {
   if [ -n "$SNAPSHOT_ROOT" ] && [ -d "$SNAPSHOT_ROOT" ] && [ ! -L "$SNAPSHOT_ROOT" ]; then
     case "$SNAPSHOT_ROOT" in
       "$SNAPSHOT_PARENT"/looppilot-source.*)
-        chmod -R u+w -- "$SNAPSHOT_ROOT"
+        chmod -R u+w "$SNAPSHOT_ROOT"
         rm -rf -- "$SNAPSHOT_ROOT"
         ;;
       *) printf 'Refused unsafe snapshot cleanup path\n' >&2 ;;
@@ -249,7 +249,7 @@ prepare_source() {
   if [ "$SOURCE_MODE" = archive ]; then
     [ "$SNAPSHOT_DIGEST" = "$ARCHIVE_SHA256" ] || fail 'archive snapshot digest mismatch'
   fi
-  chmod -R a-w -- "$SOURCE_ROOT"
+  chmod -R a-w "$SOURCE_ROOT"
   printf 'Install mode: %s\nSource snapshot SHA-256: %s\nSource validation: passed\n' "$PROVENANCE_MODE" "$SNAPSHOT_DIGEST"
   if [ "$SOURCE_MODE" = release ]; then printf 'Source clean determination: preflight passed (not a live worktree claim)\n'; fi
   if [ "$SOURCE_MODE" = archive ]; then printf 'Archive commit is publisher-declared, not verified Git provenance\n'; fi
@@ -517,7 +517,7 @@ copy_source_file() {
   destination="$destination_root/$entry"
   mkdir -p -- "$(dirname -- "$destination")"
   cp -p -- "$SOURCE_ROOT/$entry" "$destination"
-  chmod u+w -- "$destination"
+  chmod u+w "$destination"
   [ "$(file_hash "$destination")" = "$expected_hash" ] ||
     fail "source changed during copy: $entry"
 }

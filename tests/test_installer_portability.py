@@ -201,6 +201,34 @@ class SourceLineEndingTests(DistributionFixture):
 
 
 class BashEntrypointTests(DistributionFixture):
+    def test_lifecycle_works_when_chmod_rejects_a_post_mode_option_terminator(self):
+        if not BASH:
+            self.skipTest("Bash unavailable")
+        source = self._make_source("bsd-chmod", "bsd-test", "a", {"SKILL.md": "payload\n"}, ["SKILL.md"])
+        script = source / "distribution/loop-pilot.sh"
+        script.write_bytes(script.read_bytes().replace(b"\r\n", b"\n"))
+        directory = self.work / "bsd-bin"
+        directory.mkdir()
+        real = subprocess.run([BASH, "-c", "command -v chmod"], capture_output=True, text=True, check=True).stdout.strip()
+        marker = self.work / "chmod-called"
+        ps = lambda p: shlex.quote(_posix_path(Path(p)))
+        wrapper = directory / "chmod"
+        wrapper.write_text(bash_shebang(BASH)
+                           + "for arg in \"$@\"; do [ \"$arg\" != '--' ] || exit 42; done\n"
+                           + f"printf called >> {ps(marker)}\nexec {shlex.quote(real)} \"$@\"\n",
+                           encoding="utf-8", newline="\n")
+        wrapper.chmod(0o755)
+        digest = hashlib.sha256(f"SKILL.md|{hashlib.sha256((source / 'SKILL.md').read_bytes()).hexdigest()}\n".encode()).hexdigest()
+        dest = self.work / "installed"
+        env = os.environ.copy()
+        env["GIT_CEILING_DIRECTORIES"] = str(ROOT)
+        for operation in ("install", "status", "update", "uninstall"):
+            result = subprocess.run([BASH, "-c", f'export PATH={ps(directory)}:$PATH; exec "$BASH" {ps(script)} {operation} --destination {ps(dest)} --source-mode archive --archive-sha256 {digest}'],
+                                    env=env, capture_output=True, text=True, encoding="utf-8", errors="replace")
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        self.assertTrue(marker.is_file(), "the BSD chmod behavior must actually be exercised")
+        self.assertFalse((dest / "SKILL.md").exists())
+
     def test_all_wrappers_keep_the_initial_bash_with_a_shadow_on_path(self):
         if not BASH:
             self.skipTest("Bash is unavailable")
