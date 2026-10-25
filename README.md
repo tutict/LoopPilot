@@ -418,6 +418,12 @@ and preserve its relative supporting files.
 Repository maintainers can install the isolated development dependency and run the
 repeatable checks described in [validation](docs/validation.md).
 
+The installation CI matrix checks Windows PowerShell 5.1/7 and Git Bash, Ubuntu
+Bash/PowerShell 7, and macOS system Bash 3.2/PowerShell 7. Job artifacts record
+actual platform/architecture, shell versions, native lifecycle logs and receipt
+hashes. Coverage applies only to each successful recorded packaging run; it does
+not establish AI-host behavior. See [platform maintenance verification](docs/installation.md#platform-maintenance-verification).
+
 ## Safety and Progress
 
 LoopPilot interprets authority narrowly. Commit, push, publish, deploy, message

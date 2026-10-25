@@ -1,0 +1,2 @@
+# Shell entry points must run directly in native Bash, including Git Bash.
+*.sh text eol=lf

@@ -27,7 +27,7 @@ cleanup() {
   if [ -n "$SNAPSHOT_ROOT" ] && [ -d "$SNAPSHOT_ROOT" ] && [ ! -L "$SNAPSHOT_ROOT" ]; then
     case "$SNAPSHOT_ROOT" in
       "$SNAPSHOT_PARENT"/looppilot-source.*)
-        chmod -R u+w -- "$SNAPSHOT_ROOT"
+        chmod -R u+w "$SNAPSHOT_ROOT"
         rm -rf -- "$SNAPSHOT_ROOT"
         ;;
       *) printf 'Refused unsafe snapshot cleanup path\n' >&2 ;;
@@ -136,6 +136,11 @@ stream_hash() {
   else shasum -a 256 | awk '{print $1}'; fi
 }
 
+assert_blob_hash() {
+  case "$1" in ''|*[!0-9a-f]*) fail 'invalid Git blob hash' ;; esac
+  [ "${#1}" -eq 40 ] || fail 'invalid Git blob hash'
+}
+
 payload_digest() {
   local root=$1 entries=$2 path
   while IFS= read -r path; do
@@ -187,10 +192,17 @@ prepare_source() {
       expected=${metadata##* }
       [ -f "$ORIGINAL_SOURCE_ROOT/$path" ] && [ ! -L "$ORIGINAL_SOURCE_ROOT/$path" ] || fail "dirty Git source: missing or indirect tracked file $path"
       actual=$(git --no-replace-objects -C "$ORIGINAL_SOURCE_ROOT" hash-object --path="$path" "$ORIGINAL_SOURCE_ROOT/$path") || fail 'cannot verify tracked worktree content'
-      [ "$actual" = "$expected" ] || fail "dirty Git source content differs from pinned commit: $path"
+      assert_blob_hash "$actual"
+      if [ "$actual" != "$expected" ]; then
+        actual=$(git --no-replace-objects -C "$ORIGINAL_SOURCE_ROOT" hash-object --no-filters "$ORIGINAL_SOURCE_ROOT/$path") || fail 'cannot verify raw tracked worktree content'
+        assert_blob_hash "$actual"
+        [ "$actual" = "$expected" ] || fail "dirty Git source content differs from pinned commit: $path"
+      fi
     done < "$SNAPSHOT_ROOT/tree"
     command -v tar >/dev/null 2>&1 || fail 'tar is required for release snapshots'
-    git --no-replace-objects -C "$ORIGINAL_SOURCE_ROOT" archive --format=tar --output="$SNAPSHOT_ROOT/source.tar" "$PINNED_COMMIT" ||
+    # Export exact Git bytes; this command-local setting never alters checkout
+    # verification or persistent user/repository configuration.
+    git --no-replace-objects -C "$ORIGINAL_SOURCE_ROOT" -c core.autocrlf=false -c core.eol=lf archive --format=tar --output="$SNAPSHOT_ROOT/source.tar" "$PINNED_COMMIT" ||
       fail 'cannot export pinned commit'
     tar -xf "$SNAPSHOT_ROOT/source.tar" -C "$SNAPSHOT_ROOT/payload" || fail 'cannot extract pinned snapshot'
     find "$SNAPSHOT_ROOT/payload" -mindepth 1 -print0 > "$SNAPSHOT_ROOT/actual-nodes" || fail 'cannot enumerate snapshot'
@@ -237,7 +249,7 @@ prepare_source() {
   if [ "$SOURCE_MODE" = archive ]; then
     [ "$SNAPSHOT_DIGEST" = "$ARCHIVE_SHA256" ] || fail 'archive snapshot digest mismatch'
   fi
-  chmod -R a-w -- "$SOURCE_ROOT"
+  chmod -R a-w "$SOURCE_ROOT"
   printf 'Install mode: %s\nSource snapshot SHA-256: %s\nSource validation: passed\n' "$PROVENANCE_MODE" "$SNAPSHOT_DIGEST"
   if [ "$SOURCE_MODE" = release ]; then printf 'Source clean determination: preflight passed (not a live worktree claim)\n'; fi
   if [ "$SOURCE_MODE" = archive ]; then printf 'Archive commit is publisher-declared, not verified Git provenance\n'; fi
@@ -260,7 +272,8 @@ git_source_root() {
   root=$(git --no-replace-objects -C "$SOURCE_ROOT" rev-parse --show-toplevel 2>/dev/null || true)
   [ -n "$root" ] || return 1
   root=$(CDPATH= cd -P -- "$root" && pwd)
-  [ "$root" = "$SOURCE_ROOT" ]
+  # Git for Windows may name the same TEMP directory as /tmp or /c/.../Temp.
+  [ "$root" -ef "$SOURCE_ROOT" ]
 }
 
 assert_source_file() {
@@ -504,7 +517,7 @@ copy_source_file() {
   destination="$destination_root/$entry"
   mkdir -p -- "$(dirname -- "$destination")"
   cp -p -- "$SOURCE_ROOT/$entry" "$destination"
-  chmod u+w -- "$destination"
+  chmod u+w "$destination"
   [ "$(file_hash "$destination")" = "$expected_hash" ] ||
     fail "source changed during copy: $entry"
 }

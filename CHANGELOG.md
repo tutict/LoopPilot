@@ -21,6 +21,13 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+- Added required-shell installation verification for Windows PowerShell 5.1/7,
+  Git Bash, Ubuntu Bash/PowerShell 7 and macOS system Bash 3.2/PowerShell 7.
+  Matrix evidence records actual platform, versions and official lifecycle receipts.
+- Fixed clean tracked files whose committed raw bytes differ from the current
+  Git clean-filter representation. Hash command errors still refuse installation;
+  raw archive snapshots and copied bytes remain checked against the pinned tree.
+  Bash entry points preserve their initial interpreter and shell scripts use LF.
 - Fixed the PowerShell distribution snapshot cleanup boundary to use the host's
   native directory separators, preserving the existing path and reparse-point
   safety checks on non-Windows PowerShell hosts.

@@ -176,6 +176,26 @@ On hosted Linux CI, Mermaid uses the runner's system Google Chrome through a
 temporary Puppeteer `executablePath` configuration. Chromium's sandbox remains
 enabled; the job fails if that browser is unavailable.
 
+The Ubuntu job keeps the full repository suite and required follow-up phases.
+It also smoke-tests official native installer entry points. Separate Windows
+PowerShell 5.1/Git Bash, Windows PowerShell 7/Git Bash and macOS system Bash
+3.2/PowerShell 7 jobs run all installation-related modules, with matrix fail-fast
+disabled. Python remains 3.12. Every job records actual shell paths/versions and
+fails on missing required shells or installation-suite skips; unavailable coverage
+does not count as PASS. No protocol/evaluation threshold is reduced.
+
+For a local maintenance run, use absolute executable paths:
+
+```text
+python scripts/verify_installation.py --powershell <absolute-powershell-path> --powershell-major 7 --bash <absolute-bash-path> --output .tmp/installation-local
+```
+
+Use `--powershell-major 5` for Windows PowerShell 5.1 and `--bash-major 3` when
+verifying macOS system Bash. The source must be clean and committed, the output
+directory must be new, and the OS temporary directory must be outside the source.
+The runner reads exact Git objects and writes only task-local logs and owned
+temporary fixtures. Its JSON is maintenance evidence with no trust authority.
+
 ## Validation Boundary
 
 These checks do not measure implicit activation accuracy, completion behavior,

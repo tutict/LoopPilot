@@ -8,8 +8,10 @@ import shutil
 import subprocess
 import sys
 import unittest
+import shlex
 
 from test_distribution import BASH, GIT, POWERSHELL, ROOT, DistributionFixture, _posix_path
+from installer_test_support import bash_shebang, installer_environment
 
 
 def payload_digest(root: Path, entries: list[str]) -> str:
@@ -37,7 +39,7 @@ class ImmutableInstallerTests(DistributionFixture):
         return source
 
     def tool(self, shell, source, dest, *, operation="install", mode=None, digest=None, force=False, race=False, corrupt_export=False, extra_export=False, temporary_root=None):
-        env = os.environ.copy()
+        env = installer_environment()
         env["GIT_CEILING_DIRECTORIES"] = str(ROOT)
         if temporary_root is not None:
             for key in ("TEMP", "TMP", "TMPDIR"):
@@ -57,15 +59,14 @@ class ImmutableInstallerTests(DistributionFixture):
                 wrappers.mkdir()
                 # Real Git exports the pinned SHA after a deterministic worktree mutation.
                 (wrappers / "git").write_text(
-                    "#!/usr/bin/env bash\n"
-                    "if [[ \" $* \" == *' archive '* ]]; then\n"
+                    bash_shebang(BASH) + "if [[ \" $* \" == *' archive '* ]]; then\n"
                     f"  printf 'worktree B\\n' > '{_posix_path(source / 'SKILL.md')}'\n"
                     f"  printf 'missing.txt\\n' > '{_posix_path(source / 'distribution/managed-files.txt')}'\n"
                     f"  printf 'changed-version\\n' > '{_posix_path(source / 'distribution/version.txt')}'\n"
                     "fi\n"
                     f"exec '{_posix_path(Path(GIT))}' \"$@\"\n", encoding="utf-8", newline="\n")
                 (wrappers / "git").chmod(0o755)
-                command = [BASH, "-c", f'export PATH="{_posix_path(wrappers)}:$PATH"; exec bash '
+                command = [BASH, "-c", f'export PATH="{_posix_path(wrappers)}:$PATH"; exec "$BASH" '
                            f'"{_posix_path(source / "distribution/loop-pilot.sh")}" {operation} '
                            f'--destination "{_posix_path(dest)}"']
         else:
@@ -88,7 +89,7 @@ class ImmutableInstallerTests(DistributionFixture):
                     " }\n"
                     f" & '{GIT}' @args\n}}\n"
                     f"& '{source / 'distribution/loop-pilot.ps1'}' -Operation {operation} -Destination '{dest}'\n",
-                    encoding="utf-8")
+                    encoding="utf-8-sig")
                 command = [POWERSHELL, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(harness)]
         if corrupt_export or extra_export:
             mutator = self.work / (source.name + "-mutate-export.py")
@@ -115,12 +116,12 @@ class ImmutableInstallerTests(DistributionFixture):
                 wrappers = self.work / (source.name + "-bin")
                 wrappers.mkdir()
                 (wrappers / "git").write_text(
-                    f"#!/usr/bin/env bash\n'{_posix_path(Path(GIT))}' \"$@\"\nrc=$?\n"
+                    bash_shebang(BASH) + f"'{_posix_path(Path(GIT))}' \"$@\"\nrc=$?\n"
                     "if [[ \" $* \" == *' archive '* && $rc == 0 ]]; then\n"
                     f" '{_posix_path(Path(sys.executable))}' '{_posix_path(mutator)}' {mutation_option} \"$@\"\n rc=$?\nfi\nexit \"$rc\"\n",
                     encoding="utf-8", newline="\n")
                 (wrappers / "git").chmod(0o755)
-                command = [BASH, "-c", f'export PATH="{_posix_path(wrappers)}:$PATH"; exec bash '
+                command = [BASH, "-c", f'export PATH="{_posix_path(wrappers)}:$PATH"; exec "$BASH" '
                            f'"{_posix_path(source / "distribution/loop-pilot.sh")}" install --destination "{_posix_path(dest)}"']
             else:
                 harness = self.work / (source.name + "-bad-export.ps1")
@@ -129,7 +130,7 @@ class ImmutableInstallerTests(DistributionFixture):
                     f"if (($args -contains 'archive') -and $code -eq 0) {{ & '{sys.executable}' '{mutator}' {mutation_option} @args; $code=$LASTEXITCODE }}\n"
                     "$global:LASTEXITCODE=$code }\n"
                     f"& '{source / 'distribution/loop-pilot.ps1'}' -Operation install -Destination '{dest}'\n",
-                    encoding="utf-8")
+                    encoding="utf-8-sig")
                 command = [POWERSHELL, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(harness)]
         return subprocess.run(command, env=env, capture_output=True, text=True, encoding="utf-8", errors="replace")
 
