@@ -34,16 +34,3 @@ content checks for the move, not behavioral evidence or release authorization.
 | `DISTRIBUTION-003-REPORT.md` | `02bfd14eb9cd25ad8e570433121cd4f224c5ce28` |
 | `DISTRIBUTION-ACCEPTANCE-REPORT.md` | `9eb8b060cee9701d6b92753fdab1ebd867e3907a` |
 | `DISTRIBUTION-BASH-VALIDATION.md` | `c35976d99a124721f4e9af2f0859d71c3a301e2d` |
-
-## Content integrity
-
-The migration compares each baseline Git blob with the archived file's raw bytes.
-Both paths below identify the same blob; no root duplicate is retained.
-
-| Report | Baseline and archived Git blob |
-| --- | --- |
-| `FINAL-RC-DECISION.md` | `9844e6a17b704089122dba4d08d390f52aa6118c` |
-| `RC-READINESS-REPORT.md` | `338d9bc87cd4b734973634a9b5dfbab7ca2b6203` |
-| `DISTRIBUTION-003-REPORT.md` | `02bfd14eb9cd25ad8e570433121cd4f224c5ce28` |
-| `DISTRIBUTION-ACCEPTANCE-REPORT.md` | `9eb8b060cee9701d6b92753fdab1ebd867e3907a` |
-| `DISTRIBUTION-BASH-VALIDATION.md` | `c35976d99a124721f4e9af2f0859d71c3a301e2d` |

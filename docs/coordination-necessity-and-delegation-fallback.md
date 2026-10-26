@@ -2,9 +2,11 @@
 
 ## Product Risk and Coordination Risk
 
-Product Risk sets appropriate Review, Validation, and Evidence Depth. Coordination
-Risk concerns whether safe delivery requires structured work between owners and
-determines whether Full Loop governance is justified. High product risk does not by itself prove that multiple Workers are required.
+Product Risk concerns the change's harm or complexity and sets appropriate Review
+Depth, Validation Depth, and Evidence Depth. Coordination Risk concerns whether safe
+delivery requires structured work between owners and determines whether Full Loop
+governance is justified. High product risk
+does not by itself prove that multiple Workers are required.
 See the [mode-selection definitions](mode-selection-and-escalation.md#product-risk-and-coordination-necessity).
 
 ```mermaid
