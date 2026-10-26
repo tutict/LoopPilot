@@ -538,6 +538,12 @@ observed before a development candidate can qualify for release.
 
 ## Repository Guide
 
+The source-only [documentation index](https://github.com/tutict/LoopPilot/blob/main/docs/README.md)
+groups current use, protocol support, acceptance preparation, and historical material.
+The [archive index](https://github.com/tutict/LoopPilot/blob/main/docs/archive/README.md)
+maps the five reports moved from the repository root; these indexes are repository
+references and are not copied by the installer.
+
 - [简体中文 README](README.zh-CN.md): Chinese introduction, usage, and evidence boundaries.
 - [SKILL.md](SKILL.md): executable instructions.
 - [Lifecycle](docs/lifecycle.md): conceptual states and transitions.

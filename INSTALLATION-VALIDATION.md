@@ -5,6 +5,30 @@ distribution corrections through Distribution-004. It validates packaging behavi
 only. It does not validate agent behavior, Host Acceptance, protocol effectiveness,
 or release readiness.
 
+## Current Verification Entry Points
+
+Use the [installation guide](docs/installation.md) for current managed-layout and
+lifecycle instructions, and the [validation guide](docs/validation.md) for the full
+maintenance checks. The [Validate workflow](https://github.com/tutict/LoopPilot/actions/workflows/validate.yml?query=branch%3Amain)
+runs the Ubuntu workflow and Windows PowerShell 5.1/7 and macOS installation matrix.
+Select the run for the commit being checked and inspect its `installation-ubuntu`,
+`installation-windows-powershell-5`, `installation-windows-powershell-7`, and
+`installation-macos-system-bash` artifacts. Missing shells, skips, failures, and
+unavailable artifacts are verification gaps, never PASS.
+
+The Required Scenarios and Distribution-004 Synchronization Scenarios below retain
+the lifecycle constraints. Observed Results, Distribution Evidence Lineage, and the
+recorded commands preserve the original Distribution-001 through Distribution-004
+execution boundaries; their counts, installed-file lists, limitations, and
+environments are historical results. In particular, the historical copied-validator
+scenario describes an older payload: the current manifest excludes `scripts/`,
+`tests/`, and acceptance material, as explained in the installation guide.
+The source-only [archive index](https://github.com/tutict/LoopPilot/blob/main/docs/archive/README.md)
+maps the old report names, and the separate
+[2026-10-25 maintenance record](https://github.com/tutict/LoopPilot/blob/main/docs/release/rc-maintenance-verification-20261025.md)
+records later cross-platform checks. Historical PASS or UNVERIFIED rows do not
+describe a later commit or replace its required verification.
+
 ## Verification Method
 
 `tests/test_distribution.py` creates isolated source-package fixtures with valid
@@ -116,9 +140,9 @@ failure rather than a validator exception.
 
 ## Observed Results
 
-The result table must contain only commands observed against the current working
-tree. A parser pass does not substitute for lifecycle execution, and a native-shell
-pass does not establish behavior on another shell.
+The result table preserves commands observed against the Distribution-004 working
+tree at its recorded boundary. A parser pass does not substitute for lifecycle
+execution, and a native-shell pass does not establish behavior on another shell.
 
 | Check | Environment | Status | Evidence |
 |---|---|---|---|

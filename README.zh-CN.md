@@ -225,6 +225,10 @@ Claude Code、Codex、Gemini CLI、GitHub Copilot 及其他宿主都保持 `unve
 
 ## 文档导航
 
+[源码文档总索引](https://github.com/tutict/LoopPilot/blob/main/docs/README.md)
+按当前使用、协议支持、验收准备和历史归档组织资料。[归档索引](https://github.com/tutict/LoopPilot/blob/main/docs/archive/README.md)
+记录从根目录迁移的五份报告及其 Git 边界；这些索引属于源码资料，不随安装器复制。
+
 | 文档 | 内容 |
 | --- | --- |
 | [SKILL.md](SKILL.md) / [AGENTS.md](AGENTS.md) | 核心指令与仓库规则 |

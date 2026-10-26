@@ -14,7 +14,9 @@
 - Full regression status: passed-fresh-1141-tests-for-rc1-preflight-20261024
 - Independent review status: approved-facts-submission-461b9ba; not-formal-behavior-review
 - Release tag: not-created
-- Remote branch: codex/option-b-rc-candidate; publication result recorded separately
+- Historical candidate branch: `codex/option-b-rc-candidate`; merged by [PR #1](https://github.com/tutict/LoopPilot/pull/1) into `main` at `1191cad05056edab46fe4beb9fb8982549e4fad5`, then deleted remotely
+- Installation-maintenance merge boundary: `main` at `5c4a52290de8e59527048e931f2334b06009c2c7`, after [PR #2](https://github.com/tutict/LoopPilot/pull/2) on 2026-10-25
+- Current source and checks: [main](https://github.com/tutict/LoopPilot/tree/main) and [Validate CI](https://github.com/tutict/LoopPilot/actions/workflows/validate.yml?query=branch%3Amain)
 - Latest preflight record: docs/release/rc1-preflight-20261024.md
 - Facts review record: docs/release/rc1-preflight-review-20261024/REVIEW-TASK-002.md
 
@@ -49,3 +51,13 @@ actual facts submission `461b9baeb15855d19b0a315edda5d6f083df6ddb`; its original
 response is preserved with the review. That approval is not formal behavior
 review or Phase 11/Gate 6 closure. Publication is observed separately after the
 final review/status archive commit exists.
+
+## Subsequent maintenance facts
+
+The 1,141-test preflight result above retains its 2026-10-24 date and facts-submission
+boundary `461b9baeb15855d19b0a315edda5d6f083df6ddb`; it is not a test count for
+current `main`. The separate [2026-10-25 maintenance record](rc-maintenance-verification-20261025.md)
+attributes 1,163 tests and the native installation matrix to maintenance head
+`c65d607d995c29e1d366716fdabd4064dae5c1f8`, merged by PR #2. Later maintenance
+results do not change the original preflight facts, formal **NOT_RUN** acceptance,
+Gate 4 **UNMET**, or RC **NOT_RELEASE_READY**.
