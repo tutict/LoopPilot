@@ -2,14 +2,12 @@
 
 ## Product Risk and Coordination Risk
 
-Product Risk concerns the harm or complexity of the change itself: security, data,
-transactions, idempotency, sensitive data, compatibility, partial success, or
-production impact. It determines appropriate Review Depth, Validation Depth, and
-Evidence Depth.
-
-Coordination Risk concerns whether safe delivery requires structured work between
-owners. It determines whether Full Loop governance is justified. High product risk
+Product Risk concerns the change's harm or complexity and sets appropriate Review
+Depth, Validation Depth, and Evidence Depth. Coordination Risk concerns whether safe
+delivery requires structured work between owners and determines whether Full Loop
+governance is justified. High product risk
 does not by itself prove that multiple Workers are required.
+See the [mode-selection definitions](mode-selection-and-escalation.md#product-risk-and-coordination-necessity).
 
 ```mermaid
 flowchart TD
@@ -26,12 +24,11 @@ evidence-backed heuristic, not a mathematical rule or Normative Invariant.
 
 ## Coordination Necessity
 
-Use the [ordered mode reassessment](mode-selection-and-escalation.md#authority-and-timing):
-assess Product Risk, set the minimum review, validation, and evidence depth, then
-reassess Coordination Necessity. Select Full Loop only when coordination requires
-it; otherwise Lightweight or the applicable non-Full-Loop path remains allowed.
-Risk-only changes preserve mode; specialist review adds scrutiny, not coordination
-by definition. Before selecting Full Loop, record the following:
+Follow the [ordered mode reassessment](mode-selection-and-escalation.md#authority-and-timing).
+Select Full Loop only when coordination requires it; otherwise Lightweight or the
+applicable non-Full-Loop path remains allowed. Risk-only changes preserve mode;
+specialist review adds scrutiny, not coordination by definition.
+Before selecting Full Loop, record:
 
 | Question | Evidence |
 | --- | --- |
