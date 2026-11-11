@@ -219,8 +219,14 @@ sufficient, and selects only Skills the host has actually confirmed are availabl
 The minimum relevant Skill set and fallback are recorded in the Task Contract;
 assignment never expands authority or installs anything.
 
-Submitted tasks pass through separate Standards and Spec reviews. Both must pass
-and required evidence must be observed before `approved`. The parent
+Task, Loop, and Project Reviews each record four independent decisions: Spec,
+Standards, Implementation Quality, and Verification & Evidence. Spec and Standards
+always apply. Implementation Quality applies whenever work produces or changes a
+reviewable deliverable; Verification & Evidence applies when the scope includes a
+verification obligation or evidence claim. Only the latter two may be `not-applicable`,
+with cited scope or deliverable evidence. Every applicable axis must pass and required
+evidence must be observed before `approved`; risk-selected specialist review remains
+separate. The parent
 [Checklist](.looppilot/CHECKLIST.md) remains unchecked until the Integrator combines
 the work and verifies the parent result. It stores stable deliverables, concise
 evidence, context pressure, and one Resume Point rather than duplicating the native
@@ -268,7 +274,7 @@ behavior. See [Full Loop contracts and Ledgers](docs/full-loop-contracts-and-led
 
 Phase 3 adds six inactive templates for Worker Delivery, Integration Record, Review
 Report, Finding Detail, Rework Task, and Loop Closure. Task-level Readiness gates a
-Delivery into integration; Loop-level Spec and Standards reviews judge the unified
+Delivery into integration; the applicable four-axis Loop Review judges the unified
 outcome. Findings enter the Finding Ledger before scoped rework, Reviewer
 reverification precedes closure, and Loop Closure projects `closed` only through
 the Loop Map after all acceptance layers and Barriers pass.
@@ -297,7 +303,7 @@ the [Phase 4 recovery protocol](docs/full-loop-checkpoint-and-context-recovery.m
 Phase 5 adds four inactive templates for Cross-Loop Validation, Project Acceptance,
 Release Readiness, and the Final Delivery Report. Closed mandatory Loops are only
 inputs: the integrated Project outcome still requires Goal-to-Evidence Mapping,
-Project Spec and Standards Review, Functional/Engineering/Delivery Acceptance,
+Project four-axis Review, Functional/Engineering/Delivery Acceptance,
 Project Finding routing through remediation Loops, an honest release relationship,
 a Final Checkpoint, and a user-readable report.
 
@@ -340,6 +346,22 @@ Codex before formal acceptance. [This candidate](docs/release/rc-candidate-decis
 selects Codex, retains unknown runtime identity, and is `NOT_RELEASE_READY` with
 Gate 4 unmet. Historical Claude Code preparation notes live in
 [evaluations/claude-code](evaluations/claude-code/README.md).
+
+### Evaluation Schema and Behavior Validation
+
+New evaluation packages use score schema v2, which adds a 0–3 Code quality
+dimension. Runs with code artifacts must score it; `not-applicable` requires evidence
+that no code artifact exists and is excluded from the applicable count and total.
+It does not change the four critical scores or the eight Host Acceptance dimensions.
+Historical packages remain immutable and cannot be promoted into current acceptance.
+
+Task, Loop, and Project Reviews use the four axes described above. The read-only
+[historical audit](docs/evaluations/historical-evaluation-audit.md) and
+[two-stage behavior runbook](docs/evaluations/two-stage-behavior-validation-runbook.md)
+document the evidence gaps and the planned 18 primary runs: fourteen historical
+replay arms and four current formal arms. The runbook is a plan, not Host behavior
+evidence; the [evaluation guide](evaluations/README.md) links the schemas, audit,
+matrices, and validation commands.
 
 ### Evidence-Calibrated Protocol Selection
 
@@ -454,6 +476,8 @@ Present in the repository and exercised by static checks:
 - Protocol rules in [`SKILL.md`](SKILL.md), [`AGENTS.md`](AGENTS.md), and the
   `docs/` protocol documents, through Phase 11 lifecycle authority and the v1
   feature freeze.
+- The four-axis Review contract for Task, Loop, and Project, plus v2 evaluation
+  packages with evidence-gated Code quality scoring.
 - Validators under `scripts/`, entered through `python scripts/validate.py`.
 - Inactive templates under `.looppilot/` and `evaluations/templates/`.
 
@@ -471,6 +495,10 @@ Recorded from bounded experiments, each scoped to its own project and archive:
 - EXP-008 and EXP-009 are attributed to their supplied archived reports.
 - GamePulse EXP-010 reported a verified partial delivery whose final Full Loop
   behavioral acceptance failed.
+- The read-only historical audit confirms all 31 pinned historical files match;
+  none of the five packages is behaviorally evaluable or acceptance-eligible, and
+  none of the seven planned historical pairs has complete matched evidence. See the
+  linked audit for detail.
 
 Observed means it happened in a specific recorded run. It does not generalize to
 another project, host, or model.
@@ -489,6 +517,8 @@ No evidence in this repository supports any of the following:
   mode selection, automatic Loop decomposition, dynamic Reviewer selection,
   multi-Agent creation, Checkpoint recovery, and Project Closure execution.
 - Phase 11 behavior: it is statically implemented and behaviorally unverified.
+- The documented 18-run, two-stage behavior validation plan is not run evidence;
+  it does not establish current Host behavior or independent Reviewer readiness.
 
 The repository-level checks below have been exercised with pinned tools:
 
@@ -552,7 +582,7 @@ references and are not copied by the installer.
 - [Shared-state protocol](.looppilot/README.md): optional continuity and handoff.
 - [Safety and stopping](docs/safety-and-stopping.md): authority and outcomes.
 - [Multi-Agent coordination](docs/multi-agent-coordination.md): supervised
-  delegation, review, conflict, and integration protocol.
+  delegation, four-axis review, conflict, and integration protocol.
 - [Design rationale](docs/design-rationale.md): design tradeoffs.
 - [Lifecycle authority and projections](docs/lifecycle-authority-and-derived-projections.md):
   Phase 11 authority, derived snapshot, and Closure consistency rules.
@@ -580,7 +610,8 @@ references and are not copied by the installer.
 - [Examples](examples/coding-task.md): illustrative traces.
 - [Behavioral scenarios](tests/scenarios.md): counterexamples and evaluation cases.
 - [Evaluation rubric](tests/evaluation-rubric.md): 0-to-3 scoring.
-- [Evaluation preparation](evaluations/README.md): future trace and score templates.
+- [Evaluation preparation](evaluations/README.md): v2 score schema, Code quality
+  applicability, historical audit, replay matrix, and behavior-validation runbook.
 - [CONTRIBUTING.md](CONTRIBUTING.md): contribution requirements.
 - [CHANGELOG.md](CHANGELOG.md): notable changes.
 
