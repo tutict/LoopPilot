@@ -30,7 +30,19 @@ class DelegationValidationTests(unittest.TestCase):
             REPOSITORY_ROOT,
             fixture,
             ignore=lambda _path, names: [
-                name for name in names if name in {".git", "__pycache__"}
+                name
+                for name in names
+                if name
+                in {
+                    ".git",
+                    "__pycache__",
+                    ".pytest_cache",
+                    ".tmp",
+                    "verification-temp",
+                    ".four-axis-test-tmp",
+                }
+                or name.startswith(".tmp-")
+                or name.startswith(".venv-")
             ],
         )
         return fixture
@@ -95,27 +107,44 @@ class DelegationValidationTests(unittest.TestCase):
         template = fixture / ".looppilot" / "tasks" / "REVIEW-TEMPLATE.md"
         text = template.read_text(encoding="utf-8")
         axes_by_decision = {
-            "approved": ("pass", "pass", "observed"),
-            "revision-requested": ("pass", "revision-requested", "pending"),
-            "rejected": ("rejected", "pass", "pending"),
-            "blocked": ("blocked", "pass", "pending"),
+            "approved": ("pass", "pass", "pass", "pass", "observed"),
+            "revision-requested": ("pass", "revision-requested", "pass", "pass", "pending"),
+            "rejected": ("rejected", "pass", "pass", "pass", "pending"),
+            "blocked": ("blocked", "pass", "pass", "pass", "pending"),
         }
-        standards, spec, evidence = axes_by_decision.get(
-            decision, ("AXIS-DECISION", "AXIS-DECISION", "EVIDENCE-STATUS")
+        standards, spec, quality, verification, evidence = axes_by_decision.get(
+            decision,
+            ("AXIS-DECISION", "AXIS-DECISION", "AXIS-DECISION", "AXIS-DECISION", "EVIDENCE-STATUS"),
         )
         replacements = (
             ("task_id: TASK-000", f"task_id: {task_id}"),
             ("decision: DECISION", f"decision: {decision}"),
             ("standards_decision: AXIS-DECISION", f"standards_decision: {standards}"),
             ("spec_decision: AXIS-DECISION", f"spec_decision: {spec}"),
+            ("implementation_quality_decision: AXIS-DECISION", f"implementation_quality_decision: {quality}"),
+            ("verification_evidence_decision: AXIS-DECISION", f"verification_evidence_decision: {verification}"),
             ("required_evidence: EVIDENCE-STATUS", f"required_evidence: {evidence}"),
             ("Decision: AXIS-DECISION", f"Decision: {standards}"),
             ("Decision: AXIS-DECISION", f"Decision: {spec}"),
+            ("Decision: AXIS-DECISION", f"Decision: {quality}"),
+            ("Decision: AXIS-DECISION", f"Decision: {verification}"),
             ("reviewed: YYYY-MM-DD", "reviewed: 2026-07-16"),
             ("reviewer: none", f"reviewer: {reviewer}"),
         )
         for old, new in replacements:
             text = text.replace(old, new, 1)
+        decisions_by_axis = {
+            "Standards Review": standards,
+            "Spec Review": spec,
+            "Implementation Quality Review": quality,
+            "Verification & Evidence Review": verification,
+        }
+        for axis, axis_decision in decisions_by_axis.items():
+            text = text.replace(
+                f"## {axis}\n\nDecision: {axis_decision}\n",
+                f"## {axis}\n\nDecision: {axis_decision}\nApplicability evidence: Scope includes the delegated protocol deliverable and required checks.\nEvidence: Reviewer checked the Task Contract, delivered artifact, and required evidence.\n",
+                1,
+            )
         if mark_criteria_checked:
             text = text.replace(
                 "Not yet checked.", "Verified against contract evidence."

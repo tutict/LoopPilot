@@ -88,7 +88,9 @@ separate Loops.
 
 ## Reviewer Matrix
 
-Spec Review and Standards Review remain mandatory axes for every reviewed Loop.
+Spec and Standards Review always apply. Implementation Quality and Verification &
+Evidence are also recorded for every reviewed Loop, with N/A allowed only when
+scope evidence supports their non-applicability.
 The Supervisor adds specialist review in proportion to the concern matrix:
 
 | Reviewer | Trigger |

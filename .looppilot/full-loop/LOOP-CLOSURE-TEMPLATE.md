@@ -41,6 +41,8 @@ Allowed Closure Status values are `inactive`, `draft`, `ready-for-acceptance`,
 
 ## Review Summary
 
+- Review Schema Version: 2
+
 ### Spec Review
 
 - Result: not-evaluated
@@ -51,6 +53,22 @@ Allowed Closure Status values are `inactive`, `draft`, `ready-for-acceptance`,
 
 - Result: not-evaluated
 - Reports: none
+- Limitations: none
+
+### Implementation Quality Review
+
+- Result: not-evaluated
+- Reports: none
+- Evidence: none
+- Applicability evidence: none
+- Limitations: none
+
+### Verification & Evidence Review
+
+- Result: not-evaluated
+- Reports: none
+- Evidence: none
+- Applicability evidence: none
 - Limitations: none
 
 ### Conditional Reviews

@@ -79,7 +79,7 @@ NOT contain private chain-of-thought or unverifiable internal judgements.
 | Token or context exhaustion | Persist the smallest verifiable unit and stop before forced interruption |
 | Budget-stop state loss | Record observed evidence, unfinished items, and one exact Resume Point |
 | False Checklist completion | Permit `[x]` only for integrated work with observed evidence and undo it when disproved |
-| Review skipped to save context | Preserve both Standards and Spec review; pressure cannot lower quality gates |
+| Review skipped to save context | Preserve all four Review axes; pressure cannot skip an applicable axis or lower its gate |
 
 A written protocol cannot enforce runtime isolation. When the host cannot isolate
 files, tools, network access, or permissions, the Supervisor MUST reduce parallel
@@ -262,5 +262,5 @@ forced to release while a Release-required Contract must not close unfulfilled.
 | Artifact Budget treated as a hard state | Restore its provisional heuristic meaning and explain excess |
 | 429 or timeout labeled Product Finding | Record an Execution Infrastructure Incident unless product evidence exists |
 | No-output Worker marked complete | Reject the claim; no Delivery exists without observable output |
-| Full Loop loads every specialist | Retain Spec and Standards, then load specialists only for matching risk |
+| Full Loop loads every specialist | Retain all four applicable axes, then load specialists only for matching risk |
 | No real implementation gap | Stop at the Mode Gate and record No Implementation |

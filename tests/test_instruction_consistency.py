@@ -105,7 +105,7 @@ class InstructionConsistencyTests(unittest.TestCase):
         self.module()
         with tempfile.TemporaryDirectory() as temp:
             target = Path(temp) / "source"
-            shutil.copytree(ROOT, target, ignore=shutil.ignore_patterns(".git", ".claude", ".codex", ".agents", ".tmp", "__pycache__", ".pytest_cache"))
+            shutil.copytree(ROOT, target, ignore=shutil.ignore_patterns(".git", ".claude", ".codex", ".agents", ".tmp", "verification-temp", ".four-axis-test-tmp", "__pycache__", ".pytest_cache"))
             with (target / "AGENTS.md").open("a", encoding="utf-8") as file:
                 file.write("\nDo not read the repository before an edit.\n")
             result = subprocess.run([sys.executable, str(target / "scripts/validate.py"), "--root", str(target)], capture_output=True, text=True)

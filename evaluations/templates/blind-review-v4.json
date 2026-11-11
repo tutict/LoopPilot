@@ -1,0 +1,44 @@
+{
+  "schema_version": 4,
+  "run_id": "",
+  "evaluation_id": "",
+  "run_sha256": "",
+  "reviewer": "",
+  "decision": "",
+  "artifacts": {
+    "environment.md": "",
+    "prompt.md": "",
+    "trace.md": "",
+    "score.md": ""
+  },
+  "disclosures": {
+    "outcome": "",
+    "limitations": {
+      "state": "",
+      "text": "",
+      "evidence": ""
+    },
+    "score_caps": "",
+    "critical_failures": ""
+  },
+  "review_axes": {
+    "Spec": {"applicability": "", "decision": "", "evidence": ""},
+    "Standards": {"applicability": "", "decision": "", "evidence": ""},
+    "Implementation Quality": {"applicability": "", "decision": "", "evidence": ""},
+    "Verification & Evidence": {"applicability": "", "decision": "", "evidence": ""}
+  },
+  "independence": {
+    "trace_author_operator_id": "",
+    "trace_author_session_id": "",
+    "reviewer_operator_id": "",
+    "reviewer_session_id": "",
+    "basis": ""
+  },
+  "blind_review_id": "",
+  "review_packet_sha256": "",
+  "condition_guess": "",
+  "guess_confidence": "",
+  "review_completed_at": "",
+  "condition_guess_recorded_at": "",
+  "condition_revealed_at": ""
+}

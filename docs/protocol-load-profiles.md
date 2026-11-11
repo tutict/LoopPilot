@@ -51,8 +51,9 @@ a Provisional Heuristic, not a hard limit or state. Explain and reassess work ab
 the target.
 
 Lightweight MAY add a risk-matched Security, Data, Compatibility, Accessibility, or
-Operations Reviewer. This adds review depth, not a mode; Spec and Standards remain
-the permanent axes.
+Operations Reviewer. This adds review depth, not a mode. All four axes remain
+recorded; Spec and Standards always apply, while the latter two use evidenced
+applicability.
 
 Lightweight does not default to Full Loop history, Lifecycle Assertions, projection
 inventories, Loop Map entries, full Loop Contracts, Task or Finding Ledgers,
@@ -69,7 +70,8 @@ Deliveries, Review Reports, Integration Record, Closure requirements, lifecycle
 consistency guidance, coordination necessity, delegation failure budget,
 ownership fallback, verifiable claims, and the current Checkpoint only when recovery is active.
 
-Always retain independent Spec and Standards Review. Add Security, Data,
+Always retain all four independent Review axes and their applicability evidence.
+Add Security, Data,
 Compatibility, Operations, Accessibility, or another specialist only when the
 Loop Contract identifies the corresponding risk. Full Loop does not load all
 specialists by default.

@@ -66,6 +66,8 @@ Project Engineering Context. Requirement Class is `mandatory`, `optional`,
 
 ## Project Review Summary
 
+- Review Schema Version: 2
+
 ### Project Spec Review
 
 - Result: not-evaluated
@@ -80,12 +82,32 @@ Project Engineering Context. Requirement Class is `mandatory`, `optional`,
 - Findings: none
 - Limitations: none
 
+### Project Implementation Quality Review
+
+- Result: not-evaluated
+- Reports: none
+- Evidence: none
+- Applicability evidence: none
+- Findings: none
+- Limitations: none
+
+### Project Verification & Evidence Review
+
+- Result: not-evaluated
+- Reports: none
+- Evidence: none
+- Applicability evidence: none
+- Findings: none
+- Limitations: none
+
 ### Conditional Project Reviews
 
 - None.
 
-Specialist Reviews may contribute evidence, but never replace either mandatory
-Project Spec Review or Project Standards Review axis.
+Spec and Standards are mandatory. Implementation Quality and Verification &
+Evidence are mandatory when applicable; either may be `not-applicable` only with
+explicit scope or deliverable evidence. Specialist Reviews contribute separately
+and never replace an axis decision.
 
 ## Project-Level Finding Disposition
 

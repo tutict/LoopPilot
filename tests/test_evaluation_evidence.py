@@ -6,7 +6,8 @@ import sys
 import tempfile
 import unittest
 
-from evaluation_evidence_fixture import make_package, reseal_for_schema_test, save_json, digest, approve_record
+from evaluation_evidence_fixture import make_package, make_current_acceptance_package, reseal_for_schema_test, save_json, digest, approve_record
+from behavior_validation import export_blind_review_packet
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -43,6 +44,80 @@ class EvaluationEvidenceTests(unittest.TestCase):
     def test_complete_locally_observed_specimen_passes(self):
         self.assertEqual(b"42", (self.package / "evidence/stdout.txt").read_bytes().strip())
         self.assertEqual([], self.check())
+
+    def test_formal_v4_package_requires_current_lineage_and_boundary(self):
+        review_path = self.package / "review.json"
+        review = json.loads(review_path.read_text(encoding="utf-8"))
+        review.update({
+            "schema_version": 4,
+            "review_axes": {
+                "Spec": {"applicability": "applicable", "decision": "pass", "evidence": "[result](evidence/events.jsonl#result-1)"},
+                "Standards": {"applicability": "applicable", "decision": "pass", "evidence": "[result](evidence/events.jsonl#result-1)"},
+                "Implementation Quality": {"applicability": "not-applicable", "decision": "not-applicable", "evidence": "[result](evidence/events.jsonl#result-1)"},
+                "Verification & Evidence": {"applicability": "applicable", "decision": "pass", "evidence": "[result](evidence/events.jsonl#result-1)"},
+            },
+            "independence": {
+                "trace_author_operator_id": "operator-a", "trace_author_session_id": "session-a",
+                "reviewer_operator_id": "operator-b", "reviewer_session_id": "session-b", "basis": "Separate operator and session identities.",
+            },
+            "blind_review_id": "BLIND-LW-1-01-abcdef123456",
+            "review_packet_sha256": "e" * 64,
+            "condition_guess": "unknown",
+            "guess_confidence": "low",
+            "review_completed_at": "2026-11-10T01:00:00+00:00",
+            "condition_guess_recorded_at": "2026-11-10T01:01:00+00:00",
+            "condition_revealed_at": "2026-11-10T01:02:00+00:00",
+        })
+        save_json(review_path, review)
+        reseal_for_schema_test(self.package, self.authority)
+        errors = self.check()
+        self.assertIn("current acceptance package requires", "\n".join(errors))
+
+    def test_complete_current_four_arm_v4_evidence_passes_with_external_index(self):
+        import shutil
+
+        docs = self.root / "docs/evaluations"
+        docs.mkdir(parents=True)
+        for name in ("current-acceptance-matrix.json", "historical-replay-matrix.json"):
+            shutil.copy2(ROOT / "docs/evaluations" / name, docs / name)
+        (self.root / "scripts").mkdir()
+        shutil.copy2(ROOT / "scripts/evaluation_history.json", self.root / "scripts/evaluation_history.json")
+        for arm_id in ("LW-1", "FL-1", "FL-1R", "IMP-1"):
+            predecessor = "RUN-EVAL-CURRENT-FL-1" if arm_id == "FL-1R" else None
+            make_current_acceptance_package(
+                self.root, self.authority, arm_id=arm_id, predecessor_run_id=predecessor
+            )
+
+        from evaluation_evidence_validation import current_acceptance_pair_errors, validate_evaluation_evidence
+        packages = {}
+        errors = validate_evaluation_evidence(
+            self.root, self.authority, digest(self.authority), [], validated_packages=packages
+        )
+        self.assertEqual([], errors)
+        current_packages = [value for value in packages.values() if value.get("current_lineage") is not None]
+        self.assertEqual(4, len(current_packages))
+        self.assertEqual([], current_acceptance_pair_errors(self.root, current_packages))
+
+    def test_blind_packet_export_redacts_condition_metadata_and_keeps_evidence(self):
+        packet_root = Path(self.temp.name) / "blind-packet"
+        packet = export_blind_review_packet(
+            self.root,
+            self.package,
+            "BLIND-TEST-01-abcdef123456",
+            packet_root,
+        )
+        manifest = json.loads((packet / "manifest.json").read_text(encoding="utf-8"))
+        environment = (packet / "artifacts/environment.md").read_text(encoding="utf-8")
+        score_sheet = (packet / "review-score-sheet.md").read_text(encoding="utf-8")
+        blind_packet = (packet / "blind-review-packet.md").read_text(encoding="utf-8")
+        self.assertEqual("BLIND-TEST-01-abcdef123456", manifest["blind_review_id"])
+        self.assertNotIn("Local validation executor", environment)
+        self.assertNotIn("explicit", environment)
+        self.assertIn("42", (packet / "artifacts/evidence/stdout.txt").read_text(encoding="utf-8"))
+        self.assertIn("| Goal fidelity |  |  |", score_sheet)
+        self.assertNotIn("| Goal fidelity | 3 |", score_sheet)
+        self.assertIn("| Goal fidelity |  |  |", blind_packet)
+        self.assertEqual(digest(packet / "blind-review-packet.md"), manifest["packet_sha256"])
 
     def test_no_trusted_index_is_not_provenance(self):
         self.assertTrue(self.check(path=None))
@@ -175,6 +250,85 @@ class EvaluationEvidenceTests(unittest.TestCase):
         file.write_text(file.read_text(encoding="utf-8").replace("| Authority continuity |  |  |\n", ""))
         self.rejected("Authority continuity")
 
+    def test_score_template_declares_v2_code_quality_applicability(self):
+        text = (self.root / "evaluations/templates/score.md").read_text(encoding="utf-8")
+        self.assertIn("- Score schema version: 2\n", text)
+        self.assertIn("- Code quality applicability:\n", text)
+        self.assertIn("- Applicable dimensions:\n", text)
+        self.assertIn("| Code quality |  |  |", text)
+
+    def test_new_run_score_declares_v2_even_when_code_quality_is_not_applicable(self):
+        text = (self.package / "score.md").read_text(encoding="utf-8")
+        self.assertIn("- Score schema version: 2\n", text)
+        self.assertIn("- Code quality applicability: not-applicable\n", text)
+        self.assertIn("| Code quality | not-applicable |", text)
+        self.assertIn("- Applicable dimensions: 10\n", text)
+
+    def test_code_artifact_score_is_included_in_v2_total(self):
+        self.package = make_package(
+            self.root,
+            self.authority,
+            code_quality_applicability="applicable",
+            code_quality_score=2,
+        )
+        text = (self.package / "score.md").read_text(encoding="utf-8")
+        self.assertIn("- Code quality applicability: applicable\n", text)
+        self.assertIn("| Code quality | 2 |", text)
+        self.assertIn("- Applicable dimensions: 11\n", text)
+        self.assertIn("- Total: 32\n", text)
+        self.assertEqual([], self.check())
+
+    def test_code_quality_cannot_be_marked_not_applicable_when_applicable(self):
+        self.package = make_package(
+            self.root,
+            self.authority,
+            code_quality_applicability="applicable",
+            code_quality_score=2,
+        )
+        self.mutate("score.md", "| Code quality | 2 |", "| Code quality | not-applicable |")
+        self.rejected("Code quality")
+
+    def test_code_quality_cannot_be_scored_when_not_applicable(self):
+        self.mutate("score.md", "| Code quality | not-applicable |", "| Code quality | 3 |")
+        self.rejected("Code quality")
+
+    def test_code_quality_not_applicable_is_rejected_when_source_artifact_exists(self):
+        code_path = self.package / "evidence/hidden_source.py"
+        code_path.write_text("def hidden_source():\n    return True\n", encoding="utf-8")
+        run = json.loads((self.package / "run.json").read_text(encoding="utf-8"))
+        run["evidence"]["evidence/hidden_source.py"] = digest(code_path)
+        save_json(self.package / "run.json", run)
+        reseal_for_schema_test(self.package, self.authority)
+        self.rejected("inventory does not match source artifacts")
+
+    def test_code_quality_applicability_requires_event_evidence(self):
+        self.mutate(
+            "score.md",
+            "- Code quality applicability evidence: [applicability evidence](evidence/events.jsonl#code-quality-applicability)",
+            "- Code quality applicability evidence: pending",
+        )
+        self.rejected("Code quality applicability evidence")
+
+    def test_code_quality_applicability_enum_is_enforced(self):
+        self.mutate(
+            "score.md",
+            "- Code quality applicability: not-applicable",
+            "- Code quality applicability: maybe",
+        )
+        self.rejected("Code quality applicability")
+
+    def test_applicable_dimension_count_is_recomputed(self):
+        self.mutate("score.md", "- Applicable dimensions: 10", "- Applicable dimensions: 11")
+        self.rejected("Applicable dimensions")
+
+    def test_new_package_cannot_claim_legacy_score_schema(self):
+        self.mutate("score.md", "- Score schema version: 2", "- Score schema version: 1")
+        self.rejected("Score schema version")
+
+    def test_missing_score_schema_version_fails_closed(self):
+        self.mutate("score.md", "- Score schema version: 2\n", "")
+        self.rejected("Score schema version")
+
     def test_historical_evidence_cannot_be_silently_rewritten(self):
         file = self.root / "evaluations/claude-code/EVAL-001/environment.md"
         file.write_text(file.read_text(encoding="utf-8") + "\nUnapproved revised history.\n")
@@ -299,7 +453,7 @@ class EvaluationEvidenceTests(unittest.TestCase):
     def test_public_tab_verdict_cannot_bypass_approval(self):
         import subprocess
         from test_cross_host_acceptance import record
-        shutil.copytree(ROOT, self.root, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".git", ".tmp", ".claude", ".codex", ".agents", "__pycache__", ".pytest_cache"))
+        shutil.copytree(ROOT, self.root, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".git", ".tmp", ".claude", ".codex", ".agents", ".four-axis-test-tmp", "verification-temp", "__pycache__", ".pytest_cache"))
         path = self.root / "evaluations/test-host/bypass.md"
         path.write_text(record().replace("- Verdict: accepted", "-\tVerdict: accepted"), encoding="utf-8")
         result = subprocess.run([sys.executable, str(ROOT / "scripts/validate.py"), "--root", str(self.root), "--evidence-index", str(self.authority), "--evidence-index-sha256", digest(self.authority)], capture_output=True, text=True)

@@ -223,7 +223,7 @@ session transition or runtime operation.
 ## Project Closure Gate
 
 After mandatory Loops are authoritatively closed, Phase 5 adds a Project-level Gate
-for Cross-Loop Validation, Project Spec and Standards Review, all three acceptance
+for Cross-Loop Validation, four-axis Project Review, all three acceptance
 layers, Finding disposition, release obligations, Final Checkpoint, Final Delivery
 Report, and an authorized `PROJECT.md` projection. This is not a lifecycle state
 engine or a sixth Loop Barrier. Accepted, closed, release-ready, authorized,

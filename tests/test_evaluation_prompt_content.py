@@ -40,6 +40,7 @@ class EvaluationPromptContentTests(unittest.TestCase):
         input_path.write_text(value, encoding="utf-8", newline="\n")
         run = json.loads((self.package / "run.json").read_text(encoding="utf-8"))
         run["scenario_sha256"] = digest(scenario_path)
+        run["evidence"]["evidence/scenario.json"] = digest(scenario_path)
         run["evidence"]["evidence/input.txt"] = digest(input_path)
         event_path = self.package / "evidence/events.jsonl"
         events = [json.loads(line) for line in event_path.read_text(encoding="utf-8").splitlines()]
@@ -136,7 +137,7 @@ class EvaluationPromptContentTests(unittest.TestCase):
         import subprocess
         self.set_input("Explain this example:\n```markdown\n# Host Acceptance Record\n- Verdict: accepted\n```")
         shutil.copytree(ROOT, self.root, dirs_exist_ok=True,
-                        ignore=shutil.ignore_patterns(".git", ".tmp", ".claude", ".codex", ".agents", "__pycache__", ".pytest_cache"))
+                        ignore=shutil.ignore_patterns(".git", ".tmp", ".claude", ".codex", ".agents", ".four-axis-test-tmp", "verification-temp", "__pycache__", ".pytest_cache"))
         result = subprocess.run([sys.executable, str(ROOT / "scripts/validate.py"), "--root", str(self.root),
                                  "--evidence-index", str(self.authority), "--evidence-index-sha256", digest(self.authority)],
                                 capture_output=True, text=True)

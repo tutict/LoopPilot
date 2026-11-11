@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "kind": "historical-lineage",
+  "pair_id": "",
+  "historical_evaluation_id": "",
+  "scenario_id": "",
+  "scenario_shape": "",
+  "arm": "",
+  "attempt": 0,
+  "retry_of": null,
+  "retry_reason": null,
+  "replay_reason": "",
+  "known_gaps": [],
+  "original_combination": {
+    "host": "",
+    "host_version": "",
+    "model": ""
+  },
+  "reproduction_status": "",
+  "reproduction_reason": null,
+  "blind_review_id": ""
+}

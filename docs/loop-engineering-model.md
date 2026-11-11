@@ -82,8 +82,10 @@ authoritative Ledgers, alter another Worker's Task, hide failures, announce pare
 acceptance, or create a final Loop commit without authorization.
 
 **Reviewer owns independent judgment.** A Reviewer examines the integrated result,
-performs Spec and Standards review plus assigned risk review, creates Findings, and
-supplies evidence and verification methods. A Reviewer MUST NOT change scope or
+records independent Spec, Standards, Implementation Quality, and Verification &
+Evidence decisions plus assigned risk review, creates Findings, and supplies
+evidence and verification methods. Spec and Standards always apply; the latter two
+follow their documented applicability rules. A Reviewer MUST NOT change scope or
 business code, accept risk, close Findings directly, or treat approval as commit,
 push, release, or deployment authority.
 
@@ -99,17 +101,21 @@ transitions.
 
 ## Review Model
 
-Spec Review and Standards Review are permanent axes. Spec Review checks the user
-problem, use cases, business rules, transitions, failures, data and permission
-behavior, acceptance criteria, and omissions. Standards Review checks architecture,
-pattern fitness, duplication, test quality, error handling, security, operations,
-compatibility, platform neutrality, and maintainability.
+Spec and Standards are permanent axes. Spec checks the user problem, use cases,
+business rules, transitions, failures, data and permission behavior, acceptance
+criteria, and omissions. Standards checks repository rules, safety, authority,
+architecture, security, operations, compatibility, platform neutrality, and
+maintainability. Implementation Quality checks reviewable deliverables against
+project expectations for interfaces, types, error boundaries, complexity, and
+duplication. Verification & Evidence checks required verification, provenance,
+reproducibility, and disclosed gaps. The latter two may be `not-applicable` only
+with evidence that the task scope creates no such concern.
 
 Risk specialists are selected from the
 [Engineering Concern Matrix](project-engineering-context.md). Domain, Data,
 Concurrency, Security, Operations, Performance, Architecture, Frontend, and
 Compatibility Reviewers are enabled only when relevant. Their Findings feed the
-appropriate permanent axis; they do not replace either axis.
+appropriate four-axis review; they do not replace an axis.
 
 A Task-level Readiness Check asks whether a Delivery stayed in scope, contains its
 required evidence, has no obvious blocker, and can enter integration. It is not

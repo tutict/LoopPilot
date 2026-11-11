@@ -78,7 +78,7 @@ single-Loop tests alone is insufficient.
 ```mermaid
 flowchart LR
     L["Mandatory Loops recorded closed"] --> V["Cross-Loop Validation"]
-    V --> R["Project Spec + Standards Review"]
+    V --> R["Project four-axis Review"]
     R --> A["Functional + Engineering + Delivery Acceptance"]
     A --> C["Final Checkpoint"]
     C --> F["Final Delivery Report"]
@@ -116,13 +116,24 @@ cancelled work, deferred work, evidence, and report accuracy. Project Standards
 Review checks architecture, data, identity, security, concurrency, observability,
 compatibility, operations, Release Readiness, and the Final Checkpoint.
 
-Both mandatory axes must pass. Security, Operations, Data, Compatibility,
+All applicable axes must pass. Spec and Standards always apply. Implementation
+Quality applies to every reviewable delivered or modified artifact. Verification &
+Evidence applies to scoped checks, evidence, and completion claims. The latter two
+may be `not-applicable` only with cited Scope or Deliverables proving the absence of
+a reviewable deliverable or verification/evidence obligation. Missing tools or
+evidence cannot justify N/A. Security, Operations, Data, Compatibility,
 Architecture, Performance, Compliance, Accessibility, Factual Accuracy, Citation,
-and Domain Expert Reviews contribute when risk requires them; they do not replace
-the two axes.
+and Domain Expert Reviews contribute separately when risk requires them; they do
+not replace an axis.
 
-Project Spec Review and Project Standards Review each require an independent,
-evidence-backed result; one axis cannot offset the other.
+Each axis requires an independent, evidence-backed decision; one cannot offset
+another. Project Implementation Quality Review checks any delivered or modified
+artifact against project-specific
+maintainability, interface, type, error-boundary, complexity, and duplication
+expectations. Project Verification & Evidence Review checks the required checks,
+provenance, reproducibility, and disclosed verification limits. The latter two may
+be `not-applicable` only when the reviewed boundary proves that no reviewable
+deliverable or verification/evidence obligation exists.
 
 A Project Finding is triaged by the Supervisor and routed to an existing, reopened,
 or new remediation Loop. Its target Loop `FINDING-LEDGER.md` owns status. The

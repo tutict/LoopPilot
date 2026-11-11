@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "kind": "current-acceptance-lineage",
+  "boundary_id": "",
+  "arm_id": "",
+  "scenario_id": "",
+  "scenario_shape": "",
+  "loading_mode": "",
+  "predecessor_run_id": null,
+  "predecessor_checkpoint_path": null,
+  "predecessor_checkpoint_sha256": null,
+  "blind_review_id": "",
+  "attempt": 0,
+  "retry_of": null,
+  "retry_reason": null
+}

@@ -28,7 +28,21 @@ class LoopEngineeringArchitectureTests(unittest.TestCase):
             REPOSITORY_ROOT,
             fixture,
             ignore=lambda _path, names: [
-                name for name in names if name in {".git", "__pycache__"}
+                name
+                for name in names
+                if name
+                in {
+                    ".git",
+                    "__pycache__",
+                    ".pytest_cache",
+                    "node_modules",
+                    ".venv",
+                    ".tmp",
+                    "verification-temp",
+                    ".four-axis-test-tmp",
+                }
+                or name.startswith(".tmp-")
+                or name.startswith(".venv-")
             ],
         )
         return fixture

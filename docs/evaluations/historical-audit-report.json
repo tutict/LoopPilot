@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "policy": "scripts/evaluation_history.json",
+  "integrity": {
+    "pinned_files": 31,
+    "matched_files": 31,
+    "matched_file_paths": [
+      "evaluations/claude-code/EVAL-001/environment.md",
+      "evaluations/claude-code/EVAL-001/prompt.md",
+      "evaluations/claude-code/EVAL-001/reviewer-report.md",
+      "evaluations/claude-code/EVAL-001/score.md",
+      "evaluations/claude-code/EVAL-001/trace.md",
+      "evaluations/claude-code/EVAL-002/environment.md",
+      "evaluations/claude-code/EVAL-002/prompt.md",
+      "evaluations/claude-code/EVAL-002/reviewer-report.md",
+      "evaluations/claude-code/EVAL-003/environment.md",
+      "evaluations/claude-code/EVAL-003/prompt.md",
+      "evaluations/claude-code/EVAL-004/environment.md",
+      "evaluations/claude-code/EVAL-004/evidence/README.md",
+      "evaluations/claude-code/EVAL-004/evidence/arm-a-skill-invocation.json",
+      "evaluations/claude-code/EVAL-004/evidence/p1-discovery.redacted.jsonl",
+      "evaluations/claude-code/EVAL-004/evidence/p2-loading.redacted.jsonl",
+      "evaluations/claude-code/EVAL-004/evidence/p3-loading-retry.redacted.jsonl",
+      "evaluations/claude-code/EVAL-004/prompt.md",
+      "evaluations/claude-code/EVAL-004/score.md",
+      "evaluations/claude-code/EVAL-004/trace.md",
+      "evaluations/claude-code/EVAL-005/README.md",
+      "evaluations/claude-code/EVAL-005/environment.md",
+      "evaluations/claude-code/EVAL-005/evidence-index.md",
+      "evaluations/claude-code/EVAL-005/evidence/README.md",
+      "evaluations/claude-code/EVAL-005/evidence/fixture-a.redacted.jsonl",
+      "evaluations/claude-code/EVAL-005/evidence/implicit-fixture.redacted.jsonl",
+      "evaluations/claude-code/EVAL-005/prompt.md",
+      "evaluations/claude-code/EVAL-005/trace.md",
+      "evaluations/claude-code/README.md",
+      "evaluations/claude-code/host-acceptance-record-claude-code-2.1.220.md",
+      "evaluations/claude-code/host-acceptance-record-claude-code-2.1.221.md",
+      "evaluations/codex/README.md"
+    ],
+    "missing_files": [],
+    "mismatched_files": [],
+    "byte_mismatched_files": [],
+    "byte_matched_files": 31,
+    "extra_files": []
+  },
+  "packages": [
+    {
+      "evaluation_id": "EVAL-001",
+      "package": "evaluations/claude-code/EVAL-001",
+      "expected_files": 5,
+      "present_files": 5,
+      "missing_files": [],
+      "changed_files": [],
+      "byte_changed_files": [],
+      "extra_files": [],
+      "read_errors": [],
+      "historically_intact": true,
+      "mechanically_readable": true,
+      "trace_reviewable": true,
+      "score_recomputable": false,
+      "independent_reviewer_present": false,
+      "infrastructure_incidents": [],
+      "supportability": "limited-behavior-observation",
+      "behaviorally_evaluable": false,
+      "acceptance_eligible": false,
+      "acceptance_status": "not-evaluated",
+      "classifications": {
+        "historically-intact": true,
+        "mechanically-readable": true,
+        "behaviorally-evaluable": false,
+        "acceptance-eligible": false
+      }
+    },
+    {
+      "evaluation_id": "EVAL-002",
+      "package": "evaluations/claude-code/EVAL-002",
+      "expected_files": 3,
+      "present_files": 3,
+      "missing_files": [],
+      "changed_files": [],
+      "byte_changed_files": [],
+      "extra_files": [],
+      "read_errors": [],
+      "historically_intact": true,
+      "mechanically_readable": true,
+      "trace_reviewable": false,
+      "score_recomputable": false,
+      "independent_reviewer_present": false,
+      "infrastructure_incidents": [],
+      "supportability": "unscorable",
+      "behaviorally_evaluable": false,
+      "acceptance_eligible": false,
+      "acceptance_status": "not-evaluated",
+      "classifications": {
+        "historically-intact": true,
+        "mechanically-readable": true,
+        "behaviorally-evaluable": false,
+        "acceptance-eligible": false
+      }
+    },
+    {
+      "evaluation_id": "EVAL-003",
+      "package": "evaluations/claude-code/EVAL-003",
+      "expected_files": 2,
+      "present_files": 2,
+      "missing_files": [],
+      "changed_files": [],
+      "byte_changed_files": [],
+      "extra_files": [],
+      "read_errors": [],
+      "historically_intact": true,
+      "mechanically_readable": true,
+      "trace_reviewable": false,
+      "score_recomputable": false,
+      "independent_reviewer_present": false,
+      "infrastructure_incidents": [],
+      "supportability": "unscorable",
+      "behaviorally_evaluable": false,
+      "acceptance_eligible": false,
+      "acceptance_status": "not-evaluated",
+      "classifications": {
+        "historically-intact": true,
+        "mechanically-readable": true,
+        "behaviorally-evaluable": false,
+        "acceptance-eligible": false
+      }
+    },
+    {
+      "evaluation_id": "EVAL-004",
+      "package": "evaluations/claude-code/EVAL-004",
+      "expected_files": 9,
+      "present_files": 9,
+      "missing_files": [],
+      "changed_files": [],
+      "byte_changed_files": [],
+      "extra_files": [],
+      "read_errors": [],
+      "historically_intact": true,
+      "mechanically_readable": true,
+      "trace_reviewable": true,
+      "score_recomputable": false,
+      "independent_reviewer_present": false,
+      "infrastructure_incidents": [
+        {
+          "artifact": "evidence/p1-discovery.redacted.jsonl",
+          "category": "http-429",
+          "occurrences": 24
+        },
+        {
+          "artifact": "evidence/p2-loading.redacted.jsonl",
+          "category": "http-429",
+          "occurrences": 24
+        },
+        {
+          "artifact": "evidence/p3-loading-retry.redacted.jsonl",
+          "category": "http-429",
+          "occurrences": 24
+        },
+        {
+          "artifact": "score.md",
+          "category": "http-429",
+          "occurrences": 2
+        },
+        {
+          "artifact": "trace.md",
+          "category": "http-429",
+          "occurrences": 8
+        }
+      ],
+      "supportability": "loading-only",
+      "behaviorally_evaluable": false,
+      "acceptance_eligible": false,
+      "acceptance_status": "not-evaluated",
+      "classifications": {
+        "historically-intact": true,
+        "mechanically-readable": true,
+        "behaviorally-evaluable": false,
+        "acceptance-eligible": false
+      }
+    },
+    {
+      "evaluation_id": "EVAL-005",
+      "package": "evaluations/claude-code/EVAL-005",
+      "expected_files": 8,
+      "present_files": 8,
+      "missing_files": [],
+      "changed_files": [],
+      "byte_changed_files": [],
+      "extra_files": [],
+      "read_errors": [],
+      "historically_intact": true,
+      "mechanically_readable": true,
+      "trace_reviewable": true,
+      "score_recomputable": false,
+      "independent_reviewer_present": false,
+      "infrastructure_incidents": [
+        {
+          "artifact": "README.md",
+          "category": "http-429",
+          "occurrences": 2
+        },
+        {
+          "artifact": "environment.md",
+          "category": "http-429",
+          "occurrences": 2
+        },
+        {
+          "artifact": "evidence-index.md",
+          "category": "http-429",
+          "occurrences": 2
+        },
+        {
+          "artifact": "evidence/README.md",
+          "category": "http-429",
+          "occurrences": 1
+        },
+        {
+          "artifact": "evidence/fixture-a.redacted.jsonl",
+          "category": "http-429",
+          "occurrences": 9
+        },
+        {
+          "artifact": "evidence/fixture-a.redacted.jsonl",
+          "category": "timeout",
+          "occurrences": 4
+        },
+        {
+          "artifact": "trace.md",
+          "category": "http-429",
+          "occurrences": 3
+        }
+      ],
+      "supportability": "loading-only",
+      "behaviorally_evaluable": false,
+      "acceptance_eligible": false,
+      "acceptance_status": "not-evaluated",
+      "classifications": {
+        "historically-intact": true,
+        "mechanically-readable": true,
+        "behaviorally-evaluable": false,
+        "acceptance-eligible": false
+      }
+    }
+  ],
+  "coverage": [
+    {
+      "pair_id": "HIST-EVAL-001-S43",
+      "historical_evaluation_id": "EVAL-001",
+      "scenario_id": "scenario 43",
+      "control": "observed",
+      "skill_loaded": "missing",
+      "historical_pair_complete": false,
+      "note": "The control observed unavailable Skill handling; no loaded probe or independent review exists."
+    },
+    {
+      "pair_id": "HIST-EVAL-002-S68",
+      "historical_evaluation_id": "EVAL-002",
+      "scenario_id": "scenario 68",
+      "control": "missing",
+      "skill_loaded": "observed-unscored",
+      "historical_pair_complete": false,
+      "note": "Only a loaded run is described; the package has no trace or score and no independent reviewer."
+    },
+    {
+      "pair_id": "HIST-EVAL-003-S69",
+      "historical_evaluation_id": "EVAL-003",
+      "scenario_id": "scenario 69",
+      "control": "missing",
+      "skill_loaded": "observed-unscored",
+      "historical_pair_complete": false,
+      "note": "Only a loaded run is described; the package has no trace or score and no independent reviewer."
+    },
+    {
+      "pair_id": "HIST-EVAL-004-ARM-A",
+      "historical_evaluation_id": "EVAL-004",
+      "scenario_id": "host-skill-loading-probe-arm-a",
+      "control": "missing",
+      "skill_loaded": "loading-observed-behavior-unscored",
+      "historical_pair_complete": false,
+      "note": "Loading was self-observed in Arm A; no matched control or behavioral task score exists."
+    },
+    {
+      "pair_id": "HIST-EVAL-004-ARM-B",
+      "historical_evaluation_id": "EVAL-004",
+      "scenario_id": "host-skill-loading-probe-arm-b",
+      "control": "missing",
+      "skill_loaded": "missing",
+      "historical_pair_complete": false,
+      "note": "Both historical headless attempts ended in HTTP 429 before a model turn; the version/model combination is kept separate from Arm A."
+    },
+    {
+      "pair_id": "HIST-EVAL-005-FIXTURE-A",
+      "historical_evaluation_id": "EVAL-005",
+      "scenario_id": "phase14-lightweight-explicit",
+      "control": "missing",
+      "skill_loaded": "loading-observed-run-interrupted",
+      "historical_pair_complete": false,
+      "note": "Skill loading was observed, then the task run was interrupted by non-transient HTTP 429 before its report; no score exists."
+    },
+    {
+      "pair_id": "HIST-EVAL-005-IMPLICIT",
+      "historical_evaluation_id": "EVAL-005",
+      "scenario_id": "phase14-implicit-activation",
+      "control": "missing",
+      "skill_loaded": "observed-unscored",
+      "historical_pair_complete": false,
+      "note": "The Skill was installed but not explicitly invoked; the run was not scored or independently reviewed."
+    }
+  ],
+  "summary": {
+    "historical_packages": 5,
+    "intact_packages": 5,
+    "readable_packages": 5,
+    "behaviorally_evaluable_packages": 0,
+    "acceptance_eligible_packages": 0,
+    "planned_pairs": 7,
+    "complete_historical_pairs": 0,
+    "control_arms_observed": 1,
+    "skill_loaded_arms_observed": 5
+  },
+  "acceptance_boundary": "Historical packages remain unverified and cannot support new Host Acceptance. Only new, externally pinned v2 packages can be evaluated for a new decision."
+}

@@ -118,6 +118,8 @@ authority to the template.
 
 - Spec Review
 - Standards Review
+- Implementation Quality Review
+- Verification & Evidence Review
 
 ### Conditional Reviewers
 

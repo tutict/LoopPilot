@@ -18,7 +18,7 @@ class WhitespaceValidationTests(unittest.TestCase):
                 REPOSITORY_ROOT,
                 fixture,
                 ignore=lambda _path, names: [
-                    name for name in names if name in {".git", "__pycache__"}
+                    name for name in names if name in {".git", "__pycache__", ".tmp", "verification-temp", ".four-axis-test-tmp"}
                 ],
             )
             readme = fixture / "README.md"

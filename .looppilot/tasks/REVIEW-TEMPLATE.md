@@ -1,8 +1,11 @@
 ---
+review_schema_version: 2
 task_id: TASK-000
 decision: DECISION
 standards_decision: AXIS-DECISION
 spec_decision: AXIS-DECISION
+implementation_quality_decision: AXIS-DECISION
+verification_evidence_decision: AXIS-DECISION
 required_evidence: EVIDENCE-STATUS
 reviewed: YYYY-MM-DD
 reviewer: none
@@ -12,7 +15,12 @@ reviewer: none
 
 Replace `DECISION` with `approved`, `revision-requested`, `rejected`, or `blocked`.
 Replace each `AXIS-DECISION` with `pass`, `revision-requested`, `rejected`, or
-`blocked`. An approved review requires both axes to pass and
+`blocked`. Implementation Quality and Verification & Evidence may also be
+`not-applicable` when the contract scope proves that no reviewable deliverable or
+verification/evidence obligation exists; cite that scope in `Applicability evidence`.
+Missing checks, inaccessible tools, and unobserved evidence are not N/A reasons.
+An approved review requires both permanent axes and every applicable conditional
+axis to pass, justified N/A decisions for the conditional axes, and
 `required_evidence: observed`.
 
 ## Standards Review
@@ -52,6 +60,42 @@ Decision: AXIS-DECISION
 - Research usage: Not yet checked.
 - Parent-goal alignment: Not yet checked.
 - Integration readiness: Not yet checked.
+
+### Findings
+
+- None.
+
+### Required Corrections
+
+- None.
+
+## Implementation Quality Review
+
+Decision: AXIS-DECISION
+Applicability evidence: none
+
+### Criteria Checked
+
+- Deliverable fitness and maintainability: Not yet checked.
+- Project conventions and required interfaces: Not yet checked.
+
+### Findings
+
+- None.
+
+### Required Corrections
+
+- None.
+
+## Verification & Evidence Review
+
+Decision: AXIS-DECISION
+Applicability evidence: none
+
+### Criteria Checked
+
+- Required checks and evidence provenance: Not yet checked.
+- Verification limits and skipped checks: Not yet checked.
 
 ### Findings
 

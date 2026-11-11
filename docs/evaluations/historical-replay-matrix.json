@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "purpose": "New paired re-runs that address evidence gaps in EVAL-001 through EVAL-005. This plan is not execution evidence or Host Acceptance.",
+  "retry_policy": {
+    "max_retries": 2,
+    "new_evaluation_id_and_run_id_per_retry": true,
+    "retry_only_execution_infrastructure_incidents": true,
+    "retain_every_failed_attempt": true
+  },
+  "pairs": [
+    {
+      "pair_id": "HIST-EVAL-001-S43",
+      "historical_evaluation_id": "EVAL-001",
+      "scenario_id": "scenario 43",
+      "scenario_title": "Requested Skill Is Unavailable",
+      "evidence_type": "behavior",
+      "scenario_shape": "lightweight",
+      "original_combination": {"host": "Claude Code", "host_version": "2.1.220", "model": "claude-opus-5 (Opus 5, 1M context)"},
+      "prior_coverage": {"control": "observed", "skill_loaded": "missing", "note": "The control observed unavailable Skill handling; no loaded probe or independent review exists."},
+      "control": {"evaluation_id": "EVAL-006", "loading_mode": "not-loaded"},
+      "skill_loaded": {"evaluation_id": "EVAL-007", "loading_mode": "explicit"},
+      "known_gaps": ["No matched loaded arm", "No independent reviewer", "Historical score is not recomputable under the current rubric"]
+    },
+    {
+      "pair_id": "HIST-EVAL-002-S68",
+      "historical_evaluation_id": "EVAL-002",
+      "scenario_id": "scenario 68",
+      "scenario_title": "Simple Change Uses Lightweight Mode",
+      "evidence_type": "behavior",
+      "scenario_shape": "lightweight",
+      "original_combination": {"host": "Claude Code", "host_version": "2.1.221", "model": "claude-opus-5 (Opus 5, 1M context)"},
+      "prior_coverage": {"control": "missing", "skill_loaded": "observed-unscored", "note": "Only a loaded run is described; the package has no trace or score and no independent reviewer."},
+      "control": {"evaluation_id": "EVAL-008", "loading_mode": "not-loaded"},
+      "skill_loaded": {"evaluation_id": "EVAL-009", "loading_mode": "explicit"},
+      "known_gaps": ["No preserved trace", "No score", "No matched control", "Prior review was not independent"]
+    },
+    {
+      "pair_id": "HIST-EVAL-003-S69",
+      "historical_evaluation_id": "EVAL-003",
+      "scenario_id": "scenario 69",
+      "scenario_title": "High-Risk Multi-Stage Work Uses Full Loop Mode",
+      "evidence_type": "behavior",
+      "scenario_shape": "full-loop",
+      "original_combination": {"host": "Claude Code", "host_version": "2.1.221", "model": "claude-opus-5 (Opus 5, 1M context)"},
+      "prior_coverage": {"control": "missing", "skill_loaded": "observed-unscored", "note": "Only a loaded run is described; the package has no trace or score and no independent reviewer."},
+      "control": {"evaluation_id": "EVAL-010", "loading_mode": "not-loaded"},
+      "skill_loaded": {"evaluation_id": "EVAL-011", "loading_mode": "explicit"},
+      "known_gaps": ["No preserved trace", "No score", "No matched control", "Prior review was not independent"]
+    },
+    {
+      "pair_id": "HIST-EVAL-004-ARM-A",
+      "historical_evaluation_id": "EVAL-004",
+      "scenario_id": "host-skill-loading-probe-arm-a",
+      "scenario_title": "Host Skill loading probe, explicit invocation",
+      "evidence_type": "loading-probe",
+      "scenario_shape": "lightweight",
+      "original_combination": {"host": "Claude Code", "host_version": "2.1.224", "model": "claude-opus-5"},
+      "prior_coverage": {"control": "missing", "skill_loaded": "loading-observed-behavior-unscored", "note": "Loading was self-observed in Arm A; no matched control or behavioral task score exists."},
+      "control": {"evaluation_id": "EVAL-012", "loading_mode": "not-loaded-explicit-probe"},
+      "skill_loaded": {"evaluation_id": "EVAL-013", "loading_mode": "explicit"},
+      "known_gaps": ["Arm A was self-observing", "No control arm", "No behavioral task fixture or score", "No independent reviewer"]
+    },
+    {
+      "pair_id": "HIST-EVAL-004-ARM-B",
+      "historical_evaluation_id": "EVAL-004",
+      "scenario_id": "host-skill-loading-probe-arm-b",
+      "scenario_title": "Host Skill discovery/loading probe, headless invocation",
+      "evidence_type": "loading-probe",
+      "scenario_shape": "lightweight",
+      "original_combination": {"host": "Claude Code", "host_version": "2.1.226", "model": "claude-fable-5[1m]"},
+      "prior_coverage": {"control": "missing", "skill_loaded": "missing", "note": "Both historical headless attempts ended in HTTP 429 before a model turn; the version/model combination is kept separate from Arm A."},
+      "control": {"evaluation_id": "EVAL-014", "loading_mode": "not-loaded-headless"},
+      "skill_loaded": {"evaluation_id": "EVAL-015", "loading_mode": "headless-discovery"},
+      "known_gaps": ["Both historical attempts ended in HTTP 429", "No model turn or loading observation", "No independent reviewer"]
+    },
+    {
+      "pair_id": "HIST-EVAL-005-FIXTURE-A",
+      "historical_evaluation_id": "EVAL-005",
+      "scenario_id": "phase14-lightweight-explicit",
+      "scenario_title": "Phase 14 Lightweight explicit fixture",
+      "evidence_type": "behavior",
+      "scenario_shape": "lightweight",
+      "original_combination": {"host": "Claude Code", "host_version": "2.1.224", "model": "claude-opus-5"},
+      "prior_coverage": {"control": "missing", "skill_loaded": "loading-observed-run-interrupted", "note": "Skill loading was observed, then the task run was interrupted by non-transient HTTP 429 before its report; no score exists."},
+      "control": {"evaluation_id": "EVAL-016", "loading_mode": "not-loaded-explicit"},
+      "skill_loaded": {"evaluation_id": "EVAL-017", "loading_mode": "explicit"},
+      "known_gaps": ["No control arm", "HTTP 429 interrupted the historical run", "No score", "No independent reviewer"]
+    },
+    {
+      "pair_id": "HIST-EVAL-005-IMPLICIT",
+      "historical_evaluation_id": "EVAL-005",
+      "scenario_id": "phase14-implicit-activation",
+      "scenario_title": "Phase 14 implicit activation fixture",
+      "evidence_type": "behavior",
+      "scenario_shape": "lightweight",
+      "original_combination": {"host": "Claude Code", "host_version": "2.1.224", "model": "claude-opus-5"},
+      "prior_coverage": {"control": "missing", "skill_loaded": "observed-unscored", "note": "The Skill was installed but not explicitly invoked; the run was not scored or independently reviewed."},
+      "control": {"evaluation_id": "EVAL-018", "loading_mode": "not-installed-implicit"},
+      "skill_loaded": {"evaluation_id": "EVAL-019", "loading_mode": "installed-implicit"},
+      "known_gaps": ["No control arm", "No score", "No independent reviewer"]
+    }
+  ]
+}

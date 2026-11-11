@@ -65,8 +65,11 @@ class ArchitectureContractTests(unittest.TestCase):
         self.assertIn("every skipped or scoped-down check", core)
         self.assertIn("inconvenience or duration", core)
 
-    def test_two_axes_and_non_coding_cases(self):
+    def test_four_axes_and_non_coding_cases(self):
         core = " ".join(text("SKILL.md").split())
+        for axis in ("Spec", "Standards", "Implementation Quality", "Verification & Evidence"):
+            self.assertIn(axis, core)
+        self.assertIn("all four Review axes", core)
         self.assertIn("Product Risk determines review, validation, and evidence depth", core)
         self.assertIn("Coordination Necessity determines whether Full Loop is required", core)
         self.assertIn("before choosing any mode", core)

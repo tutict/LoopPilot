@@ -122,6 +122,7 @@ current repository or runtime.
 
 VALID_TASK = """---
 task_id: TASK-001
+review_schema_version: 2
 parent_goal: Deliver the supervised delegation protocol.
 status: assigned
 previous_status: proposed
@@ -271,7 +272,103 @@ This review grants no commit, push, release, deployment, deletion, Skill
 installation, or external-communication authority.
 """
 
+VALID_REVIEW_V2 = """---
+review_schema_version: 2
+task_id: TASK-001
+decision: approved
+standards_decision: pass
+spec_decision: pass
+implementation_quality_decision: pass
+verification_evidence_decision: pass
+required_evidence: observed
+reviewed: 2026-07-16
+reviewer: reviewer-a
+---
 
+# Review Result
+
+## Standards Review
+
+Decision: pass
+
+### Criteria Checked
+
+- Repository standards: Verified.
+
+### Findings
+
+- None.
+
+### Required Corrections
+
+- None.
+
+## Spec Review
+
+Decision: pass
+
+### Criteria Checked
+
+- Success criteria: Verified.
+- Required evidence: Observed.
+
+### Findings
+
+- None.
+
+### Required Corrections
+
+- None.
+
+## Implementation Quality Review
+
+Decision: pass
+Evidence: Reviewed the delivered artifact against project conventions.
+Applicability evidence: none
+
+### Criteria Checked
+
+- Quality: Reviewed against relevant project standards.
+
+### Findings
+
+- None.
+
+### Required Corrections
+
+- None.
+
+## Verification & Evidence Review
+
+Decision: pass
+Evidence: Observed the required checks and their outputs.
+Applicability evidence: none
+
+### Criteria Checked
+
+- Required evidence: Observed and traceable.
+
+### Findings
+
+- None.
+
+### Required Corrections
+
+- None.
+
+## Verification Gaps
+
+- None.
+
+## Overall Decision Rationale
+
+- All applicable axes passed and required evidence was observed.
+
+## Authority Note
+
+This review grants no commit, push, release, deployment, deletion, Skill
+installation, or external-communication authority.
+"""
 class ResearchSkillChecklistValidationTests(unittest.TestCase):
     def run_validator(self, root: Path) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
@@ -288,7 +385,21 @@ class ResearchSkillChecklistValidationTests(unittest.TestCase):
             REPOSITORY_ROOT,
             fixture,
             ignore=lambda _path, names: [
-                name for name in names if name in {".git", "__pycache__"}
+                name
+                for name in names
+                if name
+                in {
+                    ".git",
+                    "__pycache__",
+                    ".pytest_cache",
+                    "node_modules",
+                    ".venv",
+                    ".tmp",
+                    "verification-temp",
+                    ".four-axis-test-tmp",
+                }
+                or name.startswith(".tmp-")
+                or name.startswith(".venv-")
             ],
         )
         checklist = fixture / ".looppilot" / "CHECKLIST.md"
@@ -321,9 +432,11 @@ class ResearchSkillChecklistValidationTests(unittest.TestCase):
 
     @staticmethod
     def write_approved_task_and_review(
-        fixture: Path, review_text: str = VALID_REVIEW
+        fixture: Path, review_text: str = VALID_REVIEW_V2
     ) -> None:
         task = VALID_TASK.replace("status: assigned", "status: approved", 1)
+        if "review_schema_version: 2" not in review_text:
+            task = task.replace("review_schema_version: 2", "review_schema_version: 1", 1)
         task = task.replace("previous_status: proposed", "previous_status: under-review", 1)
         task = task.replace("status_changed_by: supervisor", "status_changed_by: reviewer", 1)
         ResearchSkillChecklistValidationTests.write_valid_task(fixture, task)
@@ -701,6 +814,67 @@ class ResearchSkillChecklistValidationTests(unittest.TestCase):
     def test_34_two_passed_axes_allow_approval(self) -> None:
         result = self.validate_fixture(self.write_approved_task_and_review)
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_34d_unversioned_review_remains_legacy_readable(self) -> None:
+        result = self.validate_fixture(
+            lambda fixture: self.write_approved_task_and_review(fixture, VALID_REVIEW)
+        )
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_review_schema_version_must_match_task_contract(self) -> None:
+        def mutate(fixture: Path) -> None:
+            self.write_approved_task_and_review(fixture, VALID_REVIEW_V2)
+            task_path = fixture / ".looppilot" / "tasks" / "TASK-001.md"
+            task = task_path.read_text(encoding="utf-8").replace(
+                "review_schema_version: 2", "review_schema_version: 1", 1
+            )
+            task_path.write_text(task, encoding="utf-8")
+
+        result = self.validate_fixture(mutate)
+        self.assertEqual(1, result.returncode)
+        self.assertIn(
+            "Review schema version must match the Task Contract",
+            result.stdout + result.stderr,
+        )
+
+    def test_34a_missing_implementation_quality_axis_is_rejected(self) -> None:
+        review = VALID_REVIEW_V2.replace(
+            "implementation_quality_decision: pass\n", "", 1
+        )
+        result = self.validate_fixture(
+            lambda fixture: self.write_approved_task_and_review(fixture, review)
+        )
+        self.assertEqual(1, result.returncode)
+        self.assertIn(
+            "missing required field 'implementation_quality_decision'",
+            result.stdout + result.stderr,
+        )
+
+    def test_34b_mandatory_axis_cannot_be_not_applicable(self) -> None:
+        review = VALID_REVIEW_V2.replace(
+            "standards_decision: pass", "standards_decision: not-applicable", 1
+        ).replace("Decision: pass", "Decision: not-applicable", 1)
+        result = self.validate_fixture(
+            lambda fixture: self.write_approved_task_and_review(fixture, review)
+        )
+        self.assertEqual(1, result.returncode)
+        self.assertIn("invalid Standards Review decision 'not-applicable'", result.stdout)
+
+    def test_34c_not_applicable_axis_requires_scope_evidence(self) -> None:
+        review = VALID_REVIEW_V2.replace(
+            "implementation_quality_decision: pass",
+            "implementation_quality_decision: not-applicable",
+            1,
+        ).replace(
+            "Decision: pass\nEvidence: Reviewed the delivered artifact against project conventions.\nN/A Basis: not-applicable",
+            "Decision: not-applicable\nEvidence: none\nApplicability evidence: none",
+            1,
+        )
+        result = self.validate_fixture(
+            lambda fixture: self.write_approved_task_and_review(fixture, review)
+        )
+        self.assertEqual(1, result.returncode)
+        self.assertIn("not-applicable requires cited scope evidence", result.stdout)
 
     def test_35_approval_without_observed_evidence_is_rejected(self) -> None:
         def mutate(fixture: Path) -> None:

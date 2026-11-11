@@ -2,6 +2,8 @@
 
 Template Status: inactive
 
+- Review Schema Version: 2
+
 ## Identity
 
 - Review ID: none
@@ -19,12 +21,16 @@ Template Status: inactive
 - Status: inactive
 
 Allowed Review Level values for an active Review are `loop` and `project`.
-Allowed Reviewer Type values are `spec`, `standards`, `domain`, `data`,
+Allowed Reviewer Type values are `four-axis`, `spec`, `standards`, `domain`, `data`,
 `concurrency`, `security`, `operations`, `performance`, `architecture`, `frontend`,
 `compatibility`, `test`, `code-quality`, `accessibility`, `compliance`,
 `factual-accuracy`, `citation`, `methodology`, `structure`, `visual`, and
 `domain-expert`. Allowed Status values are `inactive`, `in-progress`, `completed`,
 `blocked`, and `superseded`.
+
+Review Schema Version 2 uses the four-axis structure. Risk-selected professional
+reviews are recorded separately as conditional contributions; they never replace
+an axis decision.
 
 ## Review Scope
 
@@ -87,18 +93,34 @@ implementation.
 - Evidence: none
 - Limitations: none
 
+## Implementation Quality Review Contribution
+
+- Decision: not-evaluated
+- Applicability evidence: none
+- Evidence: none
+- Limitations: none
+
+## Verification & Evidence Review Contribution
+
+- Decision: not-evaluated
+- Applicability evidence: none
+- Evidence: none
+- Limitations: none
+
 ## Reviewer Verdict
 
 - Verdict: none
 - Rationale: none
 
 Allowed Verdict values for an active Review are `pass`, `pass-with-findings`,
-`rework-required`, and `blocked`. Final Loop review requires both the Spec Review
-and Standards Review axes to pass; a specialist contribution does not replace both
-axes, and `pass-with-findings` does not dispose of Findings. Project-level Review
+`rework-required`, and `blocked`. Every applicable Spec, Standards, Implementation
+Quality, and Verification & Evidence axis must pass; only the latter two may be
+`not-applicable`, supported by scope or deliverable evidence. A specialist
+contribution does not replace the four axes, and `pass-with-findings` does not
+dispose of Findings. Project-level Review
 examines the integrated Project outcome and requires a Project ID, Cross-Loop
 Validation, Goal-to-Evidence Mapping, and reviewed boundary; its Loop ID is
-`not-applicable`. Project Spec and Project Standards remain separate mandatory axes.
+`not-applicable`. Each axis records an independent decision.
 
 ## Reverification Requirements
 

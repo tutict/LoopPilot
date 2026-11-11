@@ -66,6 +66,8 @@ class FullLoopTemplateTests(unittest.TestCase):
                     "node_modules",
                     ".venv",
                     ".tmp",
+                    "verification-temp",
+                    ".four-axis-test-tmp",
                 }
                 or name.startswith(".tmp-")
                 or name.startswith(".venv-")

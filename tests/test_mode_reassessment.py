@@ -193,7 +193,7 @@ class ModeReassessmentTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             target = Path(temp) / "source"
             shutil.copytree(ROOT, target, ignore=shutil.ignore_patterns(
-                ".git", ".claude", ".codex", ".agents", ".tmp", "__pycache__", ".pytest_cache"))
+                ".git", ".claude", ".codex", ".agents", ".tmp", "verification-temp", ".four-axis-test-tmp", "__pycache__", ".pytest_cache"))
             path = target / MODE
             path.write_text(path.read_text(encoding="utf-8") + "\n```mermaid\nflowchart TD\n"
                             "    evidence[New high risk] --> contract[Create Full Loop Contract]\n```\n",

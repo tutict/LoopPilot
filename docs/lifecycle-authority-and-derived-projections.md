@@ -15,7 +15,7 @@ Git snapshot boundary, never a competing authority.
 | Finding status and severity | current Loop `FINDING-LEDGER.md` |
 | Current recovery boundary and next action | root `CHECKPOINT.md` |
 | Integration decision | current Integration Record |
-| Spec and Standards decisions | current Review Reports |
+| Four Review-axis decisions | current Review Reports |
 | Closure decision | current `LOOP-CLOSURE.md` |
 | Current Git boundary | observed repository HEAD; a recorded snapshot stays valid as an ancestor commit |
 

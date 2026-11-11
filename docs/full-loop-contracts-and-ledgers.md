@@ -41,9 +41,10 @@ Status` is one of `inactive`, `draft`, `ready`, `approved`, or `superseded`.
 It MUST NOT copy the Loop lifecycle status owned by `LOOP-MAP.md`.
 
 The Task DAG records stable Task IDs, outcomes, dependencies, and contract links.
-Spec and Standards Review are mandatory axes. Conditional Reviewers are selected
-only from material Engineering Concern Matrix risks; they are not all mandatory by
-default.
+Spec, Standards, Implementation Quality, and Verification & Evidence are the four
+Review axes. Spec and Standards always apply; the latter two use evidence-based
+applicability. Conditional professional Reviewers are selected only from material
+Engineering Concern Matrix risks; they are not all mandatory by default.
 
 ## Loop Map and Loop Status
 

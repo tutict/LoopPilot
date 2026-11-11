@@ -36,6 +36,8 @@ class FullLoopDeliveryReviewClosureTests(unittest.TestCase):
                     "node_modules",
                     ".venv",
                     ".tmp",
+                    "verification-temp",
+                    ".four-axis-test-tmp",
                 }
                 or name.startswith(".tmp-")
                 or name.startswith(".venv-")
@@ -81,6 +83,83 @@ class FullLoopDeliveryReviewClosureTests(unittest.TestCase):
     def test_valid_phase_three_template_collection_passes(self) -> None:
         result = self.validate_fixture()
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_review_report_requires_implementation_quality_axis(self) -> None:
+        def mutate(fixture: Path) -> None:
+            path = fixture / REVIEW
+            if "## Implementation Quality Review Contribution" not in path.read_text(encoding="utf-8"):
+                self.append(
+                    path,
+                    "\n## Implementation Quality Review Contribution\n\n"
+                    "- Decision: not-evaluated\n- Evidence: none\n- N/A Basis: none\n",
+                )
+            self.replace_once(
+                path,
+                "## Implementation Quality Review Contribution",
+                "## Quality Review Omitted",
+            )
+
+        self.assert_rejected(
+            mutate,
+            "missing required heading '## Implementation Quality Review Contribution'",
+        )
+
+    def test_loop_closure_requires_verification_evidence_axis(self) -> None:
+        def mutate(fixture: Path) -> None:
+            path = fixture / CLOSURE
+            if "### Verification & Evidence Review" not in path.read_text(encoding="utf-8"):
+                self.append(
+                    path,
+                    "\n### Verification & Evidence Review\n\n"
+                    "- Result: not-evaluated\n- Reports: none\n"
+                    "- Evidence: none\n- N/A Basis: none\n",
+                )
+            self.replace_once(
+                path,
+                "### Verification & Evidence Review",
+                "### Evidence Review Omitted",
+            )
+
+        self.assert_rejected(
+            mutate,
+            "missing required heading '### Verification & Evidence Review'",
+        )
+
+    def test_ready_closure_requires_implementation_quality_pass(self) -> None:
+        def mutate(fixture: Path) -> None:
+            path = fixture / CLOSURE
+            self.replace_once(path, "- Closure Status: inactive", "- Closure Status: ready-for-acceptance")
+            self.mark_acceptance(path)
+            self.pass_preclosure_barriers(path)
+            for _ in range(4):
+                self.replace_once(path, "- Result: not-evaluated", "- Result: pass")
+            self.replace_once(
+                path,
+                "### Implementation Quality Review\n\n- Result: pass",
+                "### Implementation Quality Review\n\n- Result: not-evaluated",
+            )
+
+        self.assert_rejected(mutate, "Implementation Quality Review must pass before Closure readiness")
+
+    def test_ready_closure_rejects_unsupported_axis_na(self) -> None:
+        def mutate(fixture: Path) -> None:
+            path = fixture / CLOSURE
+            self.replace_once(path, "- Closure Status: inactive", "- Closure Status: ready-for-acceptance")
+            self.mark_acceptance(path)
+            self.pass_preclosure_barriers(path)
+            for _ in range(4):
+                self.replace_once(path, "- Result: not-evaluated", "- Result: pass")
+            self.replace_once(
+                path,
+                "### Verification & Evidence Review\n\n- Result: pass",
+                "### Verification & Evidence Review\n\n- Result: not-applicable\n"
+                "- Applicability evidence: none",
+            )
+
+        self.assert_rejected(
+            mutate,
+            "Verification & Evidence Review not-applicable requires cited scope evidence",
+        )
 
     def test_valid_blocked_closure_passes(self) -> None:
         def mutate(fixture: Path) -> None:
@@ -258,7 +337,7 @@ MUTATION_CASES = (
     ("review_modifies_implementation", REVIEW, "The Reviewer judges", "The Reviewer may modify implementation. The Reviewer judges", "Reviewer must not modify implementation"),
     ("review_accepts_risk", REVIEW, "The Reviewer judges", "The Reviewer may accept risk. The Reviewer judges", "Reviewer must not accept risk"),
     ("review_updates_ledger", REVIEW, "The Reviewer judges", "The Reviewer may update authoritative Ledgers. The Reviewer judges", "Reviewer must not update authoritative Ledgers"),
-    ("review_specialist_auto_axes", REVIEW, "Final Loop review requires", "A specialist automatically makes Spec and Standards pass. Final Loop review requires", "specialist Review must not automatically pass both axes"),
+    ("review_specialist_auto_axes", REVIEW, "A specialist\ncontribution does not replace the four axes", "A specialist automatically makes Spec and Standards pass. A specialist\ncontribution does not replace the four axes", "specialist Review must not automatically pass mandatory axes"),
     ("review_is_finding_authority", REVIEW, "`FINDING-LEDGER.md` remains authoritative.", "Review Report owns Finding status.", "Review Report must not own Finding status"),
     # Finding Detail
     ("finding_missing_review_id", FINDING, "- Review ID: none", "- Source Review: none", "missing required field 'Review ID'"),

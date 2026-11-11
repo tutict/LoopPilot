@@ -27,7 +27,7 @@ def git(root, *args, date="2030-01-01T08:00:00+00:00"):
 
 
 def initialize(root, source):
-    shutil.copytree(source, root, ignore=shutil.ignore_patterns(".git", ".tmp", "__pycache__"))
+    shutil.copytree(source, root, ignore=shutil.ignore_patterns(".git", ".tmp", "verification-temp", ".four-axis-test-tmp", "__pycache__"))
     git(root, "init", "-b", "fixture")
     git(root, "add", ".")
     git(root, "commit", "-m", "synthetic synchronized successor boundary")

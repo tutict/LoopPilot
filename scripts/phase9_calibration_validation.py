@@ -233,14 +233,14 @@ def validate_phase9_calibration(root: Path, errors: list[str]) -> None:
     if scenarios.is_file():
         _require(
             scenarios.read_text(encoding="utf-8"),
-            ("## 234. High Product Risk With One Owner", "## 263. Phase 10 Evidence Stays Separately Attributed"),
+            ("## 234. High Product Risk With One Owner", "## 263. Phase 10 Evidence Stays Separately Attributed", "## 302. Passing Tests Do Not Prove Code Quality", "## 303. Unavailable Code Quality Tool Is Disclosed", "## 304. No Code Artifact Makes Quality Not Applicable"),
             "tests/scenarios.md",
             errors,
         )
     if rubric.is_file():
         _require(
             rubric.read_text(encoding="utf-8"),
-            ("Attributes Repository, Environment-Corrected, and Scope-Focused evidence before a regression claim.", "Shows why multiple owners, integration, recovery, or rework governance is actually needed.", "States missing Deliveries, verification, acceptance, and remaining authority precisely."),
+            ("Attributes Repository, Environment-Corrected, and Scope-Focused evidence before a regression claim.", "Shows why multiple owners, integration, recovery, or rework governance is actually needed.", "States missing Deliveries, verification, acceptance, and remaining authority precisely.", "| **Code quality** |", "The global score contains two hundred fifteen dimensions; Host Acceptance Record dimensions remain separate."),
             "tests/evaluation-rubric.md",
             errors,
         )

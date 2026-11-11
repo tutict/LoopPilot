@@ -125,7 +125,7 @@ class EvaluationCalibrationTests(unittest.TestCase):
         fixture = Path(directory) / "repository"
         copytree_ignore = shutil.ignore_patterns(
             ".git", "__pycache__", ".pytest_cache", "node_modules", ".venv",
-            ".tmp", ".venv-*", ".tmp-*",
+            ".tmp", ".venv-*", ".tmp-*", "verification-temp", ".four-axis-test-tmp",
         )
         shutil.copytree(REPOSITORY_ROOT, fixture, ignore=copytree_ignore)
         return fixture

@@ -110,7 +110,8 @@ LOOP-CONTRACT
 
 Task-level Readiness permits a Delivery to enter integration; it is not Loop-level
 Review. Worker self-report does not satisfy Integration, and integrated status does
-not satisfy Review. Spec and Standards must both pass, conditional Reviewers
+not satisfy Review. All applicable Spec, Standards, Implementation Quality, and
+Verification & Evidence axes must pass; conditional professional Reviewers
 contribute where the Matrix requires them, and Reviewer reverification precedes
 Finding closure.
 
@@ -148,7 +149,7 @@ The Phase 5 Project relationship is:
 ```text
 Closed mandatory Loops
         -> Cross-Loop Validation
-        -> Project Spec + Standards Review
+        -> Project four-axis Review
         -> Project Findings routed to remediation Loops
         -> Functional + Engineering + Delivery Acceptance
         -> Release Readiness

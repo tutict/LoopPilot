@@ -1,5 +1,6 @@
 ---
 task_id: TASK-000
+review_schema_version: 2
 parent_goal: Template only; no active parent Goal.
 status: proposed
 previous_status: none

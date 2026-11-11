@@ -15,6 +15,7 @@ import yaml
 from yaml.constructor import ConstructorError
 from engineering_validation import validate_loop_engineering
 from evaluation_evidence_validation import validate_evaluation_evidence
+from behavior_validation import validate_behavior_matrices
 from installation_doc_validation import validate_installation_documentation
 from instruction_consistency_validation import validate_instruction_consistency
 from evaluation_calibration_validation import (
@@ -58,9 +59,18 @@ REQUIRED_FILES = (
     "SKILL.md",
     "AGENTS.md",
     "scripts/evaluation_evidence_validation.py",
+    "scripts/historical_evaluation_audit.py",
+    "scripts/validate_historical_replay.py",
+    "scripts/behavior_validation.py",
     "scripts/evaluation_history.json",
     "scripts/installation_doc_validation.py",
     "docs/evaluation-evidence-integrity.md",
+    "docs/evaluations/historical-replay-matrix.json",
+    "docs/evaluations/historical-v2-rerun-runbook.md",
+    "docs/evaluations/historical-evaluation-audit.md",
+    "docs/evaluations/historical-audit-report.json",
+    "docs/evaluations/current-acceptance-matrix.json",
+    "docs/evaluations/two-stage-behavior-validation-runbook.md",
     "scripts/instruction_consistency_validation.py",
     "tests/test_instruction_consistency.py",
     ".looppilot/README.md",
@@ -110,6 +120,13 @@ REQUIRED_FILES = (
     "evaluations/templates/prompt.md",
     "evaluations/templates/trace.md",
     "evaluations/templates/score.md",
+    "evaluations/templates/historical-lineage.json",
+    "evaluations/templates/replay-review-v3.json",
+    "evaluations/templates/blind-review-v4.json",
+    "evaluations/templates/current-acceptance-lineage.json",
+    "evaluations/templates/current-validation-boundary.json",
+    "evaluations/templates/loading-observation.json",
+    "evaluations/templates/behavior-reviewer-readiness.json",
     "docs/lifecycle.md",
     "docs/multi-agent-coordination.md",
     "docs/safety-and-stopping.md",
@@ -124,6 +141,9 @@ REQUIRED_FILES = (
     *FULL_LOOP_EXECUTION_FILES,
     *FULL_LOOP_RECOVERY_FILES,
     *PROJECT_CLOSURE_FILES,
+    "tests/test_historical_evaluation_audit.py",
+    "tests/test_historical_replay_validation.py",
+    "tests/test_behavior_validation.py",
 )
 SKILL_WORD_RANGE = range(1500, 2501)
 FRONTMATTER_PATTERN = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
@@ -357,6 +377,7 @@ UniqueKeySafeLoader.add_constructor(
 @dataclass(frozen=True)
 class TaskContractSummary:
     task_id: str
+    review_schema_version: int
     status: str
     previous_status: str
     status_changed_by: str
@@ -527,6 +548,13 @@ def validate_task_contract_file(
                 )
 
         task_id = non_empty_string(contract, "task_id", location)
+        review_schema_version = contract.get("review_schema_version", 1)
+        if isinstance(review_schema_version, bool) or review_schema_version not in {1, 2}:
+            raise ValueError(
+                f"{location}: invalid review_schema_version {review_schema_version!r}"
+            )
+        if is_template and review_schema_version != 2:
+            raise ValueError(f"{location}: Task template must use Review schema version 2")
         if not TASK_ID_PATTERN.fullmatch(task_id):
             raise ValueError(f"{location}: invalid task_id {task_id!r}")
         if is_template:
@@ -670,6 +698,7 @@ def validate_task_contract_file(
                     )
         return TaskContractSummary(
             task_id=task_id,
+            review_schema_version=review_schema_version,
             status=status,
             previous_status=previous,
             status_changed_by=changed_by,
@@ -801,6 +830,14 @@ def validate_review_file(
         reviewer = non_empty_string(review, "reviewer", location)
         validate_task_date(review, "reviewed", location)
         decision = non_empty_string(review, "decision", location)
+        review_schema_version = review.get("review_schema_version", 1)
+        if (
+            isinstance(review_schema_version, bool)
+            or review_schema_version not in {1, 2}
+        ):
+            raise ValueError(
+                f"{location}: invalid review_schema_version {review_schema_version!r}"
+            )
         if is_template:
             if decision != "DECISION":
                 if decision not in REVIEW_DECISIONS:
@@ -824,6 +861,10 @@ def validate_review_file(
                     f"{location}: review references unknown task_id {task_id!r}"
                 )
             task = task_contracts[task_id]
+            if review_schema_version != task.review_schema_version:
+                raise ValueError(
+                    f"{location}: Review schema version must match the Task Contract"
+                )
             if path.name != f"REVIEW-{task_id}.md":
                 raise ValueError(
                     f"{location}: filename must match reviewed task_id {task_id!r}"
@@ -1193,6 +1234,7 @@ def validate_repository(
     validate_lifecycle_consistency(root, errors, warnings)
     validate_cross_host_acceptance(root, errors)
     validate_option_b(root, errors)
+    errors.extend(validate_behavior_matrices(root))
     markdown_views = {}
     errors.extend(validate_evaluation_evidence(root, evidence_index, evidence_index_sha256, warnings, markdown_views))
     errors.extend(validate_installation_documentation(root))

@@ -55,19 +55,23 @@ integrated, or announce parent completion.
 
 ### Reviewer
 
-The Reviewer independently runs two axes. Standards Review checks instruction
-priority, repository rules, safety, authority, scope, maintainability, naming,
-source quality, Skill discipline, context efficiency, and platform-neutral
-runtime-free positioning. Spec Review checks the objective, deliverables, success
-criteria, required evidence, dependencies, research use, parent alignment, edge
-cases, omissions, and integration readiness.
+The Reviewer independently records four decisions. Spec checks the objective,
+deliverables, success criteria, dependencies, parent alignment, edge cases,
+omissions, and integration readiness. Standards checks instruction priority,
+repository rules, safety, authority, scope, Skill discipline, and platform-neutral
+operation. Implementation Quality checks each reviewable deliverable against
+project-specific quality and maintainability expectations. Verification & Evidence
+checks required checks, evidence provenance, reproducibility, and disclosed gaps.
 
-Each axis decides `pass`, `revision-requested`, `rejected`, or `blocked`. Overall
-decisions are `approved`, `revision-requested`, `rejected`, or `blocked`.
-`approved` requires both axes to pass, required evidence to be observed, and no
-blocking conflict. A Reviewer MUST NOT offset one failed axis with the other, issue
-a vague approval, accept Worker narration as verification, hide gaps, expand
-authority, or skip an axis because context is limited.
+Spec and Standards always apply. Implementation Quality applies when a reviewable
+deliverable is produced or modified; Verification & Evidence applies when scope
+contains verification or evidence obligations. Only those latter two may be
+`not-applicable`, supported by cited scope or deliverable evidence. Missing tools,
+checks, or evidence are gaps, not N/A reasons. Overall `approved` requires all
+applicable axes to pass, required evidence to be observed, and no blocking conflict.
+A Reviewer MUST NOT offset one failed axis with another, issue a vague approval,
+accept Worker narration as verification, hide gaps, expand authority, or skip an
+applicable axis because context is limited.
 
 ### Integrator
 
@@ -192,8 +196,8 @@ flowchart TD
     K --> C["Create Checklist and Task Contracts"]
     C --> W["Worker execution"]
     W --> U["Submission with observed evidence"]
-    U --> Q{"Standards Review + Spec Review"}
-    Q -- "both pass and evidence observed" --> A["Approved"]
+    U --> Q{"Four-axis Review"}
+    Q -- "all applicable axes pass; evidence observed" --> A["Approved"]
     Q -- "revision-requested" --> W
     Q -- "rejected or blocked" --> X["Reassign, narrow, cancel, or report blocked"]
     A --> I["Integration and parent verification"]
@@ -219,15 +223,18 @@ cancel, or rewrite invalid Task Contracts before execution continues.
 
 ## Review and Revision
 
-The [review template](../.looppilot/tasks/REVIEW-TEMPLATE.md) requires a decision,
-separate Standards and Spec decisions, checked criteria, findings, corrections,
-verification gaps, an overall rationale, and an authority note.
+The [review template](../.looppilot/tasks/REVIEW-TEMPLATE.md) requires an overall
+decision, four independent axis decisions, applicability evidence where N/A is
+used, checked criteria, findings, corrections, verification gaps, a rationale,
+and an authority note.
 
 Approval requires:
 
 ```text
-Standards Review = pass
-AND Spec Review = pass
+Spec Review = pass
+AND Standards Review = pass
+AND Implementation Quality Review = pass or evidence-supported not-applicable
+AND Verification & Evidence Review = pass or evidence-supported not-applicable
 AND required evidence is observed
 AND no unresolved blocking conflict exists
 ```

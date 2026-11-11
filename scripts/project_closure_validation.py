@@ -72,7 +72,8 @@ ACCEPTANCE_HEADINGS = (
     "### Cancelled Requirements", "## Goal-to-Evidence Mapping",
     "## Mandatory Loop Summary", "## Cross-Loop Validation",
     "## Project Review Summary", "### Project Spec Review",
-    "### Project Standards Review", "### Conditional Project Reviews",
+    "### Project Standards Review", "### Project Implementation Quality Review",
+    "### Project Verification & Evidence Review", "### Conditional Project Reviews",
     "## Project-Level Finding Disposition", "## Project Functional Acceptance",
     "## Project Engineering Acceptance", "## Project Delivery Acceptance",
     "## Residual Risks", "## Deferred Work", "## Accepted Risks",
@@ -93,7 +94,8 @@ REPORT_HEADINGS = (
     "## Report Identity", "## Executive Summary", "## Original Goal",
     "## Delivered Outcomes", "## Loop Summary", "## Verification Summary",
     "### Cross-Loop Validation", "### Project Spec Review",
-    "### Project Standards Review", "### Project Acceptance",
+    "### Project Standards Review", "### Project Implementation Quality Review",
+    "### Project Verification & Evidence Review", "### Project Acceptance",
     "## Delivered Artifacts", "## Usage or Handoff Instructions",
     "## Deployment and Release State", "## Configuration and Environment",
     "## Operations and Monitoring", "## Rollback and Recovery",
@@ -154,6 +156,25 @@ def _heading_lines(text: str, heading: str) -> list[str]:
 def _section_field(text: str, heading: str, name: str) -> str | None:
     section = "\n".join(_heading_lines(text, heading))
     return _field(section, name, bullet=True)
+
+
+def _validate_review_axis_summary(
+    text: str,
+    heading: str,
+    label: str,
+    optional: bool,
+    location: str,
+    errors: list[str],
+) -> None:
+    result = _section_field(text, heading, "Result")
+    if result != "pass" and not (optional and result == "not-applicable"):
+        errors.append(f"{location}: accepted Project requires {label} pass")
+    if optional and result == "not-applicable" and not _real(
+        _section_field(text, heading, "Applicability evidence")
+    ):
+        errors.append(
+            f"{location}: {label} not-applicable requires cited scope or deliverable evidence"
+        )
 
 
 def _section_has_real_content(text: str, heading: str) -> bool:
@@ -376,6 +397,8 @@ def validate_project_acceptance(root: Path, errors: list[str]) -> None:
     )
     _require_declared_values(text, ACCEPTANCE_STATUSES, "Acceptance Status", location, errors)
     status = _field(text, "Acceptance Status", bullet=True)
+    if _section_field(text, "## Project Review Summary", "Review Schema Version") != "2":
+        errors.append(f"{location}: Acceptance template must use Review Schema Version 2")
     if status not in ACCEPTANCE_STATUSES:
         errors.append(f"{location}: invalid Acceptance Status {status!r}")
         status = "blocked"
@@ -409,10 +432,21 @@ def validate_project_acceptance(root: Path, errors: list[str]) -> None:
                 errors.append(f"{location}: mandatory Loop status must come from LOOP-MAP.md")
             if not _real(row.get("Closure")) or not _real(row.get("Evidence")):
                 errors.append(f"{location}: mandatory Loop requires Closure and evidence")
-        if _section_field(text, "### Project Spec Review", "Result") != "pass":
-            errors.append(f"{location}: accepted Project requires Project Spec Review pass")
-        if _section_field(text, "### Project Standards Review", "Result") != "pass":
-            errors.append(f"{location}: accepted Project requires Project Standards Review pass")
+        for heading, label, optional in (
+            ("### Project Spec Review", "Project Spec Review", False),
+            ("### Project Standards Review", "Project Standards Review", False),
+            (
+                "### Project Implementation Quality Review",
+                "Project Implementation Quality Review",
+                True,
+            ),
+            (
+                "### Project Verification & Evidence Review",
+                "Project Verification & Evidence Review",
+                True,
+            ),
+        ):
+            _validate_review_axis_summary(text, heading, label, optional, location, errors)
         if _section_field(text, "## Cross-Loop Validation", "Result") not in {
             "passed", "passed-with-limitations",
         }:
@@ -616,7 +650,8 @@ def validate_project_closure_protocol(root: Path, errors: list[str]) -> None:
     text = (root / location).read_text(encoding="utf-8")
     required = (
         "Project Closure", "Delivery-only", "Release-required", "Cross-Loop Validation",
-        "Goal-to-Evidence Mapping", "Project Spec Review", "Project Standards Review",
+        "Goal-to-Evidence Mapping", "four-axis Review",
+        "Project Implementation Quality Review", "Project Verification & Evidence Review",
         "Project Functional Acceptance", "Project Engineering Acceptance",
         "Project Delivery Acceptance", "Project Closure Gate", "remediation Loop",
         "Final Checkpoint", "Final Delivery Report", "Release Readiness",

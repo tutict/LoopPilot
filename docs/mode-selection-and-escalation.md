@@ -10,7 +10,8 @@ Mode is selected before implementation and reassessed on new evidence in this or
 
 1. Assess Product Risk from the current problem, scope, Findings, and boundary evidence.
 2. Set the minimum review, validation, and evidence depth for that risk, retaining
-   Spec and Standards and adding risk-matched specialist review where required.
+   all four Review axes under their applicability rules and adding risk-matched
+   specialist review where required.
 3. Reassess Coordination Necessity independently: can one owner plus bounded review
    safely express delivery, integration, correction, and recovery?
 4. Select Full Loop only if that coordination requires it; otherwise Lightweight
@@ -49,12 +50,12 @@ does not by itself prove that multiple Workers are required. See
 
 ## Coding and Non-Coding Cases
 
-The two axes remain separate for every kind of work:
+The four axes remain separate for every kind of work:
 
 | Scenario | Review depth | Mode decision |
 | --- | --- | --- |
 | High product risk / low coordination | Deep risk-matched review, validation, and evidence | Supervisor may justify one-owner Lightweight after evaluating hard triggers; high risk alone does not require multiple Workers |
-| Low product risk / high coordination | Risk-matched review, never omit Spec or Standards | Full Loop when coordination cannot be safely expressed by one owner and bounded review |
+| Low product risk / high coordination | Four-axis review with applicable checks and evidence | Full Loop when coordination cannot be safely expressed by one owner and bounded review |
 | Multi-step non-coding / low coordination | Verify sources, facts, structure, or analysis as relevant | Lightweight by default for bounded documents, research, analysis, planning deliverables, or information organization |
 | Multi-step non-coding / real coordination | Risk-matched review plus integration evidence | Evaluate Full Loop; non-coding is not an exemption from coordination requirements |
 
@@ -214,8 +215,9 @@ verification can block Review or Closure without proving product failure.
 
 ## Specialist Reviewers
 
-Spec and Standards are permanent independent axes. Specialist Reviewers are
-risk-loaded and do not replace those axes or create a new authority:
+Spec and Standards are permanent independent axes. Implementation Quality and
+Verification & Evidence are also recorded and may be N/A only with scope evidence.
+Specialist Reviewers are risk-loaded and do not replace any axis or create a new authority:
 
 | Reviewer | Load when evidence includes |
 | --- | --- |

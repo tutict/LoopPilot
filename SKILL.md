@@ -119,7 +119,21 @@ Treat self-assessment, plausibility, and confidence as hypotheses, not verificat
 Use the strongest relevant evidence that is available and authorized.
 
 - **Programming:** run relevant tests, builds, lint, type checks, runtime checks, and
-  inspect the actual diff when those capabilities exist.
+  inspect the actual diff when those capabilities exist. Report functional results
+  separately from code quality. When the task changes code, the user asks for quality,
+  or project standards make it material, judge the diff against repository conventions
+  for maintainability, public interfaces and types, error boundaries, complexity, and
+  avoidable duplication. Use configured checks where available; a green test suite
+  alone does not establish code quality. Do not impose universal style rules or
+  complexity thresholds, and disclose relevant quality checks that were unavailable.
+- **Review:** Task, Loop, and Project Reviews record independent Spec, Standards,
+  Implementation Quality, and Verification & Evidence decisions. Spec and Standards
+  always apply. Implementation Quality applies to any produced or modified reviewable
+  deliverable; Verification & Evidence applies when the scope contains a check,
+  evidence, or completion claim. Only those latter two may be `not-applicable`, with
+  cited scope or deliverable evidence. Missing tools or evidence are gaps, not N/A
+  reasons. A review passes only when every applicable axis passes; risk-based
+  specialist review remains separate and cannot substitute for an axis.
 - **Research:** inspect reliable sources, publication dates, provenance, definitions,
   and conflicts; cross-check material claims when possible.
 - **Writing:** compare the artifact with the brief, required structure, facts, tone,
@@ -286,8 +300,9 @@ fact has one authority; a copy is a projection. An execution-infrastructure fail
 is not a product finding.
 
 Delegate only when the host can do it and the split is cheaper than doing the
-work. Assigning a Skill grants no authority. Delegated work needs both a
-Standards Review and a Spec Review; context pressure cannot skip either. Use
+work. Assigning a Skill grants no authority. Delegated work needs all four Review
+axes under their applicability rules; context pressure cannot skip an applicable
+axis. Use
 [CHECKLIST.md](.looppilot/CHECKLIST.md) only for complex delegated work. Before
 exhaustion, stop and persist one Resume Point. Lightweight work does not carry
 that overhead.

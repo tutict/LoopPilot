@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from protocol_validation import has_applicability_evidence
 from full_loop_validation import (
     EMPTY_VALUES,
     FINDING_ID_PATTERN,
@@ -23,6 +24,11 @@ from full_loop_validation import (
 
 
 FULL_LOOP_ROOT = ".looppilot/full-loop"
+
+
+def _section_value(text: str, heading: str, field: str) -> str | None:
+    lines = _section_lines(text, heading)
+    return _field("\n".join(lines), field, bullet=True)
 PHASE_THREE_PROTOCOL = "docs/full-loop-delivery-review-and-closure.md"
 FULL_LOOP_EXECUTION_FILES = (
     f"{FULL_LOOP_ROOT}/WORKER-DELIVERY-TEMPLATE.md",
@@ -145,6 +151,8 @@ REVIEW_HEADINGS = (
     "## Coverage Limitations",
     "## Standards Review Contribution",
     "## Spec Review Contribution",
+    "## Implementation Quality Review Contribution",
+    "## Verification & Evidence Review Contribution",
     "## Reviewer Verdict",
     "## Reverification Requirements",
     "## Authority Note",
@@ -189,6 +197,8 @@ CLOSURE_HEADINGS = (
     "## Review Summary",
     "### Spec Review",
     "### Standards Review",
+    "### Implementation Quality Review",
+    "### Verification & Evidence Review",
     "### Conditional Reviews",
     "## Lifecycle Consistency",
     "## Finding Disposition",
@@ -325,6 +335,7 @@ def validate_review_report(root: Path, errors: list[str]) -> None:
         text,
         (
             "Review ID",
+            "Review Schema Version",
             "Review Level",
             "Project ID",
             "Loop ID",
@@ -340,10 +351,29 @@ def validate_review_report(root: Path, errors: list[str]) -> None:
         errors,
     )
     reviewer_type = _field(text, "Reviewer Type", bullet=True)
+    status = _field(text, "Status", bullet=True)
     _require_declared_values(text, REVIEWER_TYPES, "Reviewer Type", location, errors)
     if reviewer_type != "none" and reviewer_type not in REVIEWER_TYPES:
         errors.append(f"{location}: invalid Reviewer Type {reviewer_type!r}")
-    status = _field(text, "Status", bullet=True)
+    schema_version = _field(text, "Review Schema Version", bullet=True)
+    if schema_version not in {"1", "2"}:
+        errors.append(f"{location}: invalid Review Schema Version {schema_version!r}")
+    if status != "inactive" and schema_version != "2":
+        errors.append(f"{location}: active Review Report must use schema version 2")
+    if status == "inactive" and schema_version != "2":
+        errors.append(f"{location}: Review Report template must use schema version 2")
+    if schema_version == "2" and "Review Schema Version 2 uses the four-axis structure." not in text:
+        errors.append(f"{location}: missing four-axis schema rule")
+    if schema_version == "2" and status == "inactive":
+        for heading in (
+            "## Standards Review Contribution",
+            "## Spec Review Contribution",
+            "## Implementation Quality Review Contribution",
+            "## Verification & Evidence Review Contribution",
+        ):
+            decision = _field("\n".join(_heading_lines(text, heading)), "Decision", bullet=True)
+            if decision != "not-evaluated":
+                errors.append(f"{location}: inactive template must leave {heading} not-evaluated")
     _require_declared_values(text, REVIEW_STATUSES, "Review Status", location, errors)
     if status not in REVIEW_STATUSES:
         errors.append(f"{location}: invalid Review Status {status!r}")
@@ -356,6 +386,51 @@ def validate_review_report(root: Path, errors: list[str]) -> None:
         errors.append(f"{location}: invalid Review Level {level!r}")
     if status != "inactive" and level not in REVIEW_LEVELS:
         errors.append(f"{location}: active Review requires Review Level")
+    axis_decisions = {
+        "Standards": _section_value(text, "## Standards Review Contribution", "Decision"),
+        "Spec": _section_value(text, "## Spec Review Contribution", "Decision"),
+        "Implementation Quality": _section_value(
+            text, "## Implementation Quality Review Contribution", "Decision"
+        ),
+        "Verification & Evidence": _section_value(
+            text, "## Verification & Evidence Review Contribution", "Decision"
+        ),
+    }
+    for axis, decision in axis_decisions.items():
+        if decision not in {"not-evaluated", "pass", "rework-required", "blocked", "not-applicable"}:
+            errors.append(f"{location}: invalid {axis} Review decision {decision!r}")
+    for axis in ("Standards", "Spec"):
+        if axis_decisions[axis] == "not-applicable":
+            errors.append(f"{location}: {axis} Review is mandatory and cannot be not-applicable")
+    for axis in ("Implementation Quality", "Verification & Evidence"):
+        if axis_decisions[axis] == "not-applicable":
+            heading = f"## {axis} Review Contribution"
+            if not has_applicability_evidence(
+                _section_value(text, heading, "Applicability evidence")
+            ):
+                errors.append(
+                    f"{location}: {axis} not-applicable requires cited scope evidence"
+                )
+    if status == "completed":
+        for axis, heading in (
+            ("Standards", "## Standards Review Contribution"),
+            ("Spec", "## Spec Review Contribution"),
+            ("Implementation Quality", "## Implementation Quality Review Contribution"),
+            ("Verification & Evidence", "## Verification & Evidence Review Contribution"),
+        ):
+            if axis_decisions[axis] == "pass" and not _real(
+                _section_value(text, heading, "Evidence")
+            ):
+                errors.append(f"{location}: passing {axis} Review requires cited evidence")
+    if verdict in {"pass", "pass-with-findings"} and any(
+        value not in {"pass", "not-applicable"}
+        for value in axis_decisions.values()
+    ):
+        errors.append(f"{location}: passing verdict requires every applicable axis to pass")
+    if status == "completed" and any(
+        value == "not-evaluated" for value in axis_decisions.values()
+    ):
+        errors.append(f"{location}: completed Review requires a decision on every axis")
     if status == "inactive":
         for field in ("Review ID", "Project ID", "Loop ID", "Reviewer"):
             if not _placeholder(_field(text, field, bullet=True)):
@@ -388,8 +463,8 @@ def validate_review_report(root: Path, errors: list[str]) -> None:
         errors.append(f"{location}: Reviewer must not accept risk")
     if re.search(r"Reviewer (?:may|can|is authorized to) update (?:the )?(?:authoritative )?Ledgers?", text, re.I):
         errors.append(f"{location}: Reviewer must not update authoritative Ledgers")
-    if re.search(r"specialist.{0,60}automatically.{0,60}Spec.{0,30}Standards.{0,30}pass", text, re.I | re.S):
-        errors.append(f"{location}: specialist Review must not automatically pass both axes")
+    if re.search(r"specialist.{0,100}automatically.{0,100}(?:review axes|Spec|Standards).{0,100}pass", text, re.I | re.S):
+        errors.append(f"{location}: specialist Review must not automatically pass mandatory axes")
     if "`FINDING-LEDGER.md` remains authoritative." not in _normalized(text):
         errors.append(f"{location}: Review Report must not own Finding status")
     if "`PROJECT.md` remains the only Project status authority." not in _normalized(text):
@@ -507,6 +582,12 @@ def validate_loop_closure(root: Path, errors: list[str]) -> None:
         errors,
     )
     status = _field(text, "Closure Status", bullet=True)
+    if _field(
+        "\n".join(_heading_lines(text, "## Review Summary")),
+        "Review Schema Version",
+        bullet=True,
+    ) != "2":
+        errors.append(f"{location}: Closure template must use Review Schema Version 2")
     _require_declared_values(text, CLOSURE_STATUSES, "Closure Status", location, errors)
     if status not in CLOSURE_STATUSES:
         errors.append(f"{location}: invalid Closure Status {status!r}")
@@ -545,13 +626,19 @@ def validate_loop_closure(root: Path, errors: list[str]) -> None:
                 not in {"closed", "risk-accepted", "deferred", "rejected", "duplicate"}
             ):
                 errors.append(f"{location}: unresolved major requires an explicit disposition")
-        for heading, label in (
-            ("### Spec Review", "Spec Review"),
-            ("### Standards Review", "Standards Review"),
+        for heading, label, optional in (
+            ("### Spec Review", "Spec Review", False),
+            ("### Standards Review", "Standards Review", False),
+            ("### Implementation Quality Review", "Implementation Quality Review", True),
+            ("### Verification & Evidence Review", "Verification & Evidence Review", True),
         ):
             result = _field("\n".join(_heading_lines(text, heading)), "Result", bullet=True)
-            if result != "pass":
+            if result != "pass" and not (optional and result == "not-applicable"):
                 errors.append(f"{location}: {label} must pass before Closure readiness")
+            if optional and result == "not-applicable":
+                evidence = _field("\n".join(_heading_lines(text, heading)), "Applicability evidence", bullet=True)
+                if not has_applicability_evidence(evidence):
+                    errors.append(f"{location}: {label} not-applicable requires cited scope evidence")
         for heading, label in (
             ("### Functional Acceptance", "Functional Acceptance"),
             ("### Engineering Acceptance", "Engineering Acceptance"),

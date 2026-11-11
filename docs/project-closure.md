@@ -9,7 +9,7 @@ implement release automation, a closure engine, or a live Project Closure templa
 ```mermaid
 flowchart TD
     A["All planned Loops closed"] --> B["Cross-loop integration tests"]
-    B --> C["Project-level Spec and Standards Review"]
+    B --> C["Project-level four-axis Review"]
     C --> D["Security and Operations Review"]
     D --> E["Release or Deployment Review"]
     E --> F["Supervisor Project Acceptance"]

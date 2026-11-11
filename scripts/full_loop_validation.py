@@ -425,10 +425,15 @@ def validate_loop_contract(root: Path, errors: list[str]) -> None:
     ):
         if _field(text, field, bullet=True) is None:
             errors.append(f"{location}: missing required field {field!r}")
-    if "- Spec Review" not in text:
-        errors.append(f"{location}: Mandatory Axes missing Spec Review")
-    if "- Standards Review" not in text:
-        errors.append(f"{location}: Mandatory Axes missing Standards Review")
+    mandatory_axes = (
+        "- Spec Review",
+        "- Standards Review",
+        "- Implementation Quality Review",
+        "- Verification & Evidence Review",
+    )
+    for axis in mandatory_axes:
+        if axis not in text:
+            errors.append(f"{location}: Mandatory Axes missing {axis[2:]}")
     conditional = "\n".join(_section_lines(text, "### Conditional Reviewers"))
     if re.search(r"\b(?:all|every)\b.*\bmandatory\b", conditional, re.IGNORECASE):
         errors.append(f"{location}: Conditional Reviewers must be risk-driven")

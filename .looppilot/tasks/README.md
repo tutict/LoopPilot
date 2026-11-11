@@ -49,19 +49,27 @@ mark its task `approved` or `integrated`, or announce parent completion.
 
 ### Reviewer
 
-The Reviewer independently performs two axes. Standards Review checks instruction
-priority, repository rules, safety, authority, scope, maintainability, source
-quality, Skill discipline, context efficiency, and runtime-free platform neutrality.
-Spec Review checks the objective, deliverables, success criteria, required evidence,
-dependencies, research use, parent alignment, edge cases, omissions, and integration
-readiness.
+The Reviewer independently records four decisions. Spec checks the objective,
+deliverables, success criteria, evidence requirements, dependencies, research use,
+parent alignment, edge cases, omissions, and integration readiness. Standards checks
+instruction priority, repository rules, safety, authority, scope, Skill discipline,
+and platform-neutral operation. Implementation Quality checks each reviewable
+deliverable against project-specific maintainability, interface, type, error-boundary,
+complexity, duplication, and quality expectations. Verification & Evidence checks
+required verification, evidence provenance, reproducibility, and disclosed gaps.
 
-Each axis decides `pass`, `revision-requested`, `rejected`, or `blocked`. Overall
-decisions remain `approved`, `revision-requested`, `rejected`, or `blocked`.
-`approved` requires both axes to pass, required evidence to be observed, and no
-blocking conflict. One strong axis cannot offset the other. The Reviewer MUST NOT
-use a vague approval, treat Worker claims as verification, hide gaps, expand
-authority, skip an axis under context pressure, or announce parent completion.
+Spec and Standards always apply. Implementation Quality applies to produced or
+modified reviewable deliverables. Verification & Evidence applies when the scope
+includes verification or evidence obligations. Only the latter two may be
+`not-applicable`, supported by cited Scope or Deliverables. Missing checks, tools,
+or evidence remain gaps and cannot justify N/A. Every applicable axis decides
+`pass`, `revision-requested`, `rejected`, or `blocked`; the optional axes may also
+decide `not-applicable`. Overall decisions remain `approved`, `revision-requested`,
+`rejected`, or `blocked`. `approved` requires every applicable axis to pass,
+required evidence to be observed, justified N/A where used, and no blocking conflict.
+No axis offsets another. The Reviewer MUST NOT use a vague approval, treat Worker
+claims as verification, hide gaps, expand authority, skip an applicable axis under
+context pressure, or announce parent completion.
 
 ### Integrator
 
@@ -216,7 +224,11 @@ Task Contract protocol without creating a Ledger.
 ## Review and Correction
 
 Use [`REVIEW-TEMPLATE.md`](REVIEW-TEMPLATE.md) for an independently checkable review
-result. An `approved` decision MUST cite checked success criteria and observed
+result. The current template and Task Contract use Review schema version 2. A
+historical Task Contract without `review_schema_version` remains version 1 and its
+existing two-axis Review remains readable; a Review's version MUST match its Task
+Contract. New Tasks inherit version 2 from [`TASK-TEMPLATE.md`](TASK-TEMPLATE.md).
+History is not rewritten or retroactively re-scored. An `approved` decision MUST cite checked success criteria and observed
 evidence. A `revision-requested` decision MUST identify the failed criterion,
 missing evidence, scope violation or conflict, and the expected correction. A
 `blocked` decision MUST name the missing input, permission, tool, or environment. A
@@ -226,8 +238,10 @@ integration.
 The approval rule is:
 
 ```text
-Standards Review = pass
-AND Spec Review = pass
+Spec Review = pass
+AND Standards Review = pass
+AND Implementation Quality Review = pass or evidence-supported not-applicable
+AND Verification & Evidence Review = pass or evidence-supported not-applicable
 AND required evidence is observed
 AND no unresolved blocking conflict exists
 ```

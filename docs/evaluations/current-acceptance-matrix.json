@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "kind": "current-formal-acceptance-matrix",
+  "purpose": "Four formal behavior arms for a newly observed Host boundary. This design is not execution evidence or a Host Acceptance Record.",
+  "primary_run_count": 18,
+  "historical_primary_run_count": 14,
+  "current_primary_run_count": 4,
+  "retry_policy": {
+    "max_retries": 2,
+    "new_run_id_per_retry": true,
+    "execution_infrastructure_only": true,
+    "retain_failed_attempts": true
+  },
+  "preflight_gate": {
+    "install_provenance": "CURRENT",
+    "c2": "C2_CLEAN",
+    "permissions": "pass",
+    "reviewer_ready": true,
+    "external_index_fixed": true
+  },
+  "required_acceptance_dimensions": [1, 2, 3, 4, 5, 6, 7, 8],
+  "expected_partial_ceiling_dimensions": [2, 4],
+  "order_constraints": [
+    {"before": "FL-1", "after": "FL-1R", "reason": "FL-1 must produce the Checkpoint consumed by FL-1R"}
+  ],
+  "arms": [
+    {
+      "arm_id": "LW-1",
+      "scenario_id": "scenario 68",
+      "scenario_title": "Simple Change Uses Lightweight Mode",
+      "scenario_shape": "lightweight",
+      "loading_mode": "explicit",
+      "predecessor_arm_id": null,
+      "prompt_path": "prompts/LW-1.txt",
+      "dimension_ids": [1, 2, 3, 8],
+      "code_quality": "applicable when code artifacts are preserved"
+    },
+    {
+      "arm_id": "FL-1",
+      "scenario_id": "scenario 69",
+      "scenario_title": "High-Risk Multi-Stage Work Uses Full Loop Mode",
+      "scenario_shape": "full-loop",
+      "loading_mode": "explicit",
+      "predecessor_arm_id": null,
+      "prompt_path": "prompts/FL-1.txt",
+      "dimension_ids": [1, 2, 3, 4, 5, 7, 8],
+      "code_quality": "applicable when code artifacts are preserved"
+    },
+    {
+      "arm_id": "FL-1R",
+      "scenario_id": "scenario 53",
+      "scenario_title": "Resume Revalidates Reality",
+      "scenario_shape": "full-loop",
+      "loading_mode": "explicit",
+      "predecessor_arm_id": "FL-1",
+      "prompt_path": "prompts/FL-1R.txt",
+      "dimension_ids": [3, 6, 8],
+      "code_quality": "applicable when code artifacts are preserved"
+    },
+    {
+      "arm_id": "IMP-1",
+      "scenario_id": "named fixture: phase15-implicit-activation",
+      "scenario_title": "Implicit activation on an in-scope code task",
+      "scenario_shape": "lightweight",
+      "loading_mode": "implicit",
+      "predecessor_arm_id": null,
+      "prompt_path": "prompts/IMP-1.txt",
+      "dimension_ids": [1, 3, 8],
+      "prompt_constraints": ["must not name LoopPilot", "must not name Skill", "must not use protocol vocabulary"],
+      "code_quality": "applicable when code artifacts are preserved"
+    }
+  ]
+}

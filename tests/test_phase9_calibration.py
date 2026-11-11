@@ -399,6 +399,9 @@ CASES = (
     *_required_cases("migration_requirement", tuple((Path("docs/full-loop-migration-plan.md"), token) for token in MIGRATION_TOKENS)),
     Case("phase9_scenario_start_required", "replace", Path("tests/scenarios.md"), "## 234. High Product Risk With One Owner", "## scenario removed", "missing Phase 9 requirement"),
     Case("phase9_scenario_end_required", "replace", Path("tests/scenarios.md"), "## 263. Phase 10 Evidence Stays Separately Attributed", "## scenario removed", "missing Phase 9 requirement"),
+    Case("code_quality_scenario_required", "replace", Path("tests/scenarios.md"), "## 302. Passing Tests Do Not Prove Code Quality", "## scenario removed", "missing Phase 9 requirement"),
+    Case("code_quality_na_scenario_required", "replace", Path("tests/scenarios.md"), "## 304. No Code Artifact Makes Quality Not Applicable", "## scenario removed", "missing Phase 9 requirement"),
+    Case("code_quality_rubric_required", "replace", Path("tests/evaluation-rubric.md"), "| **Code quality** |", "| **Quality removed** |", "missing Phase 9 requirement"),
     Case("phase9_rubric_baseline_required", "replace", Path("tests/evaluation-rubric.md"), "Attributes Repository, Environment-Corrected, and Scope-Focused evidence before a regression claim.", "Baseline unknown", "missing Phase 9 requirement"),
     Case("phase9_rubric_coordination_required", "replace", Path("tests/evaluation-rubric.md"), "Shows why multiple owners, integration, recovery, or rework governance is actually needed.", "Coordination unknown", "missing Phase 9 requirement"),
     Case("phase9_rubric_closure_required", "replace", Path("tests/evaluation-rubric.md"), "States missing Deliveries, verification, acceptance, and remaining authority precisely.", "Closure unknown", "missing Phase 9 requirement"),
@@ -419,7 +422,7 @@ class Phase9CalibrationTests(unittest.TestCase):
             REPOSITORY_ROOT,
             fixture,
             ignore=shutil.ignore_patterns(
-                ".git", "__pycache__", ".pytest_cache", "node_modules", ".venv", ".tmp",
+                ".git", "__pycache__", ".pytest_cache", "node_modules", ".venv", ".tmp", "verification-temp", ".four-axis-test-tmp",
             ),
         )
         return fixture

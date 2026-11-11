@@ -24,12 +24,70 @@ range, and extractable Mermaid blocks. It also validates `AGENTS.md` and
 Task Contract lifecycles, explicit authority, review identity, revision budgets,
 required Review Results, and obvious credential assignments.
 
+For the historical evaluation boundary, run the read-only audit separately:
+
+```text
+python scripts/historical_evaluation_audit.py --root . --output .tmp/historical-audit-report.json
+```
+
+It checks the pinned historical file set, package additions/deletions/changes,
+mechanical readability, trace and score availability, independent-review
+signals, loading/control coverage, and recorded infrastructure incidents. It
+never edits historical files and never promotes them to Acceptance evidence.
+
+After an operator has assembled new packages and an external approved index,
+use `scripts/validate_historical_replay.py` to require all 14 matrix arms and
+produce a conservative `accepted` or `blocked` experiment projection. A static
+pass still does not prove Host behavior or real-world reviewer independence.
+
+For the two-stage behavior plan, create an external Reviewer readiness receipt
+first, then generate and externally pin the randomized blind plan. EVAL-004 is
+loading evidence only; each probe must preserve a `loading-observation.json`, and
+the report excludes probes from behavioral rubric comparisons. Current formal
+packages require a v4 blind Review receipt, a fresh Host boundary, a preserved
+blind packet, and the FL-1 checkpoint before FL-1R. Each arm has one primary run
+and at most two new-ID retries for recorded infrastructure incidents only.
+
+```text
+python scripts/behavior_validation.py prepare-blind --experiment-id <id> \
+  --reviewer-gate <external/reviewer-readiness.json> \
+  --reviewer-gate-sha256 <sha256> --output <external/blind-plan.json>
+```
+
+After each run, export the Reviewer packet outside the repository. The packet
+contains condition-redacted public evidence, a source/hash manifest, and a blank
+independent score sheet. Copy the `blind-review-packet.md` bytes into the run
+package before finalizing its evidence index.
+
+```text
+python scripts/behavior_validation.py export-blind --package <evaluations/<host>/<id>> \
+  --blind-review-id <blind-id> --output <external/reviewer-packet>
+```
+
+The behavior report command requires the raw SHA-256 of the external blind plan
+and can revalidate every package against the external operator index. It reports
+missing arms, loading-only results, behavior failures, incidents, Review axes,
+Code quality applicability, and coverage of the eight Host Acceptance dimensions.
+It does not infer an `accepted` verdict; that still requires the existing Host
+Acceptance Record and its evidence gates.
+
+```text
+python scripts/behavior_validation.py report --blind-plan <external/blind-plan.json> \
+  --blind-plan-sha256 <sha256> --reviewer-gate <external/reviewer-readiness.json> \
+  --reviewer-gate-sha256 <sha256> --evidence-index <external/approved.json> \
+  --evidence-index-sha256 <sha256> --output <external/behavior-report.json>
+```
+
 The protocol extension checks Checklist statuses, item IDs, integrated-only
 checkmarks, observed evidence, completed criteria, and budget-stop recovery fields.
 It checks Research Brief status, source provenance, dates or versions, conflicts,
 findings, and the local-verification boundary. It also checks research and Skill
 assignment fields, observed Skill availability, forbidden selections, authority
-notes, Standards and Spec decisions, conjunctive approval, and observed evidence.
+notes, versioned Review decisions, all four axes, evidence-supported N/A,
+conjunctive approval, and observed evidence. Historical Task Contracts without a
+schema-version field retain their version 1 two-axis Review interpretation; new
+Task and Review templates require version 2, and historical Review artifacts stay
+unchanged.
 
 The Loop Engineering extension checks that the inactive Project template exists,
 contains every required Project Engineering Context heading, includes a blank
@@ -47,7 +105,7 @@ invariants without executing transitions or changing a Ledger.
 The Phase 3 extension checks six inactive detail templates and their protocol:
 Worker Delivery scope and evidence honesty, Task-level Readiness vocabulary,
 included and excluded integration inputs, mechanical versus semantic conflict
-authority, Review types and dual-axis boundaries, Finding evidence and status-source
+authority, four-axis Review boundaries and N/A evidence, Finding evidence and status-source
 discipline, scoped Rework and revision budgets, Reviewer reverification, three-layer
 Acceptance, five Barriers, commit authorization, Checkpoint honesty, and Closure
 projection. It rejects explicit contradictions without deduplicating Findings,

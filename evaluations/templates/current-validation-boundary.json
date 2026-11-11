@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "kind": "current-validation-boundary",
+  "boundary_id": "",
+  "observed_at": "",
+  "host": "",
+  "host_version": "",
+  "model": "",
+  "provider": "",
+  "endpoint": "",
+  "commit": "",
+  "git_tree": "",
+  "skill_sha256": "",
+  "install_provenance": "",
+  "c2_status": "",
+  "permission_preflight": "",
+  "permission_mode": "",
+  "tools_digest": "",
+  "fixture_root": ""
+}

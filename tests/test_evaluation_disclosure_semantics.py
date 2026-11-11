@@ -184,7 +184,7 @@ class DisclosureSemanticsTests(unittest.TestCase):
         self.assertFalse(result["eligible"])
 
     def public_check(self, extra_doc=None):
-        shutil.copytree(ROOT, self.root, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".git", ".tmp", ".claude", ".codex", ".agents", "__pycache__", ".pytest_cache"))
+        shutil.copytree(ROOT, self.root, dirs_exist_ok=True, ignore=shutil.ignore_patterns(".git", ".tmp", ".claude", ".codex", ".agents", ".four-axis-test-tmp", "verification-temp", "__pycache__", ".pytest_cache"))
         if extra_doc is not None:
             (self.root / "docs/invalid-g6-specimen.md").write_text(extra_doc, encoding="utf-8")
         return subprocess.run([sys.executable, "-B", str(ROOT / "scripts/validate.py"), "--root", str(self.root), "--evidence-index", str(self.authority), "--evidence-index-sha256", digest(self.authority)], capture_output=True, text=True)

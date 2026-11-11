@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "kind": "behavior-reviewer-readiness",
+  "experiment_id": "",
+  "operator_id": "",
+  "operator_session_id": "",
+  "reviewer_operator_id": "",
+  "reviewer_session_id": "",
+  "blind_review_confirmed": false,
+  "readiness": "",
+  "confirmed_at": "",
+  "scope": ""
+}

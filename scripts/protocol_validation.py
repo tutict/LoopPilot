@@ -43,6 +43,23 @@ RESEARCH_STATUSES = {
     "superseded",
 }
 AXIS_DECISIONS = {"pass", "revision-requested", "rejected", "blocked"}
+FOUR_REVIEW_AXES = (
+    ("Standards", "standards_decision", "## Standards Review", True),
+    ("Spec", "spec_decision", "## Spec Review", True),
+    (
+        "Implementation Quality",
+        "implementation_quality_decision",
+        "## Implementation Quality Review",
+        False,
+    ),
+    (
+        "Verification & Evidence",
+        "verification_evidence_decision",
+        "## Verification & Evidence Review",
+        False,
+    ),
+)
+OPTIONAL_AXIS_DECISIONS = AXIS_DECISIONS | {"not-applicable"}
 
 
 def _field(text: str, name: str) -> str | None:
@@ -105,6 +122,36 @@ def _axis_decision(text: str, axis: str) -> str | None:
         if line.startswith("Decision:"):
             return line.removeprefix("Decision:").strip()
     return None
+
+
+def _axis_field(text: str, axis: str, name: str) -> str | None:
+    prefix = f"{name}:"
+    for line in _axis_block(text, axis):
+        if line.strip().startswith(prefix):
+            return line.strip().removeprefix(prefix).strip()
+    return None
+
+
+def has_applicability_evidence(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    normalized = value.casefold()
+    if not value or normalized in {
+        "none",
+        "none.",
+        "not-applicable",
+        "n/a",
+        "tbd",
+        "unknown",
+    }:
+        return False
+    return bool(re.search(r"\b(?:scope|deliverable|acceptance criteria|verification obligation)\b", normalized))
+
+
+def _has_applicability_evidence(text: str, axis: str) -> bool:
+    return has_applicability_evidence(
+        _axis_field(text, axis, "Applicability evidence")
+    )
 
 
 def _meaningful(lines: list[str]) -> bool:
@@ -387,56 +434,84 @@ def validate_task_skill_routing(
 def validate_review_protocol(
     review: dict[object, object], text: str, is_template: bool, location: str
 ) -> None:
-    for field in ("standards_decision", "spec_decision", "required_evidence"):
+    schema_version = review.get("review_schema_version", 1)
+    if isinstance(schema_version, bool) or schema_version not in {1, 2}:
+        raise ValueError(f"{location}: invalid review_schema_version {schema_version!r}")
+    required_fields = ["standards_decision", "spec_decision", "required_evidence"]
+    if schema_version == 2:
+        required_fields.extend(
+            ("implementation_quality_decision", "verification_evidence_decision")
+        )
+    for field in required_fields:
         value = review.get(field)
         if not isinstance(value, str) or not value.strip():
             raise ValueError(f"{location}: missing required field {field!r}")
-    standards = review["standards_decision"]
-    spec = review["spec_decision"]
     evidence = review["required_evidence"]
     overall = review["decision"]
     if is_template:
-        if standards != "AXIS-DECISION" or spec != "AXIS-DECISION":
+        if schema_version != 2:
+            raise ValueError(f"{location}: review template must use schema version 2")
+        if any(review[field] != "AXIS-DECISION" for _, field, _, _ in FOUR_REVIEW_AXES):
             raise ValueError(f"{location}: template axis decisions must be AXIS-DECISION")
         if evidence != "EVIDENCE-STATUS":
             raise ValueError(f"{location}: template evidence must be EVIDENCE-STATUS")
     else:
-        for axis, value in (("Standards", standards), ("Spec", spec)):
-            if value not in AXIS_DECISIONS:
+        axes = []
+        axes_to_validate = FOUR_REVIEW_AXES[:2] if schema_version == 1 else FOUR_REVIEW_AXES
+        for axis, field, _, required in axes_to_validate:
+            value = review[field]
+            allowed = AXIS_DECISIONS if required else OPTIONAL_AXIS_DECISIONS
+            if value not in allowed:
                 raise ValueError(f"{location}: invalid {axis} Review decision {value!r}")
-        if overall == "approved" and (standards != "pass" or spec != "pass"):
-            raise ValueError(f"{location}: approved requires both review axes to pass")
+            axes.append(value)
+        if overall == "approved" and any(value not in {"pass", "not-applicable"} for value in axes):
+            message = (
+                "approved requires both review axes to pass"
+                if schema_version == 1
+                else "approved requires every applicable review axis to pass"
+            )
+            raise ValueError(f"{location}: {message}")
+        if schema_version == 2:
+            for axis, _, heading, required in FOUR_REVIEW_AXES:
+                if not required and review[_field_for_axis(axis)] == "not-applicable":
+                    if not _has_applicability_evidence(text, heading):
+                        raise ValueError(
+                            f"{location}: {axis} not-applicable requires cited scope evidence"
+                        )
         if overall == "approved" and evidence != "observed":
             raise ValueError(f"{location}: approved review requires observed evidence")
-        axes = {standards, spec}
-        if "blocked" in axes and overall != "blocked":
+        axis_set = set(axes)
+        if "blocked" in axis_set and overall != "blocked":
             raise ValueError(f"{location}: blocked review axis requires blocked overall")
-        if "blocked" not in axes and "rejected" in axes and overall != "rejected":
+        if "blocked" not in axis_set and "rejected" in axis_set and overall != "rejected":
             raise ValueError(f"{location}: rejected review axis requires rejected overall")
-        if not axes & {"blocked", "rejected"} and "revision-requested" in axes:
+        if not axis_set & {"blocked", "rejected"} and "revision-requested" in axis_set:
             if overall != "revision-requested":
                 raise ValueError(
                     f"{location}: revision-requested axis requires revision-requested overall"
                 )
 
-    headings = (
+    headings = [
         "## Standards Review",
         "## Spec Review",
         "## Verification Gaps",
         "## Overall Decision Rationale",
         "## Authority Note",
-    )
+    ]
+    if schema_version == 2:
+        headings.extend(("## Implementation Quality Review", "## Verification & Evidence Review"))
     lines = set(text.splitlines())
     for heading in headings:
         if heading not in lines:
             raise ValueError(f"{location}: missing {heading!r}")
-    for axis, expected in (("## Standards Review", standards), ("## Spec Review", spec)):
+    checked_axes = FOUR_REVIEW_AXES if schema_version == 2 else FOUR_REVIEW_AXES[:2]
+    for axis_name, field, heading, _ in checked_axes:
         for subsection in ("Criteria Checked", "Findings", "Required Corrections"):
-            if f"### {subsection}" not in _axis_block(text, axis):
-                raise ValueError(f"{location}: {axis} missing '### {subsection}'")
-        observed = _axis_decision(text, axis)
-        if observed != expected:
-            raise ValueError(f"{location}: {axis} Decision does not match frontmatter")
+            if f"### {subsection}" not in _axis_block(text, heading):
+                raise ValueError(f"{location}: {heading} missing '### {subsection}'")
+        observed = _axis_decision(text, heading)
+        if observed != review[field]:
+            raise ValueError(f"{location}: {heading} Decision does not match frontmatter")
 
     normalized = " ".join(text.split())
     authority_note = (
@@ -469,6 +544,20 @@ def validate_review_protocol(
         raise ValueError(
             f"{location}: approved review must cite checked success criteria and evidence"
         )
+    if schema_version == 2 and overall == "approved":
+        for axis_name, field, heading, _ in FOUR_REVIEW_AXES[2:]:
+            if review[field] == "pass":
+                if not _meaningful(_axis_subsection(text, heading, "Criteria Checked")):
+                    raise ValueError(
+                        f"{location}: approved {axis_name} Review must cite checked criteria"
+                    )
+                evidence_value = _axis_field(text, heading, "Evidence")
+                if evidence_value is None or evidence_value.casefold() in {
+                    "none", "none.", "not-evaluated", "pending", "tbd",
+                }:
+                    raise ValueError(
+                        f"{location}: approved {axis_name} Review must cite observed evidence"
+                    )
     if overall == "revision-requested" and not _meaningful(corrections):
         raise ValueError(
             f"{location}: revision-requested review requires specific corrections"
@@ -477,6 +566,10 @@ def validate_review_protocol(
         raise ValueError(f"{location}: blocked review must name the missing condition")
     if overall == "rejected" and not _meaningful(findings):
         raise ValueError(f"{location}: rejected review must explain the rejection")
+
+
+def _field_for_axis(axis_name: str) -> str:
+    return next(field for name, field, _, _ in FOUR_REVIEW_AXES if name == axis_name)
 
 
 def validate_repository_extensions(root: Path, errors: list[str]) -> None:

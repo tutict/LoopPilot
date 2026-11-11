@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "kind": "skill-loading-observation",
+  "run_id": "",
+  "evaluation_id": "",
+  "scenario_id": "",
+  "loading_mode": "",
+  "result": "",
+  "observed_at": "",
+  "basis": ""
+}

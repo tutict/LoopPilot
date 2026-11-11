@@ -136,9 +136,16 @@ does. The Supervisor SHOULD inspect only host-confirmed available Skills and ass
 the smallest relevant set; Workers MUST NOT invent or install Skills. Research and
 Skill assignment do not grant authority.
 
-Every submitted task MUST receive both a Standards Review and a Spec Review. Both
-axes MUST pass, required evidence MUST be observed, and no blocking conflict may
-remain before `approved`. The Supervisor maintains a compact parent
+Every submitted task MUST record four independent Review decisions: Spec,
+Standards, Implementation Quality, and Verification & Evidence. Spec and Standards
+always apply. Implementation Quality applies whenever the task produces or changes
+a reviewable deliverable. Verification & Evidence applies whenever the scope has a
+verification obligation or evidence claim. Only the latter two may be
+`not-applicable`, and only with cited scope or deliverable evidence. Every
+applicable axis MUST pass, required evidence MUST be observed, and no blocking
+conflict may remain before `approved`. The same four-axis model applies to Task,
+Loop, and Project Review; risk-selected specialist Review remains separate. The
+Supervisor maintains a compact parent
 [`CHECKLIST.md`](.looppilot/CHECKLIST.md) for complex delegated work. Only
 `integrated` items may be `[x]`. Under high or critical context pressure, persist
 evidence and one exact Resume Point before a budget stop; pressure never lowers
@@ -179,8 +186,10 @@ and Release artifacts are not default Lightweight context.
 Agent, tool, host, dependency, CI, and packaging failures are Execution
 Infrastructure Incidents unless evidence proves a Product or Protocol Finding.
 They add no role, status, severity, Ledger, Barrier, acceptance layer, or recovery
-authority. Spec and Standards remain permanent; specialist Reviewers are selected
-only for matching risk and never modify implementation.
+authority. Spec and Standards remain permanent Review axes; Implementation Quality
+and Verification & Evidence follow their evidence-based applicability rules.
+Specialist Reviewers are selected only for matching risk and never modify
+implementation.
 
 ### Full Loop Template Maintenance
 

@@ -30,7 +30,7 @@ class ProjectClosureFinalDeliveryTests(unittest.TestCase):
                 name
                 for name in names
                 if name
-                in {".git", "__pycache__", ".pytest_cache", "node_modules", ".venv", ".tmp"}
+                in {".git", "__pycache__", ".pytest_cache", "node_modules", ".venv", ".tmp", "verification-temp", ".four-axis-test-tmp"}
                 or name.startswith(".tmp-")
                 or name.startswith(".venv-")
             ],
@@ -142,6 +142,14 @@ class ProjectClosureFinalDeliveryTests(unittest.TestCase):
             (
                 "### Project Standards Review\n\n- Result: not-evaluated",
                 "### Project Standards Review\n\n- Result: pass",
+            ),
+            (
+                "### Project Implementation Quality Review\n\n- Result: not-evaluated",
+                "### Project Implementation Quality Review\n\n- Result: pass",
+            ),
+            (
+                "### Project Verification & Evidence Review\n\n- Result: not-evaluated",
+                "### Project Verification & Evidence Review\n\n- Result: pass",
             ),
             (
                 "## Project Functional Acceptance\n\n- Result: not-evaluated",
@@ -259,6 +267,31 @@ class ProjectClosureFinalDeliveryTests(unittest.TestCase):
         )
         for old, new in replacements:
             self.replace_once(path, old, new)
+        for heading in (
+            "## Standards Review Contribution",
+            "## Spec Review Contribution",
+            "## Implementation Quality Review Contribution",
+            "## Verification & Evidence Review Contribution",
+        ):
+            section = path.read_text(encoding="utf-8")
+            section = section.replace(
+                f"{heading}\n\n- Decision: not-evaluated",
+                f"{heading}\n\n- Decision: pass",
+                1,
+            )
+            if "Applicability evidence: none" in section.split(heading, 1)[1].split("\n## ", 1)[0]:
+                section = section.replace(
+                    f"{heading}\n\n- Decision: pass\n- Applicability evidence: none\n- Evidence: none",
+                    f"{heading}\n\n- Decision: pass\n- Applicability evidence: Scope contains a reviewable integrated Project boundary.\n- Evidence: independently reviewed {heading.removeprefix('## ').removesuffix(' Contribution').lower()} against the integrated Project boundary.",
+                    1,
+                )
+            else:
+                section = section.replace(
+                    f"{heading}\n\n- Decision: pass\n- Evidence: none",
+                    f"{heading}\n\n- Decision: pass\n- Evidence: independently reviewed {heading.removeprefix('## ').removesuffix(' Contribution').lower()} against the integrated Project boundary.",
+                    1,
+                )
+            path.write_text(section, encoding="utf-8")
 
     def test_001_valid_phase_five_template_collection_passes(self) -> None:
         result = self.validate_fixture()
@@ -274,6 +307,77 @@ class ProjectClosureFinalDeliveryTests(unittest.TestCase):
 
     def test_004_valid_project_acceptance_instance(self) -> None:
         result = self.validate_fixture(self.mark_acceptance_accepted)
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_project_acceptance_requires_implementation_quality_axis(self) -> None:
+        def mutate(fixture: Path) -> None:
+            path = fixture / ACCEPTANCE
+            if "### Project Implementation Quality Review" not in path.read_text(encoding="utf-8"):
+                self.append(
+                    path,
+                    "\n### Project Implementation Quality Review\n\n"
+                    "- Result: not-evaluated\n- Reports: none\n- Evidence: none\n"
+                    "- Applicability evidence: none\n- Findings: none\n- Limitations: none\n",
+                )
+            self.replace_once(
+                path,
+                "### Project Implementation Quality Review",
+                "### Quality Review Omitted",
+            )
+
+        self.assert_rejected(
+            mutate,
+            "missing required heading '### Project Implementation Quality Review'",
+        )
+
+    def test_project_acceptance_requires_verification_evidence_axis(self) -> None:
+        def mutate(fixture: Path) -> None:
+            path = fixture / ACCEPTANCE
+            if "### Project Verification & Evidence Review" not in path.read_text(encoding="utf-8"):
+                self.append(
+                    path,
+                    "\n### Project Verification & Evidence Review\n\n"
+                    "- Result: not-evaluated\n- Reports: none\n- Evidence: none\n"
+                    "- Applicability evidence: none\n- Findings: none\n- Limitations: none\n",
+                )
+            self.replace_once(
+                path,
+                "### Project Verification & Evidence Review",
+                "### Evidence Review Omitted",
+            )
+
+        self.assert_rejected(
+            mutate,
+            "missing required heading '### Project Verification & Evidence Review'",
+        )
+
+    def test_project_axis_not_applicable_requires_scope_evidence(self) -> None:
+        def mutate(fixture: Path) -> None:
+            self.mark_acceptance_accepted(fixture)
+            path = fixture / ACCEPTANCE
+            self.replace_once(
+                path,
+                "### Project Implementation Quality Review\n\n- Result: pass",
+                "### Project Implementation Quality Review\n\n- Result: not-applicable",
+            )
+
+        self.assert_rejected(
+            mutate,
+            "Project Implementation Quality Review not-applicable requires cited scope or deliverable evidence",
+        )
+
+    def test_project_axis_not_applicable_with_scope_evidence_passes(self) -> None:
+        def mutate(fixture: Path) -> None:
+            self.mark_acceptance_accepted(fixture)
+            path = fixture / ACCEPTANCE
+            self.replace_once(
+                path,
+                "### Project Implementation Quality Review\n\n- Result: pass",
+                "### Project Implementation Quality Review\n\n- Result: not-applicable\n"
+                "- Applicability evidence: Project scope contains no reviewable deliverables.",
+            )
+
+        result = self.validate_fixture(mutate)
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)
 
     def test_005_valid_project_acceptance_with_risks_instance(self) -> None:

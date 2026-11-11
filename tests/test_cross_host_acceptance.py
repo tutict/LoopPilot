@@ -282,7 +282,7 @@ class CrossHostAcceptanceTests(unittest.TestCase):
             REPOSITORY_ROOT,
             fixture,
             ignore=shutil.ignore_patterns(
-                ".git", "__pycache__", ".pytest_cache", "node_modules", ".venv", ".tmp"
+                ".git", "__pycache__", ".pytest_cache", "node_modules", ".venv", ".tmp", "verification-temp", ".four-axis-test-tmp"
             ),
         )
         return fixture

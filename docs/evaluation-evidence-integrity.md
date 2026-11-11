@@ -32,9 +32,12 @@ No host behavior is established by a successful maintenance check.
   and all rubric rows must exist, but instance identity, evidence and score fields
   remain blank. They are not evaluated runs.
 - **Historical evidence:** exact paths and normalized-content hashes pinned in the
-  reviewed `scripts/evaluation_history.json` policy. Existing files are not rewritten
-  or upgraded. They remain historical/unverified and cannot satisfy a new accepted
-  record. Modification, deletion or extending an archived run fails validation.
+  reviewed `scripts/evaluation_history.json` policy, plus a raw-byte SHA-256 for
+  each same path. The normalized digest preserves the legacy comparison rule; the
+  raw digest detects byte-only changes such as a BOM or line-ending rewrite.
+  Existing files are not rewritten or upgraded. They remain historical/unverified
+  and cannot satisfy a new accepted record. Modification, deletion or extending an
+  archived run fails validation.
 - **New evaluation packages:** a directory named for its Evaluation ID, containing
   `environment.md`, `prompt.md`, `trace.md`, `score.md`, `run.json`, `review.json`,
   and the declared local scenario/raw evidence files. Incomplete or unknown new
@@ -93,6 +96,45 @@ extension below; historical files are never upgraded here.
 A version-1 hash-only review lacks the required state evidence and cannot authorize
 new publication. Producers must assemble and separately approve a complete version-2
 receipt rather than infer missing disclosures.
+
+Historical replay packages are the exception to the base review shape. A replay
+package whose Evaluation ID is registered in
+`docs/evaluations/historical-replay-matrix.json` uses review schema version 3:
+the base fields plus `review_axes` and `independence`. The four axes are exactly
+`Spec`, `Standards`, `Implementation Quality`, and `Verification & Evidence`.
+Spec and Standards are always applicable. The latter two may be
+`not-applicable` only with substantive scope evidence. Every applicable axis
+must pass before a replay package can support acceptance. The independence block
+declares distinct trace-author and reviewer operator/session identities. This is
+a mechanical separation check and does not certify organizational independence.
+
+Each replay package also registers
+`evidence/historical-lineage.json` in the run evidence map and binds one public
+observation event to it. The lineage must name an existing historical package,
+one matrix pair and arm, the exact original Host/version/model combination, the
+Scenario ID and shape, the known historical gaps, and the reproduction status.
+Retries use a new Evaluation ID and run ID, name the immediately preceding
+failed run, and are limited to HTTP 429, timeout, or Host-unavailable incidents;
+two retries is the maximum. A `not-reproduced` lineage is allowed only for a
+failed run with a substantive reason. These checks preserve the distinction
+between an incomplete execution and a product behavior result.
+
+Current formal packages use Review schema version 4 and are separate from
+historical replay lineage. They register
+`evidence/current-acceptance-lineage.json`,
+`evidence/current-validation-boundary.json`, and a de-identified
+`evidence/blind-review-packet.md`. The v4 receipt binds the packet SHA-256, a
+condition guess and confidence, and timezone-qualified Review, guess, and reveal
+times; the guess must precede reveal. The mechanical check cannot prove human or
+organizational independence. `FL-1R` also binds the exact checkpoint path and hash
+from a completed `FL-1` package.
+
+The current boundary is observed afresh for the formal stage. It requires
+`CURRENT` install provenance, `C2_CLEAN`, a passed permission preflight, and a
+matching Host/version/Model/commit across the four arms. A prior Host boundary
+cannot satisfy this gate. EVAL-004 historical pairs are loading probes, not
+behavioral comparisons; they preserve `evidence/loading-observation.json` and
+report loading state separately without behavioral rubric scores.
 
 `disclosures` contains exactly:
 
@@ -158,13 +200,33 @@ express machine-checkable completion/limitation states in the declared fields, a
 the trusted independent reviewer remains responsible for semantic adequacy and honest
 capture. Hashes and length checks alone do not prove that trust assumption.
 
+Historical score files retain their pinned version-1 shape with ten dimensions;
+they are never rewritten or rescored. Every new score file declares
+`Score schema version: 2` and contains the eleven current dimensions, including
+**Code quality**. Its `Code quality applicability` is `applicable` or
+`not-applicable`, with a local event link to the separately hashed
+`evidence/code-quality-applicability.json` inventory. The inventory has schema
+version 1, run/evaluation/scenario identity, the same applicability value, and a
+list of code-artifact paths from the run evidence map. `applicable` requires at
+least one listed artifact; `not-applicable` requires an empty list. The independent
+reviewer binds this inventory through the existing run, review, and operator-index
+receipts and confirms that the inventory matches the preserved run artifacts.
+
+For deterministic structural coverage, the validator compares the inventory with
+registered run evidence paths using the maintained source-code extension set in
+`scripts/evaluation_evidence_validation.py`. This detects omissions and unsupported
+applicability declarations for those registered source files; the independent
+reviewer remains responsible for semantic completeness (for example, code embedded
+in non-source files or generated representations).
+
 Trace and score Evidence links require actual local trace event anchors. Every
-numeric score is 0–3 and has event-level support; all ten current rubric dimensions
-must be present once, including **Evidence integrity across agents** and **Authority
-continuity**. Total is recomputed. Explicit `not-evaluated` scores are allowed only
-with a `not-reviewed` disposition and are never acceptance-eligible. Caps and
-critical failures remain disclosed; a valid report of failure is not a successful
-host result.
+numeric score is 0–3 and has event-level support. The Code quality row is numeric
+when applicable; `not-applicable` is accepted only for that row when its reviewed
+inventory contains no code artifacts. `Applicable dimensions` equals the number
+of numeric rows, and `Total` is their sum. Explicit `not-evaluated` scores remain
+allowed only with a `not-reviewed` disposition and are never acceptance-eligible.
+The four existing critical dimensions remain unchanged. Caps and critical failures
+remain disclosed; a valid report of failure is not a successful host result.
 
 An accepted summary must bind to approved run packages with matching host/model/
 commit/loading mode/author/reviewer, exact Scenario IDs, actual shape coverage, real

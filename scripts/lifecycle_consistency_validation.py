@@ -25,7 +25,7 @@ ASSERTION_PATTERNS = (
     re.compile(r"^Finding\[FINDING-\d{3,}\]\.(?:status|severity)$"),
     re.compile(r"^Git\.current_boundary$"),
     re.compile(r"^Integration\.decision$"),
-    re.compile(r"^Review\.(?:Spec|Standards)$"),
+    re.compile(r"^Review\.(?:Spec|Standards|ImplementationQuality|VerificationEvidence)$"),
     re.compile(r"^Closure\.decision$"),
     re.compile(r"^Checkpoint\.(?:current_boundary|next_action)$"),
 )
@@ -248,16 +248,38 @@ def _collect_authority(root: Path, loop_dir: Path, closure_text: str, errors: li
         if decision is None: errors.append("INTEGRATION-RECORD.md: missing integration decision")
         else: facts["Integration.decision"] = Fact("INTEGRATION-RECORD.md", decision)
     review_paths = sorted((loop_dir / "reviews").glob("*.md"))
-    review_values: dict[str, list[str]] = {"Spec": [], "Standards": []}
+    review_values: dict[str, list[str]] = {
+        "Spec": [],
+        "Standards": [],
+        "ImplementationQuality": [],
+        "VerificationEvidence": [],
+    }
+    required_review_axes = {"Spec", "Standards"}
     for review_path in review_paths:
         review_text = review_path.read_text(encoding="utf-8")
         status = _field(review_text, "Status")
         if status is not None and status.casefold() == "superseded":
             continue
-        for axis in review_values:
-            decision = _section_field(review_text, f"## {axis} Review Contribution", "Decision")
+        schema_version = _field(review_text, "Review Schema Version") or "1"
+        current_axes = (
+            {"Spec", "Standards", "ImplementationQuality", "VerificationEvidence"}
+            if schema_version == "2"
+            else {"Spec", "Standards"}
+        )
+        required_review_axes.update(current_axes)
+        headings = {
+            "Spec": "## Spec Review Contribution",
+            "Standards": "## Standards Review Contribution",
+            "ImplementationQuality": "## Implementation Quality Review Contribution",
+            "VerificationEvidence": "## Verification & Evidence Review Contribution",
+        }
+        for axis, heading in headings.items():
+            if axis not in current_axes:
+                continue
+            decision = _section_field(review_text, heading, "Decision")
             if decision and decision.casefold() != "not-evaluated": review_values[axis].append(decision)
-    for axis, values in review_values.items():
+    for axis in required_review_axes:
+        values = review_values[axis]
         if len({value.casefold() for value in values}) != 1: errors.append(f"REVIEW-REPORT.md: expected one current {axis} decision")
         else: facts[f"Review.{axis}"] = Fact("REVIEW-REPORT.md", values[0])
     closure_decision = _field(closure_text, "Decision")

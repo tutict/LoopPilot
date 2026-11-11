@@ -95,7 +95,7 @@ class LifecycleConsistencyTests(unittest.TestCase):
             REPOSITORY_ROOT,
             fixture,
             ignore=shutil.ignore_patterns(
-                ".git", "__pycache__", ".pytest_cache", "node_modules", ".venv", ".tmp"
+                ".git", "__pycache__", ".pytest_cache", "node_modules", ".venv", ".tmp", "verification-temp", ".four-axis-test-tmp"
             ),
         )
         return fixture
@@ -139,6 +139,8 @@ class LifecycleConsistencyTests(unittest.TestCase):
             "Integration.decision": ("INTEGRATION-RECORD.md", "pass"),
             "Review.Spec": ("REVIEW-REPORT.md", "pass"),
             "Review.Standards": ("REVIEW-REPORT.md", "pass"),
+            "Review.ImplementationQuality": ("REVIEW-REPORT.md", "pass"),
+            "Review.VerificationEvidence": ("REVIEW-REPORT.md", "pass"),
             "Closure.decision": ("LOOP-CLOSURE.md", "accepted"),
             "Checkpoint.current_boundary": ("CHECKPOINT.md", head),
             "Checkpoint.next_action": ("CHECKPOINT.md", "prepare release candidate"),
@@ -187,7 +189,7 @@ class LifecycleConsistencyTests(unittest.TestCase):
         self.write(loop / "FINDING-LEDGER.md", "# Finding Ledger\n\n## Finding Summary\n\n| Finding ID | Severity | Status |\n|---|---|---|\n| FINDING-001 | major | closed |")
         self.write(state / "CHECKPOINT.md", f"# Checkpoint\n\n- Verified HEAD: {head}\n- Resume action: prepare release candidate")
         self.write(loop / "integration" / "INTEGRATION-RECORD.md", "# Integration\n\n- Status: integrated\n- Barrier result: pass")
-        self.write(loop / "reviews" / "REVIEW-001.md", "# Review\n\n## Spec Review Contribution\n\n- Decision: pass\n\n## Standards Review Contribution\n\n- Decision: pass")
+        self.write(loop / "reviews" / "REVIEW-001.md", "# Review\n\n- Review Schema Version: 2\n\n## Spec Review Contribution\n\n- Decision: pass\n\n## Standards Review Contribution\n\n- Decision: pass\n\n## Implementation Quality Review Contribution\n\n- Decision: pass\n\n## Verification & Evidence Review Contribution\n\n- Decision: pass")
         self.write(loop / "LOOP-CLOSURE.md", self.closure(head, {}))
 
     def add_projection(

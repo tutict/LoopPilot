@@ -88,17 +88,22 @@ does not invent them, alter Reviewer judgment, change scope, or accept risk.
 
 Formal review normally examines the integrated Loop outcome and its actual
 boundary. A Review Report records reviewer identity and type, evidence examined,
-checks, findings, limitations, contribution to the Spec and Standards axes,
+checks, findings, limitations, separate decisions for all four review axes,
 verdict, and reverification requirements. Its verdict is `pass`,
 `pass-with-findings`, `rework-required`, or `blocked`.
 
-Final review is conjunctive: Spec Review and Standards Review must both pass.
+Final review is conjunctive: every applicable axis must pass. Spec and Standards
+always apply. Implementation Quality applies whenever the integrated boundary
+contains a produced or modified reviewable deliverable. Verification & Evidence
+applies whenever the scope contains verification, evidence, or completion claims.
+Only these latter two may be `not-applicable`, supported by cited scope or
+deliverable evidence. Missing tools or evidence are verification gaps, not N/A
+reasons.
 Risk-driven domain, data, concurrency, security, operations, performance,
 architecture, frontend, compatibility, test, code-quality, accessibility,
 compliance, factual-accuracy, citation, methodology, structure, visual, or domain
-expert Reviewers contribute to one or both axes. They need not repeat both complete
-axes. One axis cannot compensate for the other, and `pass-with-findings` does not
-dispose of Findings.
+expert Reviewers contribute separately and do not replace an axis. One axis cannot
+compensate for another, and passing review does not dispose of Findings.
 
 Reviewers judge and create Findings; they do not modify implementation, update an
 authoritative Ledger, accept risk, or close the Loop.
@@ -170,8 +175,9 @@ decision evidence.
 
 Functional, Engineering, and Delivery Acceptance must each pass. Contract,
 Implementation, Integration, Review, and Closure Barriers must each be satisfied.
-Mandatory Tasks must meet the Contract, Spec and Standards reviews must pass,
-conditional reviews must meet the Matrix, no unresolved blocker may remain, and
+Mandatory Tasks must meet the Contract, all applicable Spec, Standards,
+Implementation Quality, and Verification & Evidence decisions must pass, conditional
+professional reviews must meet the Matrix, no unresolved blocker may remain, and
 every major disposition must be explicit. Functional correctness alone is
 insufficient.
 
@@ -235,8 +241,9 @@ recovery-ready without a current actionable Checkpoint and Resume Validation.
 
 Phase 5 extends the same Review Report with `Review Level: loop | project`.
 Project-level Review uses a Project ID, `Loop ID: not-applicable`, the Cross-Loop
-Validation, Goal-to-Evidence Mapping, and integrated Project boundary. Spec and
-Standards remain separate mandatory axes; specialists contribute without replacing
-them. Findings still require a normal remediation Loop, Rework, reverification, and
+Validation, Goal-to-Evidence Mapping, and integrated Project boundary. It records
+the same four axes; only the two conditional applicability decisions may be
+`not-applicable` with scope evidence. Specialists contribute separately without
+replacing an axis. Findings still require a normal remediation Loop, Rework, reverification, and
 Loop Closure before Project revalidation. See the
 [Phase 5 protocol](project-closure-and-final-delivery.md).

@@ -55,6 +55,20 @@ No active Project delivery.
 - Evidence: none
 - Limitations: none
 
+### Project Implementation Quality Review
+
+- Result: not-evaluated
+- Evidence: none
+- Applicability evidence: none
+- Limitations: none
+
+### Project Verification & Evidence Review
+
+- Result: not-evaluated
+- Evidence: none
+- Applicability evidence: none
+- Limitations: none
+
 ### Project Acceptance
 
 - Acceptance: none
