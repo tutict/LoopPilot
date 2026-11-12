@@ -126,6 +126,10 @@ Use the strongest relevant evidence that is available and authorized.
   avoidable duplication. Use configured checks where available; a green test suite
   alone does not establish code quality. Do not impose universal style rules or
   complexity thresholds, and disclose relevant quality checks that were unavailable.
+  When tests conflict with an explicit user or project behavior contract, identify the
+  governing source and verify the disputed case with a concrete example. Do not
+  silently change implementation or tests just to make the suite green. Follow the
+  authoritative contract, or stop and ask when the governing intent remains ambiguous.
 - **Review:** Task, Loop, and Project Reviews record independent Spec, Standards,
   Implementation Quality, and Verification & Evidence decisions. Spec and Standards
   always apply. Implementation Quality applies to any produced or modified reviewable

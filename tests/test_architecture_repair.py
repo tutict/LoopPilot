@@ -79,6 +79,17 @@ class ArchitectureContractTests(unittest.TestCase):
             self.assertIn(scenario, doc)
         for token in ("shared factual state", "multi-role dependency", "parallel Workers", "Integrator coordination", "dependency chain", "explicit coordination requirement"):
             self.assertIn(token, doc)
+
+    def test_code_test_conflicts_preserve_authoritative_behavior(self):
+        core = " ".join(text("SKILL.md").split()).casefold()
+        self.assertIn("when tests conflict with an explicit user or project behavior contract", core)
+        self.assertIn("do not silently change implementation or tests just to make the suite green", core)
+        self.assertIn("or stop and ask when the governing intent remains ambiguous", core)
+        scenarios = " ".join(text("tests/scenarios.md").split())
+        self.assertIn("## 305. Tests Conflict with an Explicit Behavior Contract", scenarios)
+        self.assertIn("verify the disputed case against a concrete example", scenarios)
+        self.assertIn("follow the authoritative contract", scenarios)
+        self.assertIn("or ask the user when the governing intent remains ambiguous", scenarios)
         for path in ("SKILL.md", "README.md"):
             self.assertIn("multi-step non-coding", text(path))
 
