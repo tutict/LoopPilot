@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 import re
 import subprocess
@@ -64,6 +65,25 @@ class ArchitectureContractTests(unittest.TestCase):
         self.assertIn("verification gap", core)
         self.assertIn("every skipped or scoped-down check", core)
         self.assertIn("inconvenience or duration", core)
+
+    def test_pinned_codex_history_keeps_raw_bytes_across_platform_checkouts(self):
+        relative = "evaluations/codex/README.md"
+        raw = (ROOT / relative).read_bytes()
+        policy = json.loads(text("scripts/evaluation_history.json"))
+        self.assertEqual(policy["raw_files"][relative], hashlib.sha256(raw).hexdigest())
+        normalized = raw.decode("utf-8-sig").replace("\r\n", "\n").encode("utf-8")
+        self.assertEqual(policy["files"][relative], hashlib.sha256(normalized).hexdigest())
+        self.assertIn(f"{relative} text eol=crlf", text(".gitattributes"))
+        if not GIT:
+            self.skipTest("Git is required to inspect checkout attributes")
+        attributes = subprocess.run(
+            [GIT, "check-attr", "eol", "--", relative],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        self.assertIn(f"{relative}: eol: crlf", attributes.stdout)
 
     def test_four_axes_and_non_coding_cases(self):
         core = " ".join(text("SKILL.md").split())

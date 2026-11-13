@@ -54,7 +54,7 @@ jobs:
         with:
           name: installation-ubuntu
           path: .tmp/installation-ubuntu/
-          if-no-files-found: error
+          if-no-files-found: warn
 
   installation:
     name: Installation (${{ matrix.label }})

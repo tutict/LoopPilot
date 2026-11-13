@@ -1,2 +1,5 @@
 # Shell entry points must run directly in native Bash, including Git Bash.
 *.sh text eol=lf
+
+# Preserve the pinned historical raw-byte digest across platform checkouts.
+evaluations/codex/README.md text eol=crlf
