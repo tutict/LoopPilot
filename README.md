@@ -406,6 +406,12 @@ See [Phase 9 calibration](docs/phase9-second-protocol-calibration.md),
 Every example is an illustrative trace. It does not claim real commands, searches,
 or external actions.
 
+When an existing test conflicts with an explicit user or project behavior contract,
+verify the disputed case with a concrete example and follow the authoritative
+contract—or ask when its intent is ambiguous. Do not change implementation or tests
+solely to make the suite green. See
+[Scenario 305](tests/scenarios.md#305-tests-conflict-with-an-explicit-behavior-contract).
+
 ## Install or Copy
 
 LoopPilot has no runtime dependency for Skill users. Distribution-001 provides
