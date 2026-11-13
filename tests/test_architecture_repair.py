@@ -73,17 +73,32 @@ class ArchitectureContractTests(unittest.TestCase):
         self.assertEqual(policy["raw_files"][relative], hashlib.sha256(raw).hexdigest())
         normalized = raw.decode("utf-8-sig").replace("\r\n", "\n").encode("utf-8")
         self.assertEqual(policy["files"][relative], hashlib.sha256(normalized).hexdigest())
-        self.assertIn(f"{relative} text eol=crlf", text(".gitattributes"))
+        self.assertIn(f"{relative} -text whitespace=cr-at-eol", text(".gitattributes"))
         if not GIT:
             self.skipTest("Git is required to inspect checkout attributes")
         attributes = subprocess.run(
-            [GIT, "check-attr", "eol", "--", relative],
+            [GIT, "check-attr", "text", "--", relative],
             cwd=ROOT,
             capture_output=True,
             text=True,
             check=True,
         )
-        self.assertIn(f"{relative}: eol: crlf", attributes.stdout)
+        self.assertIn(f"{relative}: text: unset", attributes.stdout)
+        whitespace = subprocess.run(
+            [GIT, "check-attr", "whitespace", "--", relative],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        self.assertIn(f"{relative}: whitespace: cr-at-eol", whitespace.stdout)
+        indexed = subprocess.run(
+            [GIT, "show", f":{relative}"],
+            cwd=ROOT,
+            capture_output=True,
+            check=True,
+        ).stdout
+        self.assertEqual(policy["raw_files"][relative], hashlib.sha256(indexed).hexdigest())
 
     def test_four_axes_and_non_coding_cases(self):
         core = " ".join(text("SKILL.md").split())
