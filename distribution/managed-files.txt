@@ -51,6 +51,7 @@ docs/project-engineering-context.md
 docs/protocol-load-profiles.md
 docs/protocol-modes-and-state-sources.md
 docs/safety-and-stopping.md
+docs/skill-evolution.md
 docs/v1-migration.md
 docs/validation.md
 agents/

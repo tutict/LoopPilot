@@ -293,6 +293,11 @@ Do not read the others for a routine edit.
 | External facts that can change the work | [Research Brief](.looppilot/RESEARCH-TEMPLATE.md) |
 | Context pressure, a Checkpoint, or resume | [recovery protocol](docs/full-loop-checkpoint-and-context-recovery.md) |
 | Project completion or release readiness | [Project Closure protocol](docs/project-closure-and-final-delivery.md) |
+| Cross-task Skill evolution | [Skill evolution process](docs/skill-evolution.md) |
+
+Cross-task Skill evolution is separate from in-task replanning. The agent MUST NOT
+modify the active Skill during the task; follow the [Skill evolution process](docs/skill-evolution.md)
+only at the task boundary.
 
 Before implementation, the Supervisor chooses Lightweight, Full Loop, or No Implementation.
 Product Risk determines review, validation, and evidence depth; Coordination Necessity

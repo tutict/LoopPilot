@@ -412,6 +412,11 @@ contract—or ask when its intent is ambiguous. Do not change implementation or 
 solely to make the suite green. See
 [Scenario 305](tests/scenarios.md#305-tests-conflict-with-an-explicit-behavior-contract).
 
+LoopPilot can also accumulate private, abstract signals about repeated task friction
+or clear benefits. It prepares and tests a candidate Skill change in an isolated
+worktree; the active Skill changes only after the user accepts the candidate. See
+[Skill evolution](docs/skill-evolution.md).
+
 ## Install or Copy
 
 LoopPilot has no runtime dependency for Skill users. Distribution-001 provides
@@ -583,6 +588,7 @@ references and are not copied by the installer.
 - [简体中文 README](README.zh-CN.md): Chinese introduction, usage, and evidence boundaries.
 - [SKILL.md](SKILL.md): executable instructions.
 - [Lifecycle](docs/lifecycle.md): conceptual states and transitions.
+- [Skill evolution](docs/skill-evolution.md): private evidence capture and reviewed candidate updates.
 - [Host capabilities](docs/host-capabilities.md): adaptation boundaries.
 - [AGENTS.md](AGENTS.md): stable repository-level Agent instructions.
 - [Shared-state protocol](.looppilot/README.md): optional continuity and handoff.

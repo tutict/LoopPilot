@@ -223,6 +223,9 @@ Verification & Evidence 适用。只有后两轴可以基于范围或交付物�
 遵循权威约定；若意图仍不明确，再向用户询问。不能只为让测试通过而静默修改实现或测试。
 详见[行为场景 305](tests/scenarios.md#305-tests-conflict-with-an-explicit-behavior-contract)。
 
+LoopPilot 还可以积累私有、去敏的重复摩擦或明确收益信号，并在隔离 worktree 中准备和验证
+Skill 候选补丁；只有用户接受后才更新正式 Skill。详见[Skill 自进化流程](docs/skill-evolution.md)。
+
 ## 实现、观察与未验证内容
 
 三种信息必须区分：
@@ -263,6 +266,7 @@ Claude Code、Codex、Gemini CLI、GitHub Copilot 及其他宿主都保持 `unve
 | --- | --- |
 | [SKILL.md](SKILL.md) / [AGENTS.md](AGENTS.md) | 核心指令与仓库规则 |
 | [生命周期](docs/lifecycle.md) / [安全与停止](docs/safety-and-stopping.md) | 循环、结果分类和授权边界 |
+| [Skill 自进化](docs/skill-evolution.md) | 私有信号、候选验证与人工采纳 |
 | [宿主能力](docs/host-capabilities.md) | 不同宿主能力层级的适配边界 |
 | [安装指南](docs/installation.md) | 安装、状态、更新、备份和卸载 |
 | [模式选择](docs/mode-selection-and-escalation.md) / [加载档位](docs/protocol-load-profiles.md) | 按风险与协作需求选择协议深度 |

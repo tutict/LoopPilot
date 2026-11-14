@@ -128,6 +128,35 @@ class ArchitectureContractTests(unittest.TestCase):
         for path in ("SKILL.md", "README.md"):
             self.assertIn("multi-step non-coding", text(path))
 
+    def test_skill_evolution_is_evidence_gated_private_and_user_promoted(self):
+        core = " ".join(text("SKILL.md").split()).casefold()
+        self.assertIn("cross-task skill evolution", core)
+        self.assertIn("must not modify the active skill during the task", core)
+        self.assertIn("docs/skill-evolution.md", core)
+
+        guide = " ".join(text("docs/skill-evolution.md").split()).casefold()
+        for contract in (
+            "two independent tasks",
+            "one serious authorization, safety, or evidence-integrity event",
+            "$home/.agents/loop-pilot-improvement-inbox.md",
+            "do not store raw prompts, code, logs, traces, project names, or file paths",
+            "isolated git worktree",
+            "explicitly accept the candidate",
+            "commit and push require separate authorization",
+            "two-arm skill-loaded/control comparison",
+            "must not infer a causal effect",
+            "disable capture, inspect, pause, resume, or clear",
+        ):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, guide)
+
+        manifest = text("distribution/managed-files.txt").splitlines()
+        self.assertIn("docs/skill-evolution.md", manifest)
+        self.assertNotIn(".agents/loop-pilot-improvement-inbox.md", manifest)
+        scenarios = text("tests/scenarios.md")
+        for scenario_id in range(306, 314):
+            self.assertRegex(scenarios, rf"(?m)^## {scenario_id}\. ")
+
     def test_no_confirmation_does_not_grant_permission(self):
         core = " ".join(text("SKILL.md").split())
         self.assertIn("not a grant of authority", core)

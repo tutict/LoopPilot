@@ -21,6 +21,9 @@ The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
 
+- Added an evidence-gated Skill evolution process. It stores only abstract,
+  user-private task signals and prepares isolated, tested candidates; it never
+  edits the active Skill mid-task or promotes a change without user approval.
 - Added required-shell installation verification for Windows PowerShell 5.1/7,
   Git Bash, Ubuntu Bash/PowerShell 7 and macOS system Bash 3.2/PowerShell 7.
   Matrix evidence records actual platform, versions and official lifecycle receipts.
