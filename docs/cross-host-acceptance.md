@@ -36,6 +36,17 @@ combination MUST NOT be generalized to another combination, to a later host
 version, or to hosts as a class. The designation MUST be fixed before the first
 formal acceptance arm; preparation failure cannot switch it automatically.
 
+Under the Option B successor, the designation's `Skill loading mode` is a
+comma-separated set of atomic tokens from the frozen current matrix vocabulary
+(`explicit`, `implicit`). Unknown or empty tokens fail closed. Every Reference
+run's atomic loading mode must be a member of the declared set; Candidate runs
+are exempt. An accepted RC record's `Skill loading mode` must exactly equal the
+canonical union (sorted, deduplicated, `, `-joined) of all referenced runs'
+atomic modes, and a record containing Reference runs must cover every declared
+mode — Candidate runs cannot satisfy that coverage. Pre-successor and historical
+records keep their existing descriptive loading-mode values and equality rules
+unchanged.
+
 ## Acceptance Dimensions
 
 Each acceptance run scores observed behavior on the existing

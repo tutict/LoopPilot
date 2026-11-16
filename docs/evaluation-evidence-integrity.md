@@ -231,6 +231,12 @@ remain disclosed; a valid report of failure is not a successful host result.
 An accepted summary must bind to approved run packages with matching host/model/
 commit/loading mode/author/reviewer, exact Scenario IDs, actual shape coverage, real
 linked event evidence, and the minimum critical score recomputed across its traces.
+For successor-era RC summaries, `Skill loading mode` is instead the canonical union
+(sorted, deduplicated, `, `-joined) of all referenced runs' atomic loading modes;
+the record string is never re-parsed. A summary containing Reference runs must also
+cover the designation's declared mode combination exactly, and Candidate runs cannot
+satisfy that coverage. Non-RC and historical summaries keep the byte-identical
+per-run loading-mode equality rule.
 Critical dimensions still require at least 2 for acceptance. The summary cannot
 silently discard reviewer residuals. Its own bytes must be in the pinned operator
 index. Mandatory summary limitations receive the same substantive-content checks;

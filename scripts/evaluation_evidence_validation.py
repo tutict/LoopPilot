@@ -9,12 +9,13 @@ import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import re
+import subprocess
 from urllib.parse import unquote, urlsplit
 
 from evaluation_disclosure_validation import is_placeholder, disclosure_error, pending_todo
 
 from cross_host_acceptance_validation import _is_record, _record_surface, _field, _dimension_rows, _none, EVIDENCE_VERDICTS, VERDICTS
-from option_b_validation import validate_option_b_run_binding
+from option_b_validation import validate_option_b_run_binding, parse_loading_mode_set, canonical_loading_mode, _metadata
 
 DOCS = ("environment.md", "prompt.md", "trace.md", "score.md")
 CORE_DIMENSIONS = ("Goal fidelity", "Plan quality", "Evidence quality", "Adaptation quality", "Loop efficiency", "Safety", "Completion honesty", "Evidence integrity across agents", "Authority continuity", "Host-native integration")
@@ -1280,12 +1281,40 @@ def _record_links(root, path, text, packages, index, reader):
                          "record/run Reference Host mismatch")
         elif run.get("schema_version") == 2:
             raise EvidenceError("RC receipts cannot support a non-RC accepted summary")
-        for label, key in (("Host", "host"), ("Host version", "host_version"), ("Model", "model"), ("LoopPilot commit", "commit"), ("Skill loading mode", "loading_mode"), ("Trace author", "trace_author")):
+        pairs = [("Host", "host"), ("Host version", "host_version"), ("Model", "model"), ("LoopPilot commit", "commit")]
+        if not summary_is_rc:
+            pairs.append(("Skill loading mode", "loading_mode"))
+        pairs.append(("Trace author", "trace_author"))
+        for label, key in pairs:
             _require(fields.get(label) == run[key], f"record/run {label} mismatch")
         _require(fields.get("Independent reviewer") == package["review"]["reviewer"], "record/run reviewer mismatch")
         if fields["Verdict"] == "accepted":
             _require(package["review"]["decision"] == "accept", "accepted record cannot discard reviewer residuals")
         linked.append(package)
+    if summary_is_rc:
+        _require(fields.get("Skill loading mode") == canonical_loading_mode(p["run"]["loading_mode"] for p in linked),
+                 "record/run Skill loading mode mismatch")
+        binding = linked[0]["run"]["rc_binding"]
+        # The committed snapshot, not the mutable public path: a later RC may
+        # reuse the same designation path without invalidating earlier records.
+        try:
+            result = subprocess.run(["git", "--no-replace-objects", "show",
+                                     binding["designation_commit"] + ":" + binding["designation_record"]],
+                                    cwd=root, capture_output=True, timeout=15)
+        except subprocess.SubprocessError as error:
+            raise EvidenceError(f"accepted record designation Git read failed: {error}") from error
+        _require(result.returncode == 0, "accepted record designation is not committed")
+        _require(hashlib.sha256(result.stdout).hexdigest() == binding["designation_sha256"],
+                 "accepted record designation digest mismatch")
+        reference_modes = [p["run"]["loading_mode"] for p in linked
+                           if p["run"]["rc_binding"]["evidence_role"] == "reference"]
+        if reference_modes:
+            designation_errors = []
+            designation_fields = _metadata(result.stdout.decode("utf-8"), binding["designation_record"], designation_errors)
+            _require(not designation_errors, "accepted record designation metadata invalid")
+            declared = parse_loading_mode_set(designation_fields.get("Skill loading mode"))
+            _require(canonical_loading_mode(reference_modes) == canonical_loading_mode(declared),
+                     "record does not cover declared Skill loading mode combination")
     scenarios = {part.strip() for part in fields.get("Scenario IDs", "").split(',')}
     _require(scenarios == {p["run"]["scenario_id"] for p in linked}, "record Scenario IDs do not equal referenced runs")
     _require({p["run"]["scenario_shape"] for p in linked} == {"lightweight", "full-loop"}, "record lacks actual referenced scenario shapes")

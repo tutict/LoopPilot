@@ -8,6 +8,8 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
+from behavior_validation import EXPECTED_CURRENT_ARMS
+
 
 OPTION_B_FILES = (
     "scripts/option_b_validation.py",
@@ -34,6 +36,19 @@ RC_VERSION = re.compile(r"^v\d+\.\d+\.\d+-rc\d+$")
 SHA1 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
+# Successor-era loading-mode combinations use only the frozen matrix's atomic tokens.
+LOADING_MODE_VOCABULARY = frozenset(arm[2] for arm in EXPECTED_CURRENT_ARMS.values())
+
+
+def parse_loading_mode_set(value) -> set[str]:
+    if not isinstance(value, str):
+        return set()
+    return {part.strip() for part in value.split(",") if part.strip()}
+
+
+def canonical_loading_mode(modes) -> str:
+    return ", ".join(sorted(set(modes)))
 
 
 def _metadata(text: str, location: str, errors: list[str]) -> dict[str, str]:
@@ -449,9 +464,13 @@ def _validate_rc_binding(root, run, events, evidence, read_bytes):
         _check(run.get("host") == binding["reference_host"], "RC run host is not the designated Reference Host")
         for label, value in (("Reference host version", observed["host_version"]), ("Model identity", observed["model"]),
                              ("Provider identity", observed["provider"]), ("Endpoint identity", observed["endpoint"]),
-                             ("Skill loading mode", run.get("loading_mode")),
                              *(("Configured " + key, value) for key, value in identity["configured"].items())):
             _check(fields.get(label) == value, f"RC designation {label} mismatch")
+        declared = parse_loading_mode_set(fields.get("Skill loading mode"))
+        _check(bool(declared), "RC designation Skill loading mode combination is empty")
+        unknown = declared - LOADING_MODE_VOCABULARY
+        _check(not unknown, "RC designation Skill loading mode has unknown tokens: " + ", ".join(sorted(unknown)))
+        _check(run.get("loading_mode") in declared, "RC designation Skill loading mode mismatch")
     else:
         _check(run.get("host") != binding["reference_host"], "selected Reference cannot be relabelled Candidate")
     event_ids = identity["event_ids"]

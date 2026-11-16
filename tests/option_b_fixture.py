@@ -26,7 +26,7 @@ def git(root, *args, date="2030-01-01T08:00:00+00:00"):
     return result.stdout.strip()
 
 
-def initialize(root, source):
+def initialize(root, source, *, loading_mode="explicit"):
     shutil.copytree(source, root, ignore=shutil.ignore_patterns(".git", ".tmp", "verification-temp", ".four-axis-test-tmp", "__pycache__"))
     git(root, "init", "-b", "fixture")
     git(root, "add", ".")
@@ -46,7 +46,7 @@ def initialize(root, source):
         "Reference host version": "fixture-host-1", "Model identity": "fixture-upstream-model",
         "Provider identity": "fixture-provider", "Endpoint identity": "https://runtime.example.invalid",
         "Configured model": "fixture-request-alias", "Configured provider": "fixture-provider-label",
-        "Configured endpoint": "https://configured.example.invalid", "Skill loading mode": "explicit fixture load",
+        "Configured endpoint": "https://configured.example.invalid", "Skill loading mode": loading_mode,
         "RC baseline commit": baseline, "RC baseline tree": tree,
     }
     (root / REFERENCE).write_text("# RC Candidate Reference Designation — synthetic fixture\n\n" +
@@ -57,10 +57,10 @@ def initialize(root, source):
                 designation_commit=git(root, "rev-parse", "HEAD"))
 
 
-def rc_package(root, authority, boundary, *, number=1, role="reference", host="Codex", parent="option-b-test"):
+def rc_package(root, authority, boundary, *, number=1, role="reference", host="Codex", parent="option-b-test", loading_mode="explicit"):
     package = make_package(root, authority, evaluation_id=f"EVAL-RC-{number:03}", scenario_id=f"rc-scenario-{number}",
         shape="lightweight" if number == 1 else "full-loop", host=host, host_version="fixture-host-1",
-        model="fixture-upstream-model", commit=boundary["baseline"], loading_mode="explicit fixture load", parent=parent)
+        model="fixture-upstream-model", commit=boundary["baseline"], loading_mode=loading_mode, parent=parent)
     run = json.loads((package / "run.json").read_text(encoding="utf-8"))
     old_start = run["started_at"]
     run.update(schema_version=2, started_at=START, ended_at=END)
@@ -104,10 +104,12 @@ def rc_package(root, authority, boundary, *, number=1, role="reference", host="C
 
 
 def summary(root, authority, packages, *, role="reference", host="Codex"):
-    run = json.loads((packages[0] / "run.json").read_text(encoding="utf-8"))
+    runs = [json.loads((p / "run.json").read_text(encoding="utf-8")) for p in packages]
+    run = runs[0]
     text = record(Host=host, Host_version=run["host_version"], Model=run["model"], LoopPilot_commit=run["commit"],
-        Skill_loading_mode=run["loading_mode"], Evaluation_IDs=", ".join(p.name for p in packages),
-        Scenario_IDs=", ".join(json.loads((p / "run.json").read_text(encoding="utf-8"))["scenario_id"] for p in packages))
+        Skill_loading_mode=", ".join(sorted({r["loading_mode"] for r in runs})),
+        Evaluation_IDs=", ".join(p.name for p in packages),
+        Scenario_IDs=", ".join(r["scenario_id"] for r in runs))
     values = {"RC version": "v1.0.0-rc1", "Successor ID": SUCCESSOR, "Successor policy": POLICY,
         "Reference designation ID": "RC1-REF-CODEX-20261024", "Reference designation record": REFERENCE,
         "Reference Host": "Codex", "Reference designation SHA-256": digest(root / REFERENCE),

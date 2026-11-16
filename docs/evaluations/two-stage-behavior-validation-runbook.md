@@ -70,6 +70,14 @@ registers `evidence/current-validation-boundary.json` and
 run must bind the same Host/version/Model/commit/tree, Skill digest, tools,
 permission mode, C2 status, install provenance, and fixture isolation boundary.
 
+Each arm keeps its atomic matrix loading mode (`explicit` for LW-1/FL-1/FL-1R,
+`implicit` for IMP-1). The finalized RC designation declares the combination as
+a comma-separated token set, and the accepted Host Acceptance Record's
+`Skill loading mode` must be the canonical union of the referenced runs' modes
+(`explicit, implicit` for the full four-arm set) and must cover every declared
+mode. Do not edit an arm's mode to make the record match; a missing declared
+mode blocks acceptance until the arm is actually run.
+
 ## Blind packet and four-axis Review
 
 After preserving public run evidence, export each packet outside the repository:

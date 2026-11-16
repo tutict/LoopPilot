@@ -94,7 +94,7 @@ class OptionBPublicEvidenceTests(unittest.TestCase):
         packages = [make_package(self.root, self.authority, evaluation_id=f"EVAL-RC-{i:03}",
             scenario_id=f"rc-scenario-{i}", shape="lightweight" if i == 1 else "full-loop", host="Codex",
             host_version="fixture-host-1", model="fixture-upstream-model", commit=self.boundary["baseline"],
-            loading_mode="explicit fixture load", parent="option-b-test") for i in (1, 2)]
+            loading_mode="explicit", parent="option-b-test") for i in (1, 2)]
         summary(self.root, self.authority, packages)
         self.reject("requires version-2 RC receipts")
 
