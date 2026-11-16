@@ -11,6 +11,11 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+# PS 5.1 encodes native arguments with the console output encoding; non-UTF-8
+# codepages (e.g. cp936) corrupt non-ASCII paths passed to git.
+if ($PSVersionTable.PSVersion.Major -lt 6) {
+    [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+}
 $SourceRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $ManifestPath = Join-Path $SourceRoot "distribution\managed-files.txt"
 $VersionPath = Join-Path $SourceRoot "distribution\version.txt"
