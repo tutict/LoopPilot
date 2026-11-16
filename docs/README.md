@@ -37,6 +37,8 @@ source links below when a source-only document is needed.
 ## Acceptance preparation
 
 - [v1.0 RC checklist](release/v1.0-rc-checklist.md) — gates and required evidence.
+- [Qoder RC execution harness](release/qoder-rc-harness.md) — operator instructions,
+  Qoder-owned identity verification, other-Agent installation checks, and RC evidence.
 - [RC candidate decision](release/rc-candidate-decision.md) — current candidate
   facts and status boundary.
 - [RC maintenance verification](release/rc-maintenance-verification-20261025.md)
