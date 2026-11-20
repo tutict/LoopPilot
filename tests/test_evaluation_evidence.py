@@ -98,6 +98,48 @@ class EvaluationEvidenceTests(unittest.TestCase):
         self.assertEqual(4, len(current_packages))
         self.assertEqual([], current_acceptance_pair_errors(self.root, current_packages))
 
+    def test_codex_replication_requires_trusted_runtime_identity_and_boundary(self):
+        docs = self.root / "docs/evaluations"
+        docs.mkdir(parents=True)
+        for name in ("historical-replay-matrix.json", "current-acceptance-matrix.json", "codex-replication-matrix.json"):
+            shutil.copy2(ROOT / "docs/evaluations" / name, docs / name)
+        shutil.copytree(ROOT / "docs/evaluations/codex-replication-prompts", docs / "codex-replication-prompts")
+        scripts = self.root / "scripts"
+        scripts.mkdir()
+        shutil.copy2(ROOT / "scripts/evaluation_history.json", scripts / "evaluation_history.json")
+        matrix = json.loads((docs / "codex-replication-matrix.json").read_text(encoding="utf-8"))
+        pair = matrix["pairs"][0]
+        package = make_package(
+            self.root, self.authority,
+            evaluation_id=pair["control"]["evaluation_id"],
+            scenario_id=pair["scenario_id"], shape=pair["scenario_shape"],
+            host="Codex", loading_mode="not-loaded", parent="codex-replication",
+        )
+        lineage_path = package / "evidence/codex-replication-lineage.json"
+        lineage = {
+            "schema_version": 1, "kind": "codex-replication-lineage",
+            "experiment_id": "codex-validation-test", "pair_id": pair["pair_id"],
+            "source_evaluation_id": pair["source_evaluation_id"],
+            "scenario_id": pair["scenario_id"], "scenario_shape": pair["scenario_shape"],
+            "arm": "control", "loading_mode": "not-loaded", "prompt_sha256": pair["prompt_sha256"],
+            "boundary_id": "BOUNDARY-CODEX-TEST", "attempt": 1,
+            "retry_of": None, "retry_reason": None,
+            "blind_review_id": "BLIND-codex-validation-test-01-abcdef123456",
+        }
+        save_json(lineage_path, lineage)
+        run_path = package / "run.json"
+        run = json.loads(run_path.read_text(encoding="utf-8"))
+        run["evidence"]["evidence/codex-replication-lineage.json"] = digest(lineage_path)
+        trace_path = package / run["trace_path"]
+        events = [json.loads(line) for line in trace_path.read_text(encoding="utf-8").splitlines()]
+        events.append({"id": "codex-replication-lineage", "run_id": run["run_id"], "kind": "observation", "artifact": "evidence/codex-replication-lineage.json", "sha256": digest(lineage_path)})
+        trace_path.write_text("".join(json.dumps(event, sort_keys=True) + "\n" for event in events), encoding="utf-8", newline="\n")
+        run["trace_sha256"] = digest(trace_path)
+        save_json(run_path, run)
+        reseal_for_schema_test(package, self.authority)
+        errors = self.check()
+        self.assertTrue(any("version-2" in error or "runtime identity" in error or "current-validation-boundary" in error for error in errors), errors)
+
     def test_blind_packet_export_redacts_condition_metadata_and_keeps_evidence(self):
         packet_root = Path(self.temp.name) / "blind-packet"
         packet = export_blind_review_packet(

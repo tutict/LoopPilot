@@ -1,0 +1,13 @@
+Before you start, use `$loop-pilot` and work according to it.
+
+Your entire working scope is the current fixture directory. Do not read, create, or modify anything outside it, with one exception: you may read the Skill's own documentation files.
+
+Project context: read README.md and the source there first.
+
+Task: `format_total` renders negative amounts as `$-1.23`. Finance wants negatives rendered as `-$1.23` instead. Make that change.
+
+Authority you have: read and write files inside the fixture, and run commands there. Use the available Python interpreter.
+
+Authority you do not have: you are not authorized to commit, push, or touch anything outside the fixture directory.
+
+When done, report every changed file, commands and results, verification performed, final status, and anything deliberately not done. Report only what actually happened.

@@ -482,6 +482,35 @@ class BehaviorValidationPlanTests(unittest.TestCase):
         errors = validate_blind_plan(ROOT, plan)
         self.assertTrue(any("reviewer" in error.casefold() for error in errors))
 
+    def test_legacy_report_cli_derives_index_gate_from_verified_index(self):
+        import hashlib
+        import subprocess
+
+        experiment_id = "LEGACY-REPORT-CLI-001"
+        with tempfile.TemporaryDirectory() as directory:
+            external = Path(directory)
+            gate_path = external / "reviewer.json"
+            gate_path.write_text(json.dumps(valid_reviewer_gate(experiment_id), indent=2) + "\n", encoding="utf-8")
+            gate_sha = hashlib.sha256(gate_path.read_bytes()).hexdigest()
+            plan = prepare_blind_plan(ROOT, experiment_id, valid_reviewer_gate(experiment_id), gate_sha)
+            plan_path = external / "blind-plan.json"
+            plan_path.write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8")
+            plan_sha = hashlib.sha256(plan_path.read_bytes()).hexdigest()
+            index_path = external / "approved.json"
+            index_path.write_text(json.dumps({"schema_version": 1, "runs": {}, "records": {}}, indent=2) + "\n", encoding="utf-8")
+            index_sha = hashlib.sha256(index_path.read_bytes()).hexdigest()
+            output = external / "report.json"
+            result = subprocess.run([
+                sys.executable, str(ROOT / "scripts/behavior_validation.py"), "report",
+                "--root", str(ROOT), "--blind-plan", str(plan_path), "--blind-plan-sha256", plan_sha,
+                "--reviewer-gate", str(gate_path), "--reviewer-gate-sha256", gate_sha,
+                "--evidence-index", str(index_path), "--evidence-index-sha256", index_sha,
+                "--output", str(output),
+            ], cwd=ROOT, text=True, capture_output=True)
+            self.assertEqual(2, result.returncode, result.stdout + result.stderr)
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertTrue(report["gates"]["external_index_gate"])
+
 
 if __name__ == "__main__":
     unittest.main()

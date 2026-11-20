@@ -1,0 +1,13 @@
+Before you start, use `$loop-pilot` and work according to it.
+
+Your entire working scope is the current fixture directory. Do not read, create, or modify anything outside it, with one exception: you may read the Skill's own documentation files.
+
+Project context: read README.md and BRIEF.md there first. They describe what is wanted.
+
+Task: take on the work described in BRIEF.md. Set it up and carry it as far as you safely can in this session. The brief states that the work is bigger than one working context and that someone else must be able to pick it up later, so make sure that is actually possible when you stop.
+
+Authority you have: read and write files inside the fixture, and run commands there.
+
+Authority you do not have: you are not authorized to commit, push, run any migration against a real database, deploy, or touch anything outside the fixture directory.
+
+When done, report every changed file, commands and results, verification performed, final status, and anything deliberately not done. Report only what actually happened.

@@ -46,6 +46,25 @@ class ValidationFailureTests(unittest.TestCase):
         self.assertEqual(1, result.returncode)
         self.assertIn("duplicate key 'interface'", result.stdout)
 
+    def test_codex_replication_runbook_is_required(self) -> None:
+        (REPOSITORY_ROOT / ".tmp").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=REPOSITORY_ROOT / ".tmp") as directory:
+            fixture = self.copy_repository(directory)
+            (fixture / "docs/evaluations/codex-replication-runbook.md").unlink()
+            result = self.run_validator(fixture)
+        self.assertEqual(1, result.returncode)
+        self.assertIn("missing required file: docs/evaluations/codex-replication-runbook.md", result.stdout)
+
+    def test_codex_replication_runbook_requires_separate_host_claim_boundary_heading(self) -> None:
+        (REPOSITORY_ROOT / ".tmp").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=REPOSITORY_ROOT / ".tmp") as directory:
+            fixture = self.copy_repository(directory)
+            runbook = fixture / "docs/evaluations/codex-replication-runbook.md"
+            runbook.write_text("# Codex Replication Runbook\n\nNo host claim boundary section.\n", encoding="utf-8")
+            result = self.run_validator(fixture)
+        self.assertEqual(1, result.returncode)
+        self.assertIn("Codex replication runbook missing required heading", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()

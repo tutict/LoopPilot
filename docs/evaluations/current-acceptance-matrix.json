@@ -16,7 +16,7 @@
     "c2": "C2_CLEAN",
     "permissions": "pass",
     "reviewer_ready": true,
-    "external_index_fixed": true
+    "evidence_index_authority_fixed": true
   },
   "required_acceptance_dimensions": [1, 2, 3, 4, 5, 6, 7, 8],
   "expected_partial_ceiling_dimensions": [2, 4],

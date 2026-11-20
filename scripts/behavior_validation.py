@@ -15,6 +15,7 @@ from pathlib import PurePosixPath
 
 HISTORICAL_MATRIX_PATH = "docs/evaluations/historical-replay-matrix.json"
 CURRENT_ACCEPTANCE_MATRIX_PATH = "docs/evaluations/current-acceptance-matrix.json"
+CODEX_REPLICATION_MATRIX_PATH = "docs/evaluations/codex-replication-matrix.json"
 EXPECTED_FORMAL_ARMS = {"LW-1", "FL-1", "FL-1R", "IMP-1"}
 EXPECTED_PRIMARY_RUNS = 18
 EXPECTED_CURRENT_ARMS = {
@@ -48,6 +49,126 @@ def _historical_keys(root: Path) -> list[str]:
 def _formal_keys(root: Path) -> list[str]:
     matrix = _load_json(Path(root) / CURRENT_ACCEPTANCE_MATRIX_PATH)
     return [f"current:{arm['arm_id']}" for arm in matrix["arms"]]
+
+
+def _codex_replication_keys(root: Path) -> list[str]:
+    matrix = _load_json(Path(root) / CODEX_REPLICATION_MATRIX_PATH)
+    return [
+        f"replication:{pair['pair_id']}:{arm}"
+        for pair in matrix["pairs"]
+        for arm in ("control", "skill_loaded")
+    ]
+
+
+def validate_codex_replication_matrix(root: Path) -> list[str]:
+    """Validate the separate Codex replication design without running a Host."""
+    root = Path(root)
+    errors = []
+    path = root / CODEX_REPLICATION_MATRIX_PATH
+    try:
+        matrix = _load_json(path)
+    except (OSError, UnicodeError, ValueError, TypeError) as error:
+        return [f"Codex replication matrix unreadable: {error}"]
+
+    if not isinstance(matrix, dict):
+        return ["Codex replication matrix must be an object"]
+
+    expected_top = {"schema_version", "kind", "purpose", "retry_policy", "pairs", "current_evaluation_ids"}
+    if set(matrix) != expected_top:
+        errors.append("Codex replication matrix schema keys invalid")
+    if matrix.get("schema_version") != 1 or matrix.get("kind") != "codex-replication-matrix":
+        errors.append("Codex replication matrix kind/version invalid")
+    retry = matrix.get("retry_policy", {})
+    retry_keys = {"max_retries", "new_evaluation_id_and_run_id_per_retry", "retry_only_execution_infrastructure_incidents", "retain_every_failed_attempt"}
+    if not isinstance(retry, dict) or set(retry) != retry_keys or retry.get("max_retries") != 2 or not all(retry.get(key) is True for key in retry_keys - {"max_retries"}):
+        errors.append("Codex replication retry policy invalid")
+
+    pairs = matrix.get("pairs")
+    expected_pairs = {
+        "COD-RPL-EVAL-001-S43": ("EVAL-001", "scenario 43", "Requested Skill Is Unavailable", "lightweight", "behavior", "explicit"),
+        "COD-RPL-EVAL-002-S68": ("EVAL-002", "scenario 68", "Simple Change Uses Lightweight Mode", "lightweight", "behavior", "explicit"),
+        "COD-RPL-EVAL-003-S69": ("EVAL-003", "scenario 69", "High-Risk Multi-Stage Work Uses Full Loop Mode", "full-loop", "behavior", "explicit"),
+        "COD-RPL-EVAL-004-ARM-A": ("EVAL-004", "host-skill-loading-probe-arm-a", "Host Skill loading probe, explicit invocation", "lightweight", "loading-probe", "explicit"),
+        "COD-RPL-EVAL-004-ARM-B": ("EVAL-004", "host-skill-loading-probe-arm-b", "Host Skill loading probe, implicit invocation", "lightweight", "loading-probe", "implicit"),
+        "COD-RPL-EVAL-005-FIXTURE-A": ("EVAL-005", "phase14-lightweight-explicit", "Phase 14 Lightweight explicit fixture", "lightweight", "behavior", "explicit"),
+        "COD-RPL-EVAL-005-IMPLICIT": ("EVAL-005", "phase14-implicit-activation", "Phase 14 implicit activation fixture", "lightweight", "behavior", "implicit"),
+    }
+    expected_pair_ids = set(expected_pairs)
+    if not isinstance(pairs, list) or len(pairs) != 7:
+        errors.append("Codex replication matrix must define seven pairs")
+        pairs = pairs if isinstance(pairs, list) else []
+    seen_pairs = set()
+    seen_evaluations = []
+    behavior_count = 0
+    loading_count = 0
+    allowed_modes = {"not-loaded", "explicit", "implicit"}
+    for pair in pairs:
+        pair_keys = {"pair_id", "source_evaluation_id", "scenario_id", "scenario_title", "scenario_shape", "evidence_type", "prompt_path", "prompt_sha256", "control", "skill_loaded"}
+        if not isinstance(pair, dict) or set(pair) != pair_keys:
+            if isinstance(pair, dict) and "original_combination" in pair:
+                errors.append("Codex replication original_combination is not allowed; Claude identity is provenance only")
+            errors.append("Codex replication pair schema keys invalid")
+            continue
+        pair_id = pair["pair_id"]
+        if not isinstance(pair_id, str):
+            errors.append("Codex replication pair_id must be a string")
+            continue
+        if pair_id in seen_pairs:
+            errors.append("duplicate Codex replication pair_id")
+        seen_pairs.add(pair_id)
+        expected_pair = expected_pairs.get(pair_id)
+        if expected_pair is None:
+            errors.append(f"unknown Codex replication pair_id: {pair_id}")
+            continue
+        actual_identity = (
+            pair.get("source_evaluation_id"), pair.get("scenario_id"), pair.get("scenario_title"),
+            pair.get("scenario_shape"), pair.get("evidence_type"),
+        )
+        if actual_identity != expected_pair[:5]:
+            errors.append(f"Codex replication pair {pair_id} identity differs from the approved scenario seed")
+        if pair.get("scenario_shape") not in {"lightweight", "full-loop"}:
+            errors.append(f"Codex replication pair {pair_id} scenario shape invalid")
+        if pair.get("evidence_type") not in {"behavior", "loading-probe"}:
+            errors.append(f"Codex replication pair {pair_id} evidence type invalid")
+        elif pair["evidence_type"] == "behavior":
+            behavior_count += 1
+        else:
+            loading_count += 1
+        prompt_path = pair.get("prompt_path", "")
+        expected_prompt_path = f"docs/evaluations/codex-replication-prompts/{pair_id}.txt"
+        prompt = root / prompt_path if isinstance(prompt_path, str) else root / "__invalid__"
+        if not isinstance(prompt_path, str) or prompt_path != expected_prompt_path or not prompt.is_file():
+            errors.append(f"Codex replication prompt path invalid: {pair_id}")
+        elif hashlib.sha256(prompt.read_bytes()).hexdigest() != pair.get("prompt_sha256"):
+            errors.append(f"Codex replication prompt digest mismatch: {pair_id}")
+        for arm in ("control", "skill_loaded"):
+            value = pair.get(arm)
+            if not isinstance(value, dict) or set(value) != {"evaluation_id", "loading_mode"}:
+                errors.append(f"Codex replication {arm} arm schema invalid: {pair_id}")
+                continue
+            evaluation_id = value.get("evaluation_id")
+            seen_evaluations.append(evaluation_id)
+            if value.get("loading_mode") not in allowed_modes:
+                errors.append(f"Codex replication loading_mode invalid: {pair_id}")
+            if arm == "control" and value.get("loading_mode") != "not-loaded":
+                errors.append(f"Codex replication control arm must be not-loaded: {pair_id}")
+        skill_loaded = pair.get("skill_loaded")
+        if isinstance(skill_loaded, dict):
+            if skill_loaded.get("loading_mode") == "not-loaded":
+                errors.append(f"Codex replication Skill-loaded arm must declare a loading condition: {pair_id}")
+            if skill_loaded.get("loading_mode") != expected_pair[5]:
+                errors.append(f"Codex replication pair {pair_id} loading mode differs from the approved scenario seed")
+
+    if seen_pairs != expected_pair_ids:
+        errors.append("Codex replication pair set is incomplete")
+    if behavior_count != 5 or loading_count != 2:
+        errors.append("Codex replication matrix must contain five behavior pairs and two loading probes")
+    if seen_evaluations != [f"EVAL-{number:03d}" for number in range(20, 34)]:
+        errors.append("Codex replication Evaluation IDs must be EVAL-020 through EVAL-033 in pair order")
+    current_ids = matrix.get("current_evaluation_ids")
+    if current_ids != {"LW-1": "EVAL-034", "FL-1": "EVAL-035", "FL-1R": "EVAL-036", "IMP-1": "EVAL-037"}:
+        errors.append("Codex replication current Evaluation IDs are invalid")
+    return sorted(set(errors))
 
 
 def validate_behavior_matrices(root: Path) -> list[str]:
@@ -122,9 +243,11 @@ def validate_behavior_matrices(root: Path) -> list[str]:
     if covered != set(range(1, 9)):
         errors.append("current formal arms must cover all eight Host Acceptance dimensions")
     gate = current.get("preflight_gate", {})
-    required_preflight = {"install_provenance": "CURRENT", "c2": "C2_CLEAN", "permissions": "pass", "reviewer_ready": True, "external_index_fixed": True}
+    required_preflight = {"install_provenance": "CURRENT", "c2": "C2_CLEAN", "permissions": "pass", "reviewer_ready": True, "evidence_index_authority_fixed": True}
     if gate != required_preflight:
         errors.append("current formal preflight must retain install, C2, permission, Reviewer, and external-index gates")
+    if (root / CODEX_REPLICATION_MATRIX_PATH).is_file():
+        errors.extend(validate_codex_replication_matrix(root))
     return sorted(set(errors))
 
 
@@ -460,6 +583,138 @@ def prepare_blind_plan(
     }
 
 
+def prepare_codex_replication_blind_plan(
+    root: Path,
+    experiment_id: str,
+    reviewer_gate: dict,
+    reviewer_gate_sha256: str,
+    index_authority: dict,
+    index_authority_sha256: str,
+) -> dict:
+    """Create a randomized plan for Codex replication plus current formal arms.
+
+    `index_authority` must already have been loaded by the pinned external
+    authority reader; this function validates its experiment binding again.
+    """
+    errors = validate_behavior_matrices(root)
+    if errors:
+        raise ValueError("; ".join(errors))
+    gate_errors = reviewer_gate_errors(reviewer_gate, experiment_id)
+    if not isinstance(reviewer_gate_sha256, str) or re.fullmatch(r"[0-9a-f]{64}", reviewer_gate_sha256) is None:
+        gate_errors.append("reviewer readiness SHA-256 pin is invalid")
+    authority_keys = {"schema_version", "kind", "experiment_id", "operator_id", "evidence_index_path", "approved_at"}
+    if not isinstance(index_authority, dict) or set(index_authority) != authority_keys:
+        gate_errors.append("evidence-index authority schema is invalid")
+    else:
+        if index_authority.get("schema_version") != 1 or index_authority.get("kind") != "codex-evidence-index-authority":
+            gate_errors.append("evidence-index authority kind/version is invalid")
+        if index_authority.get("experiment_id") != experiment_id:
+            gate_errors.append("evidence-index authority experiment ID mismatch")
+    if not isinstance(index_authority_sha256, str) or re.fullmatch(r"[0-9a-f]{64}", index_authority_sha256) is None:
+        gate_errors.append("evidence-index authority SHA-256 pin is invalid")
+    if gate_errors:
+        raise ValueError("; ".join(sorted(set(gate_errors))))
+
+    matrix = _load_json(Path(root) / CODEX_REPLICATION_MATRIX_PATH)
+    pair_ids = [pair["pair_id"] for pair in matrix["pairs"]]
+    rng = secrets.SystemRandom()
+    rng.shuffle(pair_ids)
+    run_order = []
+    for pair_id in pair_ids:
+        pair_arms = [f"replication:{pair_id}:control", f"replication:{pair_id}:skill_loaded"]
+        rng.shuffle(pair_arms)
+        run_order.extend(pair_arms)
+    run_order.extend(_current_run_order(rng))
+
+    internal_keys = _codex_replication_keys(Path(root)) + _formal_keys(Path(root))
+    token = re.sub(r"[^A-Za-z0-9]+", "-", experiment_id).strip("-") or "EXPERIMENT"
+    assignments = {
+        key: f"BLIND-{token}-{index:02d}-{secrets.token_hex(6)}"
+        for index, key in enumerate(internal_keys, start=1)
+    }
+    plan = {
+        "schema_version": 1,
+        "kind": "codex-replication-validation-blind-plan",
+        "experiment_id": experiment_id,
+        "replication_primary_runs": 14,
+        "current_primary_runs": 4,
+        "primary_run_count": 18,
+        "reviewer_gate": {
+            "required": True,
+            "status": "ready",
+            "blind_review": True,
+            "operator_id": reviewer_gate["operator_id"],
+            "operator_session_id": reviewer_gate["operator_session_id"],
+            "reviewer_operator_id": reviewer_gate["reviewer_operator_id"],
+            "reviewer_session_id": reviewer_gate["reviewer_session_id"],
+            "receipt_sha256": reviewer_gate_sha256,
+        },
+        "index_authority": {
+            "required": True,
+            "status": "fixed",
+            "operator_id": index_authority["operator_id"],
+            "evidence_index_path": index_authority["evidence_index_path"],
+            "sha256": index_authority_sha256,
+        },
+        "run_order": run_order,
+        "assignments": assignments,
+        "replication_matrix": CODEX_REPLICATION_MATRIX_PATH,
+        "current_matrix": CURRENT_ACCEPTANCE_MATRIX_PATH,
+        "mapping_sha256": _digest(assignments),
+    }
+    plan_errors = validate_codex_replication_blind_plan(root, plan)
+    if plan_errors:
+        raise ValueError("; ".join(plan_errors))
+    return plan
+
+
+def validate_codex_replication_blind_plan(root: Path, plan: dict) -> list[str]:
+    errors = validate_behavior_matrices(root)
+    expected = set(_codex_replication_keys(Path(root)) + _formal_keys(Path(root)))
+    assignments = plan.get("assignments", {}) if isinstance(plan, dict) else {}
+    order = plan.get("run_order", []) if isinstance(plan, dict) else []
+    if plan.get("kind") != "codex-replication-validation-blind-plan" or plan.get("primary_run_count") != 18:
+        errors.append("Codex replication blind plan kind/run count invalid")
+    if plan.get("replication_primary_runs") != 14 or plan.get("current_primary_runs") != 4:
+        errors.append("Codex replication blind plan stage counts invalid")
+    if set(assignments) != expected:
+        errors.append("Codex blind assignments must cover fourteen replication and four current arms")
+    if set(order) != expected or len(order) != len(expected):
+        errors.append("Codex blind run_order must contain every primary run exactly once")
+    blind_ids = list(assignments.values()) if isinstance(assignments, dict) else []
+    if len(blind_ids) != len(set(blind_ids)):
+        errors.append("Codex blind IDs must be unique")
+    if plan.get("mapping_sha256") != _digest(assignments):
+        errors.append("Codex blind mapping hash mismatch")
+    reviewer_gate = plan.get("reviewer_gate", {})
+    if reviewer_gate.get("required") is not True or reviewer_gate.get("blind_review") is not True or reviewer_gate.get("status") != "ready":
+        errors.append("Codex reviewer gate must be ready before run-order generation")
+    if (not reviewer_gate.get("operator_id") or not reviewer_gate.get("reviewer_operator_id")
+            or reviewer_gate.get("operator_id") == reviewer_gate.get("reviewer_operator_id")
+            or not reviewer_gate.get("operator_session_id") or not reviewer_gate.get("reviewer_session_id")
+            or reviewer_gate.get("operator_session_id") == reviewer_gate.get("reviewer_session_id")):
+        errors.append("Codex reviewer gate must name an independent Reviewer and session")
+    index_authority = plan.get("index_authority", {})
+    if index_authority.get("required") is not True or index_authority.get("status") != "fixed":
+        errors.append("Codex evidence-index authority must be fixed before run-order generation")
+    if not isinstance(index_authority.get("sha256"), str) or re.fullmatch(r"[0-9a-f]{64}", index_authority.get("sha256", "")) is None:
+        errors.append("Codex evidence-index authority pin is invalid")
+    if not reviewer_gate.get("receipt_sha256") or re.fullmatch(r"[0-9a-f]{64}", reviewer_gate.get("receipt_sha256", "")) is None:
+        errors.append("Codex reviewer receipt pin is invalid")
+    replication_matrix = _load_json(Path(root) / CODEX_REPLICATION_MATRIX_PATH)
+    current_start = 14
+    for pair in replication_matrix["pairs"]:
+        control = f"replication:{pair['pair_id']}:control"
+        loaded = f"replication:{pair['pair_id']}:skill_loaded"
+        if control not in order or loaded not in order or abs(order.index(control) - order.index(loaded)) != 1:
+            errors.append(f"Codex replication pair {pair['pair_id']} arms must be adjacent in randomized run_order")
+    if any(not key.startswith("current:") for key in order[current_start:]):
+        errors.append("all four current formal arms must follow the fourteen Codex replication runs")
+    if "current:FL-1" in order and "current:FL-1R" in order and order.index("current:FL-1") > order.index("current:FL-1R"):
+        errors.append("Codex run_order must place FL-1 before FL-1R")
+    return sorted(set(errors))
+
+
 def validate_blind_plan(root: Path, plan: dict) -> list[str]:
     errors = []
     errors.extend(validate_behavior_matrices(root))
@@ -502,7 +757,7 @@ def validate_blind_plan(root: Path, plan: dict) -> list[str]:
 def _package_status(package: dict) -> str:
     run = package.get("run", {})
     incidents = package.get("incident_categories", [])
-    lineage = package.get("lineage", {})
+    lineage = package.get("lineage") or package.get("replication_lineage") or package.get("current_lineage") or {}
     if lineage.get("reproduction_status") == "not-reproduced":
         return "not-reproduced"
     if run.get("status") == "failed":
@@ -522,9 +777,11 @@ def blind_assignment_errors(plan: dict, packages: list[dict]) -> list[str]:
     seen_run_ids = set()
     for package in packages:
         kind = package.get("lineage_kind")
-        lineage = package.get("current_lineage") or package.get("lineage") or {}
+        lineage = package.get("current_lineage") or package.get("replication_lineage") or package.get("lineage") or {}
         if kind == "historical":
             key = f"historical:{lineage.get('pair_id')}:{lineage.get('arm')}"
+        elif kind == "replication":
+            key = f"replication:{lineage.get('pair_id')}:{lineage.get('arm')}"
         elif kind == "current":
             key = f"current:{lineage.get('arm_id')}"
         else:
@@ -544,6 +801,227 @@ def blind_assignment_errors(plan: dict, packages: list[dict]) -> list[str]:
         if actual:
             seen_blind_ids.add(actual)
     return sorted(set(errors))
+
+
+def build_codex_replication_report(
+    root: Path,
+    packages: list[dict],
+    blind_plan: dict,
+    *,
+    reviewer_ready: bool,
+    evidence_index_authority_fixed: bool,
+    current_preflight: dict,
+    package_validation_errors: list[str] | None = None,
+    reviewer_gate_errors: list[str] | None = None,
+    external_index_errors: list[str] | None = None,
+) -> dict:
+    """Build a Codex-only replication report and a separate current gate view."""
+    matrix_errors = validate_codex_replication_matrix(root)
+    blind_errors = validate_codex_replication_blind_plan(root, blind_plan)
+    assignment_errors = blind_assignment_errors(blind_plan, packages)
+    package_validation_errors = list(package_validation_errors or [])
+    reviewer_gate_errors = list(reviewer_gate_errors or [])
+    if external_index_errors is None:
+        external_index_errors = ["final approved evidence index was not validated"]
+    else:
+        external_index_errors = list(external_index_errors)
+
+    gate = blind_plan.get("reviewer_gate", {}) if isinstance(blind_plan, dict) else {}
+    reviewer_ready = bool(
+        reviewer_ready and gate.get("status") == "ready" and not reviewer_gate_errors
+    )
+    authority_gate = bool(
+        evidence_index_authority_fixed
+        and blind_plan.get("index_authority", {}).get("status") == "fixed"
+        and not blind_errors
+    )
+    final_index_gate = not external_index_errors
+    replication_packages = [package for package in packages if package.get("lineage_kind") == "replication"]
+    current_packages = [package for package in packages if package.get("lineage_kind") == "current"]
+    from evaluation_evidence_validation import codex_replication_pair_errors, current_acceptance_pair_errors
+
+    try:
+        replication_pair_validation_errors = codex_replication_pair_errors(root, replication_packages)
+    except (OSError, ValueError, TypeError, KeyError) as error:
+        replication_pair_validation_errors = [f"Codex replication pair validation failed: {error}"]
+    try:
+        current_pair_errors = current_acceptance_pair_errors(root, current_packages)
+    except (OSError, ValueError, TypeError, KeyError) as error:
+        current_pair_errors = [f"current package validation could not load the matrix: {error}"]
+
+    matrix = _load_json(Path(root) / CODEX_REPLICATION_MATRIX_PATH)
+    replication_pairs = []
+    required_replication_keys = set()
+    for pair in matrix["pairs"]:
+        members = [
+            package for package in replication_packages
+            if (package.get("replication_lineage") or {}).get("pair_id") == pair["pair_id"]
+        ]
+        by_arm = {
+            arm: sorted(
+                [package for package in members if (package.get("replication_lineage") or {}).get("arm") == arm],
+                key=lambda package: (package.get("replication_lineage") or {}).get("attempt", 0),
+            )
+            for arm in ("control", "skill_loaded")
+        }
+        arms = {arm: attempts[-1] for arm, attempts in by_arm.items() if attempts}
+        for arm in ("control", "skill_loaded"):
+            required_replication_keys.add(f"replication:{pair['pair_id']}:{arm}")
+        if set(arms) != {"control", "skill_loaded"}:
+            status = "incomplete"
+        elif any(_package_status(package) == "infrastructure-interrupted" for package in arms.values()):
+            status = "infrastructure-interrupted"
+        elif pair["evidence_type"] == "loading-probe" and any(
+            arms[arm].get("loading_observation") not in {"loaded", "not-loaded", "not-observed"}
+            for arm in ("control", "skill_loaded")
+        ):
+            status = "loading-observation-missing"
+        elif pair["evidence_type"] == "loading-probe" and any(
+            arms[arm].get("loading_observation") == "not-observed"
+            for arm in ("control", "skill_loaded")
+        ):
+            status = "loading-probe-inconclusive"
+        elif pair["evidence_type"] == "loading-probe" and all(
+            arms[arm].get("loading_probe_eligible") for arm in ("control", "skill_loaded")
+        ):
+            status = "loading-probe-complete"
+        elif pair["evidence_type"] == "loading-probe":
+            status = "unverified"
+        elif any(_package_status(package) == "behavior-failure-observed" for package in arms.values()):
+            status = "behavior-failure-observed"
+        elif all(_package_status(package) == "complete" for package in arms.values()):
+            status = "complete"
+        else:
+            status = "unverified"
+        incidents = sorted({incident for package in members for incident in package.get("incident_categories", [])})
+        replication_pairs.append({
+            "pair_id": pair["pair_id"],
+            "source_evaluation_id": pair["source_evaluation_id"],
+            "evidence_type": pair["evidence_type"],
+            "status": status,
+            "control_present": "control" in arms,
+            "skill_loaded_present": "skill_loaded" in arms,
+            "control_behavior_score_count": 0 if pair["evidence_type"] == "loading-probe" else int(bool(arms.get("control", {}).get("scores"))),
+            "skill_loaded_behavior_score_count": 0 if pair["evidence_type"] == "loading-probe" else int(bool(arms.get("skill_loaded", {}).get("scores"))),
+            "loading_observations": {
+                arm: package.get("loading_observation") for arm, package in arms.items()
+            } if pair["evidence_type"] == "loading-probe" else {},
+            "behavioral_score_interpreted": pair["evidence_type"] == "behavior",
+            "incidents": incidents,
+            "claim_scope": "Codex-only",
+        })
+
+    observed_replication_keys = {
+        f"replication:{(package.get('replication_lineage') or {}).get('pair_id')}:{(package.get('replication_lineage') or {}).get('arm')}"
+        for package in replication_packages
+    }
+    replication_complete = (
+        required_replication_keys <= observed_replication_keys
+        and all(pair["status"] in {"complete", "behavior-failure-observed", "loading-probe-complete"} for pair in replication_pairs)
+        and not assignment_errors
+        and not package_validation_errors
+        and not replication_pair_validation_errors
+    )
+    replication_status = "complete" if replication_complete else "incomplete"
+    current_by_arm: dict[str, list[dict]] = {}
+    for package in current_packages:
+        lineage = package.get("current_lineage") or package.get("lineage") or {}
+        arm_id = lineage.get("arm_id")
+        if arm_id:
+            current_by_arm.setdefault(arm_id, []).append(package)
+    current_latest = {
+        arm_id: max(attempts, key=lambda package: ((package.get("current_lineage") or package.get("lineage") or {}).get("attempt", 0)))
+        for arm_id, attempts in current_by_arm.items()
+    }
+    current_matrix = _load_json(Path(root) / CURRENT_ACCEPTANCE_MATRIX_PATH)
+    required_current = {f"current:{arm['arm_id']}" for arm in current_matrix["arms"]}
+    current_keys = {f"current:{arm_id}" for arm_id in current_latest}
+    preflight_ok = all(current_preflight.get(key) == value for key, value in (
+        ("install_provenance", "CURRENT"), ("c2", "C2_CLEAN"), ("permissions", "pass")
+    ))
+    boundary_signatures = set()
+    for package in [*replication_packages, *current_packages]:
+        boundary = package.get("current_boundary")
+        lineage = package.get("replication_lineage") or package.get("current_lineage") or package.get("lineage") or {}
+        if boundary:
+            boundary_signatures.add(json.dumps(boundary, sort_keys=True, separators=(",", ":")))
+        if boundary and lineage.get("boundary_id") != boundary.get("boundary_id"):
+            package_validation_errors.append("Codex/current lineage boundary_id differs from observed boundary")
+    if len(boundary_signatures) > 1:
+        package_validation_errors.append("Codex replication and current arms do not share one observed Host boundary")
+    hard_gate_errors = (
+        matrix_errors or blind_errors or assignment_errors or package_validation_errors
+        or reviewer_gate_errors or external_index_errors
+    )
+    current_ready = bool(
+        preflight_ok and reviewer_ready and authority_gate and final_index_gate
+        and not hard_gate_errors and current_keys == required_current
+        and all(_package_status(package) == "complete" for package in current_latest.values())
+    )
+    if current_ready:
+        current_readiness = "ready-for-host-acceptance-record"
+    elif not (preflight_ok and reviewer_ready and authority_gate and final_index_gate) or hard_gate_errors:
+        current_readiness = "blocked"
+    else:
+        current_readiness = "incomplete"
+    current_arm_results = []
+    for arm in current_matrix["arms"]:
+        package = current_latest.get(arm["arm_id"])
+        current_arm_results.append({
+            "arm_id": arm["arm_id"],
+            "status": _package_status(package) if package else "uncompleted",
+            "host_acceptance_dimension_ids": arm["dimension_ids"],
+            "rubric_scores": package.get("scores", {}) if package else {},
+            "blind_review_id": ((package.get("current_lineage") or package.get("lineage") or {}).get("blind_review_id")) if package else None,
+        })
+    return {
+        "schema_version": 1,
+        "kind": "codex-replication-experiment-report",
+        "codex_replication": {
+            "status": replication_status,
+            "claim_scope": "Codex-only",
+            "claims": "descriptive within-Codex comparisons only; results do not reproduce or establish Claude behavior",
+            "primary_run_count": 14,
+            "observed_arm_count": len(observed_replication_keys),
+            "pairs": replication_pairs,
+            "pair_validation_errors": replication_pair_validation_errors,
+            "blind_assignment_errors": assignment_errors,
+            "execution_infrastructure_incidents": sorted({incident for package in replication_packages for incident in package.get("incident_categories", [])}),
+        },
+        "historical_replay": {
+            "status": "not-reproduced",
+            "primary_run_count": 14,
+            "observed_run_count": 0,
+            "reason": "The original host was Claude Code; Codex replication packages are kept in a separate section and do not count as historical replay.",
+        },
+        "current_acceptance": {
+            "readiness": current_readiness,
+            "host_acceptance_verdict": "unverified",
+            "may_claim_accepted": False,
+            "acceptance_record_required": True,
+            "required_arms": sorted(required_current),
+            "observed_arms": sorted(current_keys),
+            "preflight": current_preflight,
+            "reviewer_ready": reviewer_ready,
+            "evidence_index_authority_fixed": authority_gate,
+            "final_approved_evidence_index_fixed": final_index_gate,
+            "arm_results": current_arm_results,
+            "pair_validation_errors": current_pair_errors,
+            "package_validation_errors": package_validation_errors,
+            "reviewer_gate_errors": reviewer_gate_errors,
+            "external_index_errors": external_index_errors,
+        },
+        "gates": {
+            "matrix_errors": matrix_errors,
+            "blind_plan_errors": blind_errors,
+            "blind_assignment_errors": assignment_errors,
+            "reviewer_gate": reviewer_ready,
+            "index_authority_gate": authority_gate,
+            "final_evidence_index_gate": final_index_gate,
+            "package_validation_gate": not package_validation_errors,
+            "current_preflight_gate": preflight_ok,
+        },
+    }
 
 
 def build_behavior_report(
@@ -784,6 +1262,14 @@ def main(argv: list[str] | None = None) -> int:
     blind.add_argument("--reviewer-gate", type=Path, required=True, help="external reviewer-readiness receipt")
     blind.add_argument("--reviewer-gate-sha256", required=True, help="raw SHA-256 pin for the reviewer receipt")
     blind.add_argument("--output", type=Path, required=True)
+    codex_blind = sub.add_parser("prepare-codex-replication-blind")
+    codex_blind.add_argument("--root", type=Path, default=Path.cwd())
+    codex_blind.add_argument("--experiment-id", required=True)
+    codex_blind.add_argument("--reviewer-gate", type=Path, required=True, help="external reviewer-readiness receipt")
+    codex_blind.add_argument("--reviewer-gate-sha256", required=True, help="raw SHA-256 pin for the reviewer receipt")
+    codex_blind.add_argument("--index-authority", type=Path, required=True, help="external pinned evidence-index authority receipt")
+    codex_blind.add_argument("--index-authority-sha256", required=True, help="raw SHA-256 pin for the evidence-index authority receipt")
+    codex_blind.add_argument("--output", type=Path, required=True)
     report = sub.add_parser("report")
     report.add_argument("--root", type=Path, default=Path.cwd())
     report.add_argument("--blind-plan", type=Path, required=True)
@@ -793,6 +1279,17 @@ def main(argv: list[str] | None = None) -> int:
     report.add_argument("--evidence-index", type=Path, required=True)
     report.add_argument("--evidence-index-sha256", required=True)
     report.add_argument("--output", type=Path, required=True)
+    codex_report = sub.add_parser("report-codex-replication")
+    codex_report.add_argument("--root", type=Path, default=Path.cwd())
+    codex_report.add_argument("--blind-plan", type=Path, required=True)
+    codex_report.add_argument("--blind-plan-sha256", required=True)
+    codex_report.add_argument("--reviewer-gate", type=Path, required=True)
+    codex_report.add_argument("--reviewer-gate-sha256", required=True)
+    codex_report.add_argument("--index-authority", type=Path, required=True)
+    codex_report.add_argument("--index-authority-sha256", required=True)
+    codex_report.add_argument("--evidence-index", type=Path, required=True)
+    codex_report.add_argument("--evidence-index-sha256", required=True)
+    codex_report.add_argument("--output", type=Path, required=True)
     export = sub.add_parser("export-blind")
     export.add_argument("--root", type=Path, default=Path.cwd())
     export.add_argument("--package", type=Path, required=True)
@@ -834,6 +1331,44 @@ def main(argv: list[str] | None = None) -> int:
             "mapping_sha256": plan["mapping_sha256"],
         }, ensure_ascii=False))
         return 0
+    if args.command == "prepare-codex-replication-blind":
+        _output_outside_root(args.root, args.output)
+        mapping_path = args.output.with_name(args.output.stem + "-mapping.json")
+        _output_outside_root(args.root, mapping_path)
+        if args.output.exists() or mapping_path.exists():
+            print("Codex blind plan output or mapping already exists; choose a new path")
+            return 1
+        gate, gate_errors = load_pinned_reviewer_gate(args.root, args.reviewer_gate, args.reviewer_gate_sha256, args.experiment_id)
+        if gate_errors:
+            for error in gate_errors:
+                print(error)
+            return 1
+        from evaluation_evidence_validation import load_external_evidence_index_authority as _load_authority_for_prepare
+        authority, authority_errors = _load_authority_for_prepare(
+            args.root, args.index_authority, args.index_authority_sha256, args.experiment_id
+        )
+        if authority_errors:
+            for error in authority_errors:
+                print(error)
+            return 1
+        plan = prepare_codex_replication_blind_plan(
+            args.root, args.experiment_id, gate, args.reviewer_gate_sha256,
+            authority, args.index_authority_sha256,
+        )
+        errors = validate_codex_replication_blind_plan(args.root, plan)
+        if errors:
+            for error in errors:
+                print(error)
+            return 1
+        _dump_json(args.output, plan)
+        _dump_json(mapping_path, {"assignments": plan["assignments"], "mapping_sha256": plan["mapping_sha256"]})
+        print(json.dumps({
+            "blind_plan": str(args.output),
+            "blind_plan_sha256": hashlib.sha256(args.output.read_bytes()).hexdigest(),
+            "mapping": str(mapping_path),
+            "mapping_sha256": hashlib.sha256(mapping_path.read_bytes()).hexdigest(),
+        }, ensure_ascii=False))
+        return 0
     if args.command == "export-blind":
         try:
             packet = export_blind_review_packet(args.root, args.package, args.blind_review_id, args.output)
@@ -842,6 +1377,74 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         print(packet)
         return 0
+    if args.command == "report-codex-replication":
+        plan, plan_errors = load_pinned_blind_plan(args.root, args.blind_plan, args.blind_plan_sha256)
+        if plan_errors:
+            for error in plan_errors:
+                print(error)
+            return 1
+        try:
+            from evaluation_evidence_validation import load_external_evidence_index_authority as _load_authority_for_report
+            authority, authority_errors = _load_authority_for_report(
+                args.root, args.index_authority, args.index_authority_sha256, plan.get("experiment_id", "")
+            )
+        except (OSError, ValueError, TypeError) as error:
+            authority, authority_errors = {}, [str(error)]
+        if authority_errors:
+            for error in authority_errors:
+                print(error)
+            return 1
+        plan_errors = validate_codex_replication_blind_plan(args.root, plan)
+        plan_authority = plan.get("index_authority", {})
+        if plan_authority.get("sha256") != args.index_authority_sha256:
+            plan_errors.append("Codex blind plan index-authority digest differs from the pinned receipt")
+        if plan_authority.get("evidence_index_path") != authority.get("evidence_index_path"):
+            plan_errors.append("Codex blind plan evidence-index path differs from the pinned authority receipt")
+        gate, reviewer_errors = load_pinned_reviewer_gate(
+            args.root, args.reviewer_gate, args.reviewer_gate_sha256, plan.get("experiment_id", "")
+        )
+        reviewer_errors.extend(reviewer_gate_binding_errors(plan, gate, args.reviewer_gate_sha256))
+        _output_outside_root(args.root, args.output)
+        declared_index = Path(authority["evidence_index_path"]).resolve()
+        supplied_index = Path(args.evidence_index).resolve()
+        external_index_errors = []
+        if supplied_index != declared_index:
+            external_index_errors.append("final evidence index path differs from the pinned pre-run authority receipt")
+        from evaluation_evidence_validation import validate_evaluation_evidence, validate_external_evidence_index
+
+        external_index_errors.extend(validate_external_evidence_index(args.root, args.evidence_index, args.evidence_index_sha256))
+        validated_packages = {}
+        package_validation_errors = validate_evaluation_evidence(
+            args.root, args.evidence_index, args.evidence_index_sha256, [], validated_packages=validated_packages
+        )
+        packages = list(validated_packages.values())
+        boundaries = [
+            package.get("current_boundary") for package in packages
+            if package.get("current_boundary") is not None
+        ]
+        boundary = boundaries[0] if boundaries else {}
+        current_preflight = {
+            "install_provenance": boundary.get("install_provenance", "blocked"),
+            "c2": boundary.get("c2_status", "blocked"),
+            "permissions": boundary.get("permission_preflight", "not-run"),
+        }
+        result = build_codex_replication_report(
+            args.root,
+            packages,
+            plan,
+            reviewer_ready=not reviewer_errors,
+            evidence_index_authority_fixed=not authority_errors and not plan_errors,
+            current_preflight=current_preflight,
+            package_validation_errors=package_validation_errors,
+            reviewer_gate_errors=reviewer_errors,
+            external_index_errors=external_index_errors,
+        )
+        if plan_errors:
+            result["gates"]["blind_plan_errors"] = sorted(set(result["gates"]["blind_plan_errors"] + plan_errors))
+            result["current_acceptance"]["readiness"] = "blocked"
+        _dump_json(args.output, result)
+        print(args.output)
+        return 0 if result["codex_replication"]["status"] in {"complete", "complete-with-infrastructure-interruptions"} else 2
     plan, plan_errors = load_pinned_blind_plan(args.root, args.blind_plan, args.blind_plan_sha256)
     if plan_errors:
         for error in plan_errors:
@@ -873,7 +1476,7 @@ def main(argv: list[str] | None = None) -> int:
         args.root,
         packages,
         plan,
-        external_index_fixed=args.external_index_fixed,
+        external_index_fixed=not external_index_errors and not package_validation_errors,
         reviewer_ready=not reviewer_errors,
         current_preflight=current_preflight,
         package_validation_errors=package_validation_errors,

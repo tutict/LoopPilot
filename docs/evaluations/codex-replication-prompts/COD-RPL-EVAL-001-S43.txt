@@ -1,0 +1,1 @@
+Use the `loop-pilot` skill to inspect the README and summarize the release checklist's readiness in three short bullets. Work only in the current fixture. Do not install any skill or modify files. Report whether the requested skill is available, what evidence you used, and any next step you can support from the fixture.

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "kind": "codex-replication-lineage",
+  "experiment_id": "",
+  "pair_id": "",
+  "source_evaluation_id": "",
+  "scenario_id": "",
+  "scenario_shape": "",
+  "arm": "",
+  "loading_mode": "",
+  "prompt_sha256": "",
+  "boundary_id": "",
+  "attempt": 0,
+  "retry_of": null,
+  "retry_reason": null,
+  "blind_review_id": ""
+}

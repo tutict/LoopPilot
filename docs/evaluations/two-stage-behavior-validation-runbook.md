@@ -1,12 +1,15 @@
-# Two-stage behavior validation runbook
+# Legacy two-stage behavior validation runbook
 
 ## Status and decision boundary
 
-This is an execution plan, not run evidence. No Host boundary, run, score, or
+This is the original Claude-specific two-stage plan, not the Codex replacement
+experiment and not run evidence. New Codex replications use
+[`codex-replication-runbook.md`](codex-replication-runbook.md); they cannot
+satisfy the Claude historical replay arms described here. No Host boundary, run, score, or
 independent Reviewer assignment is asserted by this document. The operator must
 record observed values and stop a stage when a required gate is unavailable.
 
-The design contains 18 primary runs: fourteen historical replay arms and four
+The legacy design contains 18 primary runs: fourteen historical replay arms and four
 current formal arms. Each arm gets one primary run. A recorded Execution
 Infrastructure Incident may receive at most two new-ID retries. A retry never
 replaces or deletes the failed package.
@@ -38,11 +41,24 @@ replaces or deletes the failed package.
 
 ## Historical replay stage
 
-Use [`historical-replay-matrix.json`](historical-replay-matrix.json) without
-changing its Host/version/Model/loading-mode combinations. Run all seven matched
-pairs with the randomized within-pair order in the blind plan. The control and
-loaded arms share input, fixture, permissions, tools, and commit; only Skill
-loading changes. Each arm uses an independent context.
+The matrix in [`historical-replay-matrix.json`](historical-replay-matrix.json)
+records the original Claude Code Host/version/Model/loading-mode combinations.
+Its fourteen Claude arms are not run by this repository. If the original
+Claude host is unavailable, preserve the read-only history audit and report
+those arms as `not-reproduced`; do not substitute Codex or edit the matrix to
+make a Codex run look like Claude evidence. Historical lineage and acceptance
+validation retain their original Claude-only semantics.
+
+The replacement study uses the separate
+[`codex-replication-matrix.json`](codex-replication-matrix.json) and
+[`codex-replication-runbook.md`](codex-replication-runbook.md). Its fourteen
+new arms are Codex replications of the scenario seeds, not historical replay.
+The remaining four arms are the current formal Codex arms described below.
+
+For any future run of the original historical matrix by an operator with the
+original Host, do not change its Host/version/Model/loading-mode combinations.
+The control and loaded arms share input, fixture, permissions, tools, and
+commit; only Skill loading changes. Each arm uses an independent context.
 
 Five pairs are behavior comparisons. The two EVAL-004 pairs are loading probes
 and must preserve `evidence/loading-observation.json` with `loaded`, `not-loaded`,

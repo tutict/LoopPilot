@@ -40,13 +40,24 @@ use `scripts/validate_historical_replay.py` to require all 14 matrix arms and
 produce a conservative `accepted` or `blocked` experiment projection. A static
 pass still does not prove Host behavior or real-world reviewer independence.
 
-For the two-stage behavior plan, create an external Reviewer readiness receipt
+For the legacy Claude two-stage plan, create an external Reviewer readiness receipt
 first, then generate and externally pin the randomized blind plan. EVAL-004 is
 loading evidence only; each probe must preserve a `loading-observation.json`, and
 the report excludes probes from behavioral rubric comparisons. Current formal
 packages require a v4 blind Review receipt, a fresh Host boundary, a preserved
 blind packet, and the FL-1 checkpoint before FL-1R. Each arm has one primary run
 and at most two new-ID retries for recorded infrastructure incidents only.
+
+The Claude historical matrix remains tied to its original Host/version/Model
+combinations. If those combinations are unavailable, report the Claude arms as
+`not-reproduced`; do not substitute Codex evidence. The replacement Codex study
+has its own matrix, lineage and report, and its comparisons are Codex-only. See
+`docs/evaluations/codex-replication-runbook.md` in the source repository for
+the pinned pre-run index-authority receipt and separate final approved index.
+
+The current replacement experiment uses `prepare-codex-replication-blind` and
+`report-codex-replication` as documented in the Codex replication runbook; the
+legacy commands below remain available only for legacy plans.
 
 ```text
 python scripts/behavior_validation.py prepare-blind --experiment-id <id> \

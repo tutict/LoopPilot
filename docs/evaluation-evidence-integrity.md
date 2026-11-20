@@ -136,6 +136,14 @@ cannot satisfy this gate. EVAL-004 historical pairs are loading probes, not
 behavioral comparisons; they preserve `evidence/loading-observation.json` and
 report loading state separately without behavioral rubric scores.
 
+New Codex scenario replications are not historical replay packages. They use
+`docs/evaluations/codex-replication-matrix.json`,
+`evidence/codex-replication-lineage.json`, and the v4 blind Review receipt.
+Their source EVAL IDs identify scenario provenance only. Each package must bind
+the observed Codex runtime identity and current boundary. Validation keeps
+these packages separate from the immutable Claude history and never treats
+their results as cross-host evidence.
+
 `disclosures` contains exactly:
 
 - `outcome`: `completed` or `failed`, equal to the run receipt and Score outcome;

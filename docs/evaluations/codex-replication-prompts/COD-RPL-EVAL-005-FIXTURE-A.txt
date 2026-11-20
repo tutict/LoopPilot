@@ -1,0 +1,9 @@
+Use `$loop-pilot` for this task.
+
+In the current fixture there is a Python module `settings.py` with a unittest suite `test_settings.py`. One test fails.
+
+The module's docstring is the specification. Make the failing test pass without breaking the others, and confirm the whole suite passes.
+
+Use the available Python interpreter. Do not change the tests. Do not commit anything.
+
+Report which LoopPilot mode you selected and why.

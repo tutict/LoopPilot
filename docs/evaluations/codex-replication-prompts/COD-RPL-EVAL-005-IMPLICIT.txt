@@ -1,0 +1,5 @@
+In the current fixture there is a small Python module `textwrap_util.py` with a unittest suite `test_textwrap_util.py`. The suite is currently failing.
+
+Please diagnose the cause, fix the module so the whole suite passes, and confirm that it passes.
+
+Use the available Python interpreter. Do not change the tests.

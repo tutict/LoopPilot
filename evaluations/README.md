@@ -49,32 +49,51 @@ The read-only [historical audit](../docs/evaluations/historical-evaluation-audit
 and [v2 re-run runbook](../docs/evaluations/historical-v2-rerun-runbook.md)
 cover the missing control arms, incomplete traces/scores, infrastructure
 incidents, and independent four-axis review for EVAL-001 through EVAL-005. The
-required 14-arm plan is in
-[`historical-replay-matrix.json`](../docs/evaluations/historical-replay-matrix.json).
-The repository supplies preparation and validation tooling; it does not execute
-the Claude Code arms.
+14-arm plan in
+[`historical-replay-matrix.json`](../docs/evaluations/historical-replay-matrix.json)
+is bound to the original Claude Code combinations. If that Host is unavailable,
+those runs remain `not-reproduced`; the repository does not execute Claude Code
+arms and Codex evidence must not be substituted into the historical matrix.
 
-## Two-stage behavior validation
+The separate
+[`codex-replication-matrix.json`](../docs/evaluations/codex-replication-matrix.json)
+defines fourteen new Codex scenario-replication arms, followed by the four
+current formal arms. These results are reported as Codex-only comparisons; they
+do not reproduce the Claude runs or establish cross-host equivalence. Follow
+the [Codex replication runbook](../docs/evaluations/codex-replication-runbook.md)
+for its distinct lineage, runtime identity, Reviewer, index-authority, and final
+operator-approved evidence-index gates.
 
-The behavior plan has two stages. Historical replay uses seven matched
-control/Skill-loaded pairs, fourteen primary runs, and the exact combinations in
-the historical matrix. The two EVAL-004 pairs are loading probes: they preserve a
-`loaded`, `not-loaded`, or `not-observed` receipt and do not contribute behavioral
-rubric scores. The other five pairs are behavior comparisons. A 429, timeout, or
-unavailable Host remains an Execution Infrastructure Incident and cannot satisfy
-an arm.
+## Two-stage Codex replacement experiment
 
-Follow the detailed [two-stage behavior validation runbook](../docs/evaluations/two-stage-behavior-validation-runbook.md)
-for the pre-run gates, packet export, and validation sequence.
+The replacement study has seven matched Codex scenario-replication pairs
+(fourteen runs), followed by the four current formal arms. The five behavior
+pairs are descriptive Codex-only comparisons. Two loading probes preserve a
+`loaded`, `not-loaded`, or `not-observed` receipt and do not contribute
+behavioral rubric scores. A 429, timeout, or unavailable Host remains an
+Execution Infrastructure Incident and cannot satisfy an arm. The Claude
+historical replay section remains `not-reproduced` when its original Host is
+unavailable; Codex runs never count as Claude replay.
+
+Follow the detailed
+[Codex replication runbook](../docs/evaluations/codex-replication-runbook.md)
+for the new matrix, separate lineage, pre-run authority receipt, packet export,
+and final approved-index sequence. The older
+[two-stage behavior validation runbook](../docs/evaluations/two-stage-behavior-validation-runbook.md)
+retains the historical Claude boundary and the four formal-arm requirements.
 
 The formal current stage has four loaded arms: `LW-1`, `FL-1`, `FL-1R`, and
-`IMP-1`; `FL-1R` uses the checkpoint from `FL-1`. Create and pin an external
-Reviewer readiness receipt before generating the randomized blind plan:
+`IMP-1`; `FL-1R` uses the checkpoint from `FL-1`. For the replacement
+experiment, create and pin both a fresh Reviewer readiness receipt and the
+pre-run evidence-index authority receipt before generating the randomized plan:
 
 ```text
-python scripts/behavior_validation.py prepare-blind --experiment-id <id> \
+python scripts/behavior_validation.py prepare-codex-replication-blind --experiment-id <id> \
   --reviewer-gate <external/reviewer-readiness.json> \
-  --reviewer-gate-sha256 <sha256> --output <external/blind-plan.json>
+  --reviewer-gate-sha256 <receipt-sha256> \
+  --index-authority <external/evidence-index-authority.json> \
+  --index-authority-sha256 <authority-sha256> \
+  --output <external/codex-blind-plan.json>
 ```
 
 Each current package uses a v4 Review receipt with the blind packet hash and
@@ -91,8 +110,14 @@ python scripts/behavior_validation.py export-blind --package <repo/evaluations/.
 ```
 
 ```text
-python scripts/behavior_validation.py report --blind-plan <external/blind-plan.json> \
-  --blind-plan-sha256 <sha256> --reviewer-gate <external/reviewer-readiness.json> \
-  --reviewer-gate-sha256 <sha256> --evidence-index <external/approved.json> \
-  --evidence-index-sha256 <sha256> --output <external/behavior-report.json>
+python scripts/behavior_validation.py report-codex-replication \
+  --blind-plan <external/codex-blind-plan.json> \
+  --blind-plan-sha256 <plan-sha256> \
+  --reviewer-gate <external/reviewer-readiness.json> \
+  --reviewer-gate-sha256 <receipt-sha256> \
+  --index-authority <external/evidence-index-authority.json> \
+  --index-authority-sha256 <authority-sha256> \
+  --evidence-index <authority-pinned/approved-index.json> \
+  --evidence-index-sha256 <final-index-sha256> \
+  --output <external/codex-replication-report.json>
 ```

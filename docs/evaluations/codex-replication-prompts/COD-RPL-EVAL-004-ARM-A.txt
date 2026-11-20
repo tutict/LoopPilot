@@ -1,0 +1,3 @@
+$loop-pilot
+
+Inspect the current fixture's README and report the Skill's declared name and one sentence describing its purpose. Do not modify files. This is a loading-only probe: report only what you can establish from the actual Skill-loading evidence available in this session.

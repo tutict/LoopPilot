@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "kind": "codex-replication-matrix",
+  "purpose": "Seven matched Codex replications; source EVAL identifiers are provenance only.",
+  "retry_policy": {
+    "max_retries": 2,
+    "new_evaluation_id_and_run_id_per_retry": true,
+    "retry_only_execution_infrastructure_incidents": true,
+    "retain_every_failed_attempt": true
+  },
+  "pairs": [
+    {
+      "pair_id": "COD-RPL-EVAL-001-S43",
+      "source_evaluation_id": "EVAL-001",
+      "scenario_id": "scenario 43",
+      "scenario_title": "Requested Skill Is Unavailable",
+      "scenario_shape": "lightweight",
+      "evidence_type": "behavior",
+      "prompt_path": "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-001-S43.txt",
+      "prompt_sha256": "33694863d8aaafa831bb9ad6b9451aeb0814f1ea29323377ae3483d90a6cdac2",
+      "control": {
+        "evaluation_id": "EVAL-020",
+        "loading_mode": "not-loaded"
+      },
+      "skill_loaded": {
+        "evaluation_id": "EVAL-021",
+        "loading_mode": "explicit"
+      }
+    },
+    {
+      "pair_id": "COD-RPL-EVAL-002-S68",
+      "source_evaluation_id": "EVAL-002",
+      "scenario_id": "scenario 68",
+      "scenario_title": "Simple Change Uses Lightweight Mode",
+      "scenario_shape": "lightweight",
+      "evidence_type": "behavior",
+      "prompt_path": "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-002-S68.txt",
+      "prompt_sha256": "76b0e0dcc488a6f99f4cdcf6005e5e951a479bc78e9508edf9928888775ca0c8",
+      "control": {
+        "evaluation_id": "EVAL-022",
+        "loading_mode": "not-loaded"
+      },
+      "skill_loaded": {
+        "evaluation_id": "EVAL-023",
+        "loading_mode": "explicit"
+      }
+    },
+    {
+      "pair_id": "COD-RPL-EVAL-003-S69",
+      "source_evaluation_id": "EVAL-003",
+      "scenario_id": "scenario 69",
+      "scenario_title": "High-Risk Multi-Stage Work Uses Full Loop Mode",
+      "scenario_shape": "full-loop",
+      "evidence_type": "behavior",
+      "prompt_path": "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-003-S69.txt",
+      "prompt_sha256": "fd1e4b742e26498efea08ecceb06f88030884dfb854faa422c6165706eacaad3",
+      "control": {
+        "evaluation_id": "EVAL-024",
+        "loading_mode": "not-loaded"
+      },
+      "skill_loaded": {
+        "evaluation_id": "EVAL-025",
+        "loading_mode": "explicit"
+      }
+    },
+    {
+      "pair_id": "COD-RPL-EVAL-004-ARM-A",
+      "source_evaluation_id": "EVAL-004",
+      "scenario_id": "host-skill-loading-probe-arm-a",
+      "scenario_title": "Host Skill loading probe, explicit invocation",
+      "scenario_shape": "lightweight",
+      "evidence_type": "loading-probe",
+      "prompt_path": "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-004-ARM-A.txt",
+      "prompt_sha256": "c8b702faae0f9a39d3ce1210e9aa91a394c648c751dcdbd327a51e4c46d805bd",
+      "control": {
+        "evaluation_id": "EVAL-026",
+        "loading_mode": "not-loaded"
+      },
+      "skill_loaded": {
+        "evaluation_id": "EVAL-027",
+        "loading_mode": "explicit"
+      }
+    },
+    {
+      "pair_id": "COD-RPL-EVAL-004-ARM-B",
+      "source_evaluation_id": "EVAL-004",
+      "scenario_id": "host-skill-loading-probe-arm-b",
+      "scenario_title": "Host Skill loading probe, implicit invocation",
+      "scenario_shape": "lightweight",
+      "evidence_type": "loading-probe",
+      "prompt_path": "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-004-ARM-B.txt",
+      "prompt_sha256": "38f62e7cbf20a45e53a954597441bdf745ad3ef9fde6669947d1fc71db28f6fe",
+      "control": {
+        "evaluation_id": "EVAL-028",
+        "loading_mode": "not-loaded"
+      },
+      "skill_loaded": {
+        "evaluation_id": "EVAL-029",
+        "loading_mode": "implicit"
+      }
+    },
+    {
+      "pair_id": "COD-RPL-EVAL-005-FIXTURE-A",
+      "source_evaluation_id": "EVAL-005",
+      "scenario_id": "phase14-lightweight-explicit",
+      "scenario_title": "Phase 14 Lightweight explicit fixture",
+      "scenario_shape": "lightweight",
+      "evidence_type": "behavior",
+      "prompt_path": "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-005-FIXTURE-A.txt",
+      "prompt_sha256": "8b2800f70c9518329550dec20aef0e48be71e1c3b6a8a113bf9b2811768941f0",
+      "control": {
+        "evaluation_id": "EVAL-030",
+        "loading_mode": "not-loaded"
+      },
+      "skill_loaded": {
+        "evaluation_id": "EVAL-031",
+        "loading_mode": "explicit"
+      }
+    },
+    {
+      "pair_id": "COD-RPL-EVAL-005-IMPLICIT",
+      "source_evaluation_id": "EVAL-005",
+      "scenario_id": "phase14-implicit-activation",
+      "scenario_title": "Phase 14 implicit activation fixture",
+      "scenario_shape": "lightweight",
+      "evidence_type": "behavior",
+      "prompt_path": "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-005-IMPLICIT.txt",
+      "prompt_sha256": "8d5180c5ac8a15714708249f5d2a219ae8b35c2cd96322ccc61db6716b7677ac",
+      "control": {
+        "evaluation_id": "EVAL-032",
+        "loading_mode": "not-loaded"
+      },
+      "skill_loaded": {
+        "evaluation_id": "EVAL-033",
+        "loading_mode": "implicit"
+      }
+    }
+  ],
+  "current_evaluation_ids": {
+    "LW-1": "EVAL-034",
+    "FL-1": "EVAL-035",
+    "FL-1R": "EVAL-036",
+    "IMP-1": "EVAL-037"
+  }
+}

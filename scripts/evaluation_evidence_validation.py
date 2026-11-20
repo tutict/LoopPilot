@@ -7,6 +7,7 @@ from __future__ import annotations
 from datetime import datetime
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
@@ -54,6 +55,7 @@ LINEAGE_KEYS = {
     "known_gaps", "original_combination", "reproduction_status", "reproduction_reason", "blind_review_id",
 }
 LINEAGE_PATH = "evidence/historical-lineage.json"
+REPLICATION_LINEAGE_PATH = "evidence/codex-replication-lineage.json"
 CURRENT_LINEAGE_PATH = "evidence/current-acceptance-lineage.json"
 CURRENT_BOUNDARY_PATH = "evidence/current-validation-boundary.json"
 CURRENT_REVIEW_PACKET_PATH = "evidence/blind-review-packet.md"
@@ -63,12 +65,19 @@ CURRENT_LINEAGE_KEYS = {
     "loading_mode", "predecessor_run_id", "predecessor_checkpoint_path",
     "predecessor_checkpoint_sha256", "blind_review_id", "attempt", "retry_of", "retry_reason",
 }
+REPLICATION_LINEAGE_KEYS = {
+    "schema_version", "kind", "experiment_id", "pair_id", "source_evaluation_id",
+    "scenario_id", "scenario_shape", "arm", "loading_mode", "prompt_sha256",
+    "boundary_id", "attempt", "retry_of", "retry_reason", "blind_review_id",
+}
 CURRENT_BOUNDARY_KEYS = {
     "schema_version", "kind", "boundary_id", "observed_at", "host", "host_version", "model",
     "provider", "endpoint", "commit", "git_tree", "skill_sha256", "install_provenance",
     "c2_status", "permission_preflight", "permission_mode", "tools_digest", "fixture_root",
 }
 REPLAY_MATRIX_PATH = "docs/evaluations/historical-replay-matrix.json"
+REPLICATION_MATRIX_PATH = "docs/evaluations/codex-replication-matrix.json"
+INDEX_AUTHORITY_KEYS = {"schema_version", "kind", "experiment_id", "operator_id", "evidence_index_path", "approved_at"}
 CURRENT_MATRIX_PATH = "docs/evaluations/current-acceptance-matrix.json"
 POLICY_PATH = "scripts/evaluation_history.json"
 
@@ -80,6 +89,20 @@ class EvidenceError(ValueError):
 def _require(condition, message):
     if not condition:
         raise EvidenceError(message)
+
+
+def _is_indirect_path(path: Path) -> bool:
+    """Detect symlinks/junctions even on Windows runtimes with weak pathlib support."""
+    path = Path(path)
+    try:
+        os.readlink(path)
+        return True
+    except (OSError, TypeError, ValueError):
+        pass
+    if path.is_symlink():
+        return True
+    is_junction = getattr(path, "is_junction", None)
+    return bool(is_junction and is_junction())
 
 
 def _object(pairs):
@@ -247,6 +270,21 @@ def _template_checks(root, reader):
         "reproduction_status": "", "reproduction_reason": None, "blind_review_id": "",
     }
     _require(lineage == expected_lineage, "historical lineage template must remain inert")
+    replication_lineage = reader.json(root / "evaluations/templates/codex-replication-lineage.json")
+    _keys(replication_lineage, REPLICATION_LINEAGE_KEYS, "Codex replication lineage template")
+    expected_replication_lineage = {
+        "schema_version": 1, "kind": "codex-replication-lineage", "experiment_id": "",
+        "pair_id": "", "source_evaluation_id": "", "scenario_id": "", "scenario_shape": "",
+        "arm": "", "loading_mode": "", "prompt_sha256": "", "boundary_id": "",
+        "attempt": 0, "retry_of": None, "retry_reason": None, "blind_review_id": "",
+    }
+    _require(replication_lineage == expected_replication_lineage, "Codex replication lineage template must remain inert")
+    authority_template = reader.json(root / "evaluations/templates/evidence-index-authority.json")
+    _keys(authority_template, INDEX_AUTHORITY_KEYS, "evidence-index authority template")
+    _require(authority_template == {
+        "schema_version": 1, "kind": "codex-evidence-index-authority", "experiment_id": "",
+        "operator_id": "", "evidence_index_path": "", "approved_at": "",
+    }, "evidence-index authority template must remain inert")
     review = reader.json(root / "evaluations/templates/replay-review-v3.json")
     _keys(review, REPLAY_REVIEW_KEYS, "replay review template", version=3)
     _require(review["run_id"] == review["evaluation_id"] == review["run_sha256"] == review["reviewer"] == review["decision"] == "", "replay review template must not declare an active decision")
@@ -317,6 +355,42 @@ def _authority(root, path, pin, reader):
         _inside(root, record)
         _require(isinstance(value, str) and SHA256.fullmatch(value), "authority record digest invalid")
     return index
+
+
+def load_external_evidence_index_authority(root: Path, path: Path, expected_sha256: str, experiment_id: str) -> tuple[dict, list[str]]:
+    """Load an externally pinned declaration of the future approved-index path."""
+    errors = []
+    root = Path(root).resolve()
+    try:
+        authority_path = Path(path).absolute()
+        _require(not authority_path.is_relative_to(root) and not authority_path.resolve().is_relative_to(root),
+                 "evidence-index authority receipt must be outside the repository")
+        for node in (authority_path, *authority_path.parents):
+            _require(not _is_indirect_path(node), "indirect evidence-index authority receipt path")
+        _require(isinstance(expected_sha256, str) and SHA256.fullmatch(expected_sha256), "evidence-index authority SHA-256 pin is invalid")
+        reader = Reader()
+        _require(reader.digest(authority_path) == expected_sha256, "evidence-index authority receipt digest mismatch")
+        authority = reader.json(authority_path)
+        _keys(authority, INDEX_AUTHORITY_KEYS, "evidence-index authority")
+        _require(authority["kind"] == "codex-evidence-index-authority", "evidence-index authority kind invalid")
+        _require(authority["experiment_id"] == experiment_id, "evidence-index authority experiment ID mismatch")
+        _real(authority["operator_id"], "evidence-index authority operator_id")
+        target = Path(_real(authority["evidence_index_path"], "evidence-index authority evidence_index_path"))
+        _require(target.is_absolute(), "evidence-index authority target must be an absolute path")
+        _require(not target.is_relative_to(root) and not target.resolve().is_relative_to(root),
+                 "declared final evidence index must be outside the repository")
+        for node in (target, *target.parents):
+            _require(not _is_indirect_path(node), "indirect declared evidence-index target path")
+        _require(target.name.lower().endswith(".json"), "declared final evidence index must be a JSON path")
+        try:
+            approved_at = datetime.fromisoformat(authority["approved_at"])
+            _require(approved_at.tzinfo is not None, "evidence-index authority approved_at must include timezone")
+        except (TypeError, ValueError) as error:
+            raise EvidenceError("evidence-index authority approved_at is invalid") from error
+        return authority, []
+    except (EvidenceError, OSError, UnicodeError, ValueError, TypeError, KeyError) as error:
+        errors.append(str(error))
+        return {}, errors
 
 
 def _check_digest(reader, path, expected, label):
@@ -662,6 +736,74 @@ def historical_replay_pair_errors(root, packages):
     return sorted(set(errors))
 
 
+def codex_replication_lineage_errors(root, lineage, run):
+    """Validate a Codex replication lineage without treating it as Claude history."""
+    errors = []
+    try:
+        _keys(lineage, REPLICATION_LINEAGE_KEYS, "Codex replication lineage")
+        matrix = json.loads((Path(root) / REPLICATION_MATRIX_PATH).read_text(encoding="utf-8-sig"))
+        pair = next((item for item in matrix.get("pairs", []) if item.get("pair_id") == lineage.get("pair_id")), None)
+        _require(pair is not None, "Codex replication lineage pair_id is not in the replication matrix")
+        _require(lineage["kind"] == "codex-replication-lineage", "Codex replication lineage kind invalid")
+        _require(lineage["source_evaluation_id"] == pair["source_evaluation_id"], "Codex replication source EVAL mismatch")
+        _require(lineage["scenario_id"] == pair["scenario_id"], "Codex replication scenario mismatch")
+        _require(lineage["scenario_shape"] == pair["scenario_shape"], "Codex replication scenario shape mismatch")
+        _require(lineage["arm"] in {"control", "skill_loaded"}, "Codex replication arm invalid")
+        arm = pair[lineage["arm"]]
+        _require(lineage["loading_mode"] == arm["loading_mode"] == run["loading_mode"], "Codex replication loading_mode mismatch")
+        _require(run["scenario_id"] == lineage["scenario_id"] and run["scenario_shape"] == lineage["scenario_shape"], "Codex replication run scenario mismatch")
+        _require(lineage["prompt_sha256"] == pair["prompt_sha256"], "Codex replication prompt digest mismatch")
+        _require(run["host"].casefold() == "codex", "Codex replication run host must be Codex")
+        _require(run["evaluation_id"] == arm["evaluation_id"], "Codex replication Evaluation ID mismatch")
+        _require(isinstance(lineage["experiment_id"], str) and lineage["experiment_id"].strip(), "Codex replication experiment_id missing")
+        _require(isinstance(lineage["boundary_id"], str) and lineage["boundary_id"].strip(), "Codex replication boundary_id missing")
+        _require(type(lineage["attempt"]) is int and lineage["attempt"] >= 1, "Codex replication attempt invalid")
+        if lineage["attempt"] == 1:
+            _require(lineage["retry_of"] is None and lineage["retry_reason"] is None, "first Codex replication attempt cannot retry")
+        else:
+            _require(isinstance(lineage["retry_of"], str) and lineage["retry_of"].strip(), "Codex replication retry_of missing")
+            _require(lineage["retry_reason"] in {"http-429", "timeout", "host-unavailable"}, "Codex replication retry reason invalid")
+        _require(BLIND_REVIEW_ID.fullmatch(lineage["blind_review_id"]) is not None, "Codex replication blind_review_id invalid")
+    except (EvidenceError, OSError, UnicodeError, ValueError, TypeError, KeyError) as error:
+        errors.append(str(error))
+    return sorted(set(errors))
+
+
+def codex_replication_pair_errors(root, packages):
+    """Check that observed replication packages form the declared matched pairs."""
+    errors = []
+    grouped = {}
+    for package in packages:
+        lineage = package.get("replication_lineage")
+        if not lineage:
+            continue
+        grouped.setdefault(lineage.get("pair_id"), {}).setdefault(lineage.get("arm"), []).append(package)
+    for pair_id, arms in grouped.items():
+        if set(arms) != {"control", "skill_loaded"}:
+            errors.append(f"Codex replication pair {pair_id} is incomplete")
+            continue
+        control = arms["control"][-1]
+        loaded = arms["skill_loaded"][-1]
+        for key in ("scenario_id", "scenario_shape", "boundary_id", "prompt_sha256"):
+            left = (control.get("replication_lineage") or {}).get(key)
+            right = (loaded.get("replication_lineage") or {}).get(key)
+            if left != right:
+                errors.append(f"Codex replication pair {pair_id} {key} mismatch")
+        for key in ("scenario_id", "scenario_shape", "host", "host_version", "model", "commit", "scenario_sha256"):
+            if control.get("run", {}).get(key) != loaded.get("run", {}).get(key):
+                errors.append(f"Codex replication pair {pair_id} run {key} mismatch")
+        for key in ("available_tools", "granted_authority", "environment_constraints"):
+            if control.get("pair_context", {}).get(key) != loaded.get("pair_context", {}).get(key):
+                errors.append(f"Codex replication pair {pair_id} {key} mismatch")
+        control_boundary = control.get("current_boundary", {})
+        loaded_boundary = loaded.get("current_boundary", {})
+        if control_boundary and loaded_boundary and control_boundary != loaded_boundary:
+            errors.append(f"Codex replication pair {pair_id} observed boundary mismatch")
+        if control.get("run", {}).get("run_id") == loaded.get("run", {}).get("run_id"):
+            errors.append(f"Codex replication pair {pair_id} arms must have distinct run IDs")
+    return sorted(set(errors))
+
+
 def historical_replay_acceptance(root, packages, *, operator_index_fixed=False):
     """Return a conservative acceptance projection for v2 replay packages."""
     matrix = _replay_matrix(root)
@@ -983,30 +1125,86 @@ def _package(package, index, reader, repository_root=None):
     _require(any(value == expected_input or value == expected_input + "\n" for value in captured_inputs),
              "captured input does not match declared scenario input")
     lineage = None
+    replication_lineage = None
     current_lineage = None
     current_boundary = None
     loading_observation = None
     replay_evidence_type = None
     replay_matrix = None
+    replication_matrix = None
     if repository_root is not None and (Path(repository_root) / REPLAY_MATRIX_PATH).is_file():
         replay_matrix = _replay_matrix(repository_root)
+    if repository_root is not None and (Path(repository_root) / REPLICATION_MATRIX_PATH).is_file():
+        replication_matrix = json.loads((Path(repository_root) / REPLICATION_MATRIX_PATH).read_text(encoding="utf-8-sig"))
     planned_replay_ids = {
         arm["evaluation_id"]
         for pair in (replay_matrix or {}).get("pairs", [])
         for arm in (pair["control"], pair["skill_loaded"])
     }
+    planned_replication_ids = {
+        arm["evaluation_id"]
+        for pair in (replication_matrix or {}).get("pairs", [])
+        for arm in (pair["control"], pair["skill_loaded"])
+    }
+    replication_package = (
+        run["evaluation_id"] in planned_replication_ids
+        or REPLICATION_LINEAGE_PATH in run["evidence"]
+    )
     replay_package = (
         run["evaluation_id"] in planned_replay_ids
         or review_version == 3
         or LINEAGE_PATH in run["evidence"]
     )
     current_package = (
-        review_version == 4
+        (review_version == 4 and not replication_package)
         or CURRENT_LINEAGE_PATH in run["evidence"]
         or CURRENT_BOUNDARY_PATH in run["evidence"]
     )
-    _require(not (replay_package and current_package), "evaluation package cannot mix historical replay and current acceptance lineage")
-    if replay_package:
+    _require(sum((replay_package, replication_package, current_package)) <= 1, "evaluation package cannot mix replay, Codex replication, and current acceptance lineage")
+    if replication_package:
+        _require(replication_matrix is not None, "Codex replication matrix is required for this Evaluation ID")
+        _require(run_version == 2, "Codex replication package requires version-2 runtime identity evidence")
+        _require(REPLICATION_LINEAGE_PATH in run["evidence"], "Codex replication package requires evidence/codex-replication-lineage.json")
+        _require(CURRENT_BOUNDARY_PATH in run["evidence"], "Codex replication package requires evidence/current-validation-boundary.json")
+        lineage_path = _inside(package, REPLICATION_LINEAGE_PATH)
+        boundary_path = _inside(package, CURRENT_BOUNDARY_PATH)
+        replication_lineage = reader.json(lineage_path)
+        current_boundary = reader.json(boundary_path)
+        _check_digest(reader, lineage_path, run["evidence"][REPLICATION_LINEAGE_PATH], "Codex replication lineage")
+        _check_digest(reader, boundary_path, run["evidence"][CURRENT_BOUNDARY_PATH], "Codex replication current boundary")
+        lineage_events = [event for event in events.values() if event["kind"] == "observation" and event["artifact"] == REPLICATION_LINEAGE_PATH]
+        _require(len(lineage_events) == 1 and lineage_events[0].get("payload") == replication_lineage, "Codex replication lineage must have one matching public observation event")
+        boundary_events = [event for event in events.values() if event["kind"] == "observation" and event["artifact"] == CURRENT_BOUNDARY_PATH]
+        _require(len(boundary_events) == 1 and boundary_events[0].get("payload") == current_boundary, "Codex replication boundary must have one matching public observation event")
+        lineage_errors = codex_replication_lineage_errors(repository_root, replication_lineage, run)
+        _require(not lineage_errors, "; ".join(lineage_errors))
+        boundary_errors = current_acceptance_boundary_errors(current_boundary, run, repository_root=repository_root)
+        _require(not boundary_errors, "; ".join(boundary_errors))
+        _require(replication_lineage["boundary_id"] == current_boundary["boundary_id"], "Codex replication lineage boundary_id does not match its observed boundary")
+        pair_spec = next(pair for pair in replication_matrix["pairs"] if pair["pair_id"] == replication_lineage["pair_id"])
+        replay_evidence_type = pair_spec["evidence_type"]
+        _require(review_version == 4, "Codex replication package requires four-axis review schema version 4")
+        review_errors = formal_review_errors(review, run)
+        _require(not review_errors, "; ".join(review_errors))
+        _require(CURRENT_REVIEW_PACKET_PATH in run["evidence"], "Codex replication package requires a preserved blind review packet")
+        packet_path = _inside(package, CURRENT_REVIEW_PACKET_PATH)
+        _require(reader.digest(packet_path) == review["review_packet_sha256"] == run["evidence"][CURRENT_REVIEW_PACKET_PATH], "Codex replication blind packet digest mismatch")
+        expected_variant = "control" if replication_lineage["arm"] == "control" else "LoopPilot loaded"
+        _require(fields["prompt.md"].get("Variant") == expected_variant, "Codex replication arm does not match prompt Variant")
+        if replay_evidence_type == "loading-probe":
+            _require(LOADING_OBSERVATION_PATH in run["evidence"], "Codex loading probe requires evidence/loading-observation.json")
+            observation_path = _inside(package, LOADING_OBSERVATION_PATH)
+            loading_observation = reader.json(observation_path)
+            _check_digest(reader, observation_path, run["evidence"][LOADING_OBSERVATION_PATH], "loading observation")
+            observation_keys = {"schema_version", "kind", "run_id", "evaluation_id", "scenario_id", "loading_mode", "result", "observed_at", "basis"}
+            _keys(loading_observation, observation_keys, "loading observation")
+            _require(loading_observation["kind"] == "skill-loading-observation", "loading observation kind invalid")
+            for key in ("run_id", "evaluation_id", "scenario_id", "loading_mode"):
+                _require(loading_observation[key] == run[key], f"loading observation {key} mismatch")
+            _require(loading_observation["result"] in {"loaded", "not-loaded", "not-observed"}, "loading observation result invalid")
+            observation_events = [event for event in events.values() if event["kind"] == "observation" and event["artifact"] == LOADING_OBSERVATION_PATH]
+            _require(len(observation_events) == 1 and observation_events[0].get("payload") == loading_observation, "loading observation requires one matching public trace event")
+    elif replay_package:
         _require(replay_matrix is not None, "historical replay matrix is required for this Evaluation ID")
         _require(LINEAGE_PATH in run["evidence"], "historical replay package requires evidence/historical-lineage.json")
         lineage_path = _inside(package, LINEAGE_PATH)
@@ -1113,7 +1311,7 @@ def _package(package, index, reader, repository_root=None):
         _require(score_fields.get(label) == run[key], f"score {label} mismatch")
     _require(score_fields.get("Reviewer decision") == review["decision"], "Reviewer decision does not match approved review")
     _require(score_fields.get("Reviewer") == review["reviewer"], "Reviewer identity does not match approved review")
-    if replay_package or current_package:
+    if replay_package or replication_package or current_package:
         for axis in REPLAY_REVIEW_AXES:
             _event_links(review["review_axes"][axis]["evidence"], package, run, events, reader)
     for name in ("trace.md", "score.md"):
@@ -1158,10 +1356,10 @@ def _package(package, index, reader, repository_root=None):
         if value == "not-evaluated":
             _require(
                 review["decision"] == "not-reviewed"
-                or ((replay_package or current_package) and run["status"] == "failed" and review["decision"] in {"accept", "accept-with-residuals", "reject"}),
+                or ((replay_package or replication_package or current_package) and run["status"] == "failed" and review["decision"] in {"accept", "accept-with-residuals", "reject"}),
                 "not-evaluated rows require a not-reviewed package or an independently reviewed failed replay/current run",
             )
-            _require(replay_evidence_type == "loading-probe" or review["decision"] == "not-reviewed" or ((replay_package or current_package) and run["status"] == "failed"), "completed behavioral runs cannot use not-evaluated rubric scores")
+            _require(replay_evidence_type == "loading-probe" or review["decision"] == "not-reviewed" or ((replay_package or replication_package or current_package) and run["status"] == "failed"), "completed behavioral runs cannot use not-evaluated rubric scores")
             scores[name] = None
             not_evaluated = True
         elif value == "not-applicable":
@@ -1199,7 +1397,7 @@ def _package(package, index, reader, repository_root=None):
         if path.is_file():
             _require(path.relative_to(package).as_posix() in allowed_files, "unregistered package evidence file")
     incident_categories = set()
-    if replay_package or current_package:
+    if replay_package or replication_package or current_package:
         incident_sources = {run["trace_path"], *run["evidence"]}
         for relative in incident_sources:
             try:
@@ -1228,8 +1426,8 @@ def _package(package, index, reader, repository_root=None):
         and review["decision"] in {"accept", "accept-with-residuals"}
     )
     return {"path": package, "run": run, "review": review, "scores": scores, "events": events,
-            "lineage": lineage, "current_lineage": current_lineage, "current_boundary": current_boundary,
-            "lineage_kind": "historical" if replay_package else "current" if current_package else None,
+            "lineage": lineage, "replication_lineage": replication_lineage, "current_lineage": current_lineage, "current_boundary": current_boundary,
+            "lineage_kind": "historical" if replay_package else "replication" if replication_package else "current" if current_package else None,
             "evidence_type": replay_evidence_type,
             "loading_observation": loading_observation["result"] if loading_observation else None,
             "loading_probe_eligible": loading_probe_eligible,
@@ -1237,7 +1435,7 @@ def _package(package, index, reader, repository_root=None):
             "incident_categories": sorted(incident_categories),
             "pair_context": pair_context, "code_artifacts": code_artifacts,
             "disclosures": disclosures, "markdown_view": markdown_view,
-            "eligible": run["status"] == "completed" and numeric and review["decision"] in {"accept", "accept-with-residuals"} and min(scores[name] for name in CRITICAL) >= 2 and score_fields["Critical failures"].casefold().rstrip('.') == "none" and (not (replay_package or current_package) or all(value["decision"] == "pass" or value["applicability"] == "not-applicable" for value in review["review_axes"].values()))}
+            "eligible": run["status"] == "completed" and numeric and review["decision"] in {"accept", "accept-with-residuals"} and min(scores[name] for name in CRITICAL) >= 2 and score_fields["Critical failures"].casefold().rstrip('.') == "none" and (not (replay_package or replication_package or current_package) or all(value["decision"] == "pass" or value["applicability"] == "not-applicable" for value in review["review_axes"].values()))}
 
 
 def _record_links(root, path, text, packages, index, reader):
@@ -1370,7 +1568,7 @@ def validate_evaluation_evidence(root: Path, evidence_index: Path | None = None,
         return errors
     packages = set()
     records = []
-    known_templates = {"evaluations/templates/" + name for name in (*DOCS, "host-acceptance-record.md", "historical-lineage.json", "replay-review-v3.json", "blind-review-v4.json", "current-acceptance-lineage.json", "current-validation-boundary.json", "loading-observation.json", "behavior-reviewer-readiness.json")}
+    known_templates = {"evaluations/templates/" + name for name in (*DOCS, "host-acceptance-record.md", "historical-lineage.json", "codex-replication-lineage.json", "evidence-index-authority.json", "replay-review-v3.json", "blind-review-v4.json", "current-acceptance-lineage.json", "current-validation-boundary.json", "loading-observation.json", "behavior-reviewer-readiness.json")}
     evaluations = root / "evaluations"
     for path in sorted(evaluations.rglob("*")):
         relative = path.relative_to(root).as_posix()

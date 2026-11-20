@@ -70,6 +70,15 @@ REQUIRED_FILES = (
     "docs/evaluations/historical-evaluation-audit.md",
     "docs/evaluations/historical-audit-report.json",
     "docs/evaluations/current-acceptance-matrix.json",
+    "docs/evaluations/codex-replication-matrix.json",
+    "docs/evaluations/codex-replication-runbook.md",
+    "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-001-S43.txt",
+    "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-002-S68.txt",
+    "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-003-S69.txt",
+    "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-004-ARM-A.txt",
+    "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-004-ARM-B.txt",
+    "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-005-FIXTURE-A.txt",
+    "docs/evaluations/codex-replication-prompts/COD-RPL-EVAL-005-IMPLICIT.txt",
     "docs/evaluations/two-stage-behavior-validation-runbook.md",
     "scripts/instruction_consistency_validation.py",
     "tests/test_instruction_consistency.py",
@@ -121,6 +130,8 @@ REQUIRED_FILES = (
     "evaluations/templates/trace.md",
     "evaluations/templates/score.md",
     "evaluations/templates/historical-lineage.json",
+    "evaluations/templates/codex-replication-lineage.json",
+    "evaluations/templates/evidence-index-authority.json",
     "evaluations/templates/replay-review-v3.json",
     "evaluations/templates/blind-review-v4.json",
     "evaluations/templates/current-acceptance-lineage.json",
@@ -144,6 +155,7 @@ REQUIRED_FILES = (
     "tests/test_historical_evaluation_audit.py",
     "tests/test_historical_replay_validation.py",
     "tests/test_behavior_validation.py",
+    "tests/test_codex_replication_validation.py",
 )
 SKILL_WORD_RANGE = range(1500, 2501)
 FRONTMATTER_PATTERN = re.compile(r"\A---\r?\n(.*?)\r?\n---\r?\n", re.DOTALL)
@@ -286,6 +298,12 @@ REVIEW_REQUIRED_HEADINGS = (
     "## Verification Gaps",
     "## Overall Decision Rationale",
     "## Authority Note",
+)
+CODEX_REPLICATION_REQUIRED_HEADINGS = (
+    "## Claim boundary and evidence sections",
+    "## Gates before the first run",
+    "## Run order, attempts, and packages",
+    "## Blind Review and final evidence index",
 )
 SHARED_STATE_HEADINGS = {
     ".looppilot/README.md": (
@@ -1220,6 +1238,11 @@ def validate_repository(
             errors.append(f"missing required file: {relative}")
     if errors:
         return errors
+    replication_runbook = root / "docs/evaluations/codex-replication-runbook.md"
+    replication_lines = set(replication_runbook.read_text(encoding="utf-8").splitlines())
+    for heading in CODEX_REPLICATION_REQUIRED_HEADINGS:
+        if heading not in replication_lines:
+            errors.append(f"Codex replication runbook missing required heading {heading!r}")
 
     errors.extend(validate_instruction_consistency(root))
     validate_shared_state(root, errors)
