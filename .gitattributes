@@ -4,6 +4,5 @@
 # Store the pinned historical raw bytes directly; do not platform-normalize them.
 evaluations/codex/README.md -text whitespace=cr-at-eol
 
-# Raw hashes bind these inputs to the committed LF bytes.
+# Prompt hashes bind these inputs to the committed LF bytes.
 docs/evaluations/codex-replication-prompts/*.txt text eol=lf
-docs/release/rc-candidate-reference.md text eol=lf
