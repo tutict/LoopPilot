@@ -26,8 +26,39 @@ def git(root, *args, date="2030-01-01T08:00:00+00:00"):
     return result.stdout.strip()
 
 
+def _write_preflight_designation(root):
+    fields = {
+        "RC version": "v1.0.0-rc1",
+        "Successor ID": SUCCESSOR,
+        "Successor policy": POLICY,
+        "Policy version": "option-b-successor-v1",
+        "Reference designation ID": "RC1-REF-CODEX-20261024",
+        "Reference Host": "Codex",
+        "Other eligible Host": "Claude Code",
+        "Other Host role": "Candidate Host; unverified disclosure retained",
+        "Designation state": "preflight-designation",
+        "Designation date": "2026-10-24",
+        "Finalized at": "unknown",
+        "Formal acceptance arms at designation": "none",
+        "Reference host version": "unknown",
+        "Model identity": "unknown",
+        "Provider identity": "unknown",
+        "Endpoint identity": "unknown",
+        "Configured model": "unknown",
+        "Configured provider": "unknown",
+        "Configured endpoint": "unknown",
+        "Skill loading mode": "unknown",
+        "RC baseline commit": "pending-before-formal-run",
+        "RC baseline tree": "pending-before-formal-run",
+    }
+    text = "# RC Candidate Reference Designation — synthetic fixture\n\n"
+    text += "".join(f"- {key}: {value}\n" for key, value in fields.items())
+    (root / REFERENCE).write_text(text, encoding="utf-8", newline="\n")
+
+
 def initialize(root, source, *, loading_mode="explicit"):
     shutil.copytree(source, root, ignore=shutil.ignore_patterns(".git", ".tmp", "verification-temp", ".four-axis-test-tmp", "__pycache__"))
+    _write_preflight_designation(root)
     git(root, "init", "-b", "fixture")
     git(root, "add", ".")
     git(root, "commit", "-m", "synthetic synchronized successor boundary")

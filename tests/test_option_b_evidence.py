@@ -52,6 +52,17 @@ class OptionBPublicEvidenceTests(unittest.TestCase):
         save_json(path, run)
         reseal_for_schema_test(package, self.authority)
 
+    def test_synthetic_git_history_starts_with_preflight_designation(self):
+        committed_designation = subprocess.run(
+            ["git", "show", f"{self.boundary['effective']}:{REFERENCE}"],
+            cwd=self.root,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            check=True,
+        ).stdout
+        self.assertIn("- Designation state: preflight-designation\n", committed_designation)
+
     def test_finalized_designation_without_arms_is_structurally_valid(self):
         status, output = self.check()
         self.assertEqual(0, status, output)
