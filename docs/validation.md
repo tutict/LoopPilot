@@ -16,6 +16,14 @@ git diff --check
 python <skill-creator>/scripts/quick_validate.py .
 ```
 
+The intentional-stop Checkpoint regressions invoke the public validator with
+known contradictory policy clauses. They preserve the full existing Full Loop
+template checks and reject optional stop persistence, Handoff substitution,
+fictional Lightweight state, recorder-role expansion, future authority, instruction
+override, and cancelled-work restoration. These are bounded static guards;
+actual Checkpoint production and fresh-session consumption require observed
+host behavior scenarios, not a prose or static-check PASS.
+
 `scripts/validate.py` uses PyYAML rather than a handwritten YAML parser. It checks
 required files, Skill frontmatter, YAML mappings and duplicate keys, Markdown code
 fences, final newlines, trailing whitespace, relative links, the declared Skill word

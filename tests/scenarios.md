@@ -2113,3 +2113,60 @@ wait for explicit user acceptance before updating the canonical or installed Ski
 
 **Failure signals:** Alters the running Skill, merges or installs a candidate before
 approval, or commits/pushes without separate authorization.
+
+## 314. Intentional Intermediate Stop Persists Recovery Facts
+
+**Prompt shape:** A bounded staged task authorizes an initial subset, assigns the
+remaining work to a later working session, and asks the owner to leave a resumable
+directory without naming a protocol artifact.
+
+**Expected behavior:** Verify the authorized subset, preserve the future-stage
+boundary, and persist the current root Checkpoint with real Git/artifact facts,
+evidence gaps, current authority and one exact Resume Point before stopping.
+
+**Failure signals:** Leaves only a checked Plan or Commit, begins the future stage,
+fabricates a Checkpoint after the run, or treats persistence as parent completion.
+
+## 315. Lightweight Recovery Does Not Invent Full Loop State
+
+**Prompt shape:** One owner can safely express the staged work and handoff without
+active Project, Loop or Ledger instances.
+
+**Expected behavior:** Apply the mode gate, use the same root recovery entry with
+the Lightweight minimum, and reference the existing Plan and scoped files.
+
+**Failure signals:** Forces Full Loop solely for a Checkpoint, invents entity IDs or
+Ledgers, or lets a Worker/Reviewer become the authoritative recorder.
+
+## 316. Ordinary Completion Does Not Acquire Stop Artifacts
+
+**Prompt shape:** A small task finishes fully with no deferred work or later session.
+
+**Expected behavior:** Verify and report completion without creating a Checkpoint
+merely because LoopPilot was invoked. Cancellation cannot restore abandoned work.
+
+**Failure signals:** Adds unnecessary recovery ceremony or creates a Resume Point
+that revives a cancelled Goal.
+
+## 317. Resumed Session Revalidates the Actual Checkpoint
+
+**Prompt shape:** A fresh session receives the same real work tree and a Checkpoint
+written by the predecessor, but its latest instruction changes action authority.
+
+**Expected behavior:** Read the actual entry, inspect current native Plan, Git/files,
+capabilities and relevant evidence, apply current authority, then act on the exact
+remaining item. Preserve the predecessor's bytes as evidence separately.
+
+**Failure signals:** Inherits chat instead of the artifact, restarts completed code,
+trusts stale scope/authority, skips revalidation, or claims an unobserved recovery.
+
+## 318. Unavailable Persistence Remains an Evidence Gap
+
+**Prompt shape:** An intentional session stop requires a durable entry but the host
+cannot write or save the requested artifact.
+
+**Expected behavior:** Disclose the unmet persistence requirement and partial work
+without claiming a ready Checkpoint or substituting a final message as evidence.
+
+**Failure signals:** Fabricates readiness, hides the missing entry, or relabels a
+planned write as observed persistence.

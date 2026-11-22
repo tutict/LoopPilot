@@ -1,24 +1,13 @@
 ---
 name: loop-pilot
-description: Carry a multi-step task through an execute-verify-adapt loop until the requested outcome is checked or a real blocker stops it. Use for checked multi-step non-coding work, implementation, diagnosis, or recovery that needs tools and evidence, or when the user explicitly invokes /loop-pilot or $loop-pilot. Do not use for factual answers, one-step edits, brainstorming, or advice-only requests.
+description: Use when work has multiple dependent steps requiring verification (including implementation and multi-step non-coding work), when a failed attempt needs diagnosis or recovery, or when the user or host explicitly invokes /loop-pilot or $loop-pilot. Do not implicitly activate for simple factual answers, one-step wording or formatting edits, casual conversation, creative exploration with no request to execute, advice-only requests, or requests that prohibit execution.
 ---
 
 # LoopPilot
 
 Treat MUST as required, SHOULD as recommended, and MAY as permitted.
 
-## 1. Purpose
-
-Use LoopPilot as a pre-execution strategy for complex work. Carry the user's actual
-Goal through planning, action, verification, adaptation, and an honest stop. Reuse
-the host's existing capabilities instead of acting as a separate agent, workflow
-engine, retry script, runtime, or replacement planner.
-
-Apply bounded initiative within the user's scope. Persistence toward a Goal does not
-grant additional authority, excuse weak verification, or require work after no
-useful safe action remains.
-
-## 2. When to Activate
+## 1. When to Activate
 
 Activate LoopPilot when the work has more than one dependent step and its result
 must be checked, when a failed attempt needs diagnosis or recovery, or when the
@@ -40,6 +29,20 @@ LoopPilot MUST NOT implicitly activate for:
 When LoopPilot is explicitly invoked for a small task, follow its safety and honesty
 rules but keep planning, state, and progress communication proportional. LoopPilot
 MUST NOT inflate a simple task into a multi-stage process merely to demonstrate the loop.
+
+## 2. Purpose
+
+Use LoopPilot as a pre-execution strategy for complex work. Carry the user's actual
+Goal through planning, action, verification, adaptation, and an honest stop. Stop
+at verified completion, a real blocker, a budget boundary, a user-requested pause
+or cancellation, or when no useful safe action remains within scope and authority.
+Use section 7 to report the outcome, partial work, and verification gaps.
+Reuse the host's existing capabilities instead of acting as a separate agent,
+workflow engine, retry script, runtime, or replacement planner.
+
+Apply bounded initiative within the user's scope. Persistence toward a Goal does not
+grant additional authority, excuse weak verification, or require work after no
+useful safe action remains.
 
 ## 3. Initialize
 
@@ -212,10 +215,11 @@ Every stop report MUST contain:
 - **stop reason**; and
 - **best next action**, or state that none is required.
 
-Stop promptly after a meaningful stop condition. Do not continue optional polishing
-or repeated checking solely to keep the loop active. Read
-[safety and stopping](docs/safety-and-stopping.md) when classification or authority
-is unclear.
+For an intentional later-session stop, the Supervisor/Integrator MUST persist root
+`CHECKPOINT.md` using the [mode-specific contract](docs/full-loop-checkpoint-and-context-recovery.md#intentional-session-stops).
+
+Stop at the selected outcome; read [safety and stopping](docs/safety-and-stopping.md)
+when classification or authority is unclear.
 
 ## 8. Safety and Authority
 
@@ -267,10 +271,10 @@ completion changes; simple one-step tasks SHOULD NOT create shared-state overhea
 
 Shared state MUST NOT override newer user instructions, current authorization, an
 accessible host-native Plan, or actual observed state. Before resuming, the agent
-MUST re-check the user instruction, native state, files, tools, tests, and material
-evidence, then replace stale summaries. Unfinished complex work SHOULD leave a
-concise handoff containing only the objective, completed work, observed evidence,
-blockers, risks, and next highest-value action.
+MUST read root `CHECKPOINT.md` when present, re-check current instructions, native
+state, files, tools, tests, and evidence, then replace stale summaries. Unfinished
+complex work SHOULD leave a concise handoff of objective, completed work, evidence,
+blockers, risks, and next action.
 
 When neither host persistence nor a durable artifact is available, the agent MAY
 keep the same minimum summary in current context. A prompt-only host MUST NOT claim
@@ -291,7 +295,7 @@ Do not read the others for a routine edit.
 | Which file owns a lifecycle fact | [mode and state sources](docs/protocol-modes-and-state-sources.md) |
 | Delegation, review, or integration | [coordination protocol](docs/multi-agent-coordination.md) |
 | External facts that can change the work | [Research Brief](.looppilot/RESEARCH-TEMPLATE.md) |
-| Context pressure, a Checkpoint, or resume | [recovery protocol](docs/full-loop-checkpoint-and-context-recovery.md) |
+| Context pressure, an intentional session stop, a Checkpoint, or resume | [recovery protocol](docs/full-loop-checkpoint-and-context-recovery.md) |
 | Project completion or release readiness | [Project Closure protocol](docs/project-closure-and-final-delivery.md) |
 | Cross-task Skill evolution | [Skill evolution process](docs/skill-evolution.md) |
 

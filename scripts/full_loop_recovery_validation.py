@@ -335,7 +335,7 @@ def validate_phase_four_protocol(root: Path, errors: list[str]) -> None:
     text = (root / PHASE_FOUR_PROTOCOL).read_text(encoding="utf-8")
     location = PHASE_FOUR_PROTOCOL
     _require_lines(text, (
-        "## Recovery Flow", "## Checkpoint Contract", "## Recovery Boundary",
+        "## Recovery Flow", "## Checkpoint Contract", "## Intentional Session Stops", "## Recovery Boundary",
         "## Context Pressure and Budget State", "## Minimal Safe Unit and Budget Stop",
         "## Context Compaction Manifest", "## Resume Validation",
         "## Fact Priority and Exact Resume Point", "## Artifact Boundaries",
@@ -365,6 +365,13 @@ def validate_phase_four_protocol(root: Path, errors: list[str]) -> None:
         (r"Budget Stop (?:may|can) mark partial[^\n]{0,30}completed", "Budget Stop must not mark partial work completed"),
         (r"Budget Stop (?:may|can) close (?:a )?(?:blocker )?Finding", "Budget Stop must not close Findings"),
         (r"Budget Stop (?:may|can) (?:grant|expand) push", "Budget Stop must not expand push authority"),
+        (r"Intentional session stops? (?:may|can) omit (?:the )?Checkpoint", "intentional session stop requires a Checkpoint"),
+        (r"Handoff (?:may|can) replace (?:the )?Checkpoint", "Handoff cannot replace the Checkpoint"),
+        (r"Lightweight Checkpoint (?:must|should) require PROJECT\.md and LOOP-MAP\.md", "Lightweight must not invent Full Loop state"),
+        (r"Checkpoint (?:may|can) (?:grant|expand|authorize) (?:commit|push|release|deploy|execution)", "Checkpoint cannot grant action authority"),
+        (r"(?:Workers?|Reviewers?) (?:may|can|must|should) (?:write|create|own) (?:the )?(?:authoritative )?Checkpoint", "Checkpoint recorder must retain Integrator authority"),
+        (r"Checkpoint (?:may|can) override (?:the )?latest user instruction", "Checkpoint must defer to current instructions"),
+        (r"Checkpoint (?:must|should) resume cancelled work", "Checkpoint must not restore cancelled work"),
     ):
         if re.search(pattern, text, re.I):
             errors.append(f"{location}: {message}")

@@ -25,6 +25,12 @@ review, validation, and evidence depth. It continues to use:
 - .looppilot/CHECKLIST.md when a complex parent goal needs a stable index; and
 - .looppilot/tasks/ for Task Contracts and review results.
 
+For an intentional intermediate stop that leaves work for a later session, the
+existing owner acting as Supervisor/Integrator MUST persist root `CHECKPOINT.md`
+using the [Lightweight minimum](full-loop-checkpoint-and-context-recovery.md#lightweight-minimum).
+It references the accessible native Plan and actual scoped files. It does not add
+Full Loop entities or change mode, status ownership, review, or future authority.
+
 A simple task MUST NOT be escalated merely because Full Loop artifacts exist in the
 specification. Protocol overhead MUST remain lower than its engineering value.
 The provisional Lightweight target is four to seven artifacts. File count is
@@ -43,10 +49,10 @@ they do not independently select Full Loop.
 Its target structure is:
 
 ```text
+CHECKPOINT.md
 .looppilot/
 |-- PROJECT.md
 |-- LOOP-MAP.md
-|-- CHECKPOINT.md
 |-- decisions/
 |   `-- ADR-001.md
 `-- loops/

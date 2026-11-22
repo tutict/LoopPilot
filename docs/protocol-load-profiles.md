@@ -45,6 +45,11 @@ Load Core plus a short Change Contract or State entry, a compact Checklist when
 needed, direct verification evidence, and a bounded Review or Results/Handoff.
 Load Resume Validation only when recovery actually occurred.
 
+At an intentional intermediate stop with work for a later session, add the root
+Checkpoint and load only its [Lightweight minimum](full-loop-checkpoint-and-context-recovery.md#lightweight-minimum).
+On actual resume, read and revalidate that entry before changing the work. This
+conditional persistence duty does not load Full Loop history or select Full Loop.
+
 The default target is four to seven Governance Artifacts. Product and Evaluation /
 Research Artifacts are reported separately and do not consume that target. This is
 a Provisional Heuristic, not a hard limit or state. Explain and reassess work above

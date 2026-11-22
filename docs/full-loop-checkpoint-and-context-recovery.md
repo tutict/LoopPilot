@@ -33,6 +33,49 @@ Checkpoint Status is one of `inactive`, `draft`, `ready`, `budget-stopped`,
 Checkpoint may claim the current recovery boundary. A replacement records both
 `Replaces` and `Superseded by`; old failure evidence remains available.
 
+## Intentional Session Stops
+
+When the latest request deliberately ends the current session at an intermediate
+boundary and assigns still-in-scope work to a later session, the Supervisor decides
+the stop and the Integrator MUST persist `CHECKPOINT.md` in the repository root
+before stopping. One implementation owner may perform those existing duties.
+Scoped Workers and Reviewers MUST NOT become the authoritative recorder. A local
+Commit, checked Plan, Handoff, or final message does not replace that entry.
+
+This is a persistence obligation, not a Full Loop selector. Apply the existing
+mode assessment. Ordinary completed work does not need a Checkpoint merely because
+the Skill was invoked. Cancellation MUST NOT create a Resume Point that restores
+cancelled Scope. If the host cannot persist the required entry, disclose the gap
+and stop with an unmet recovery condition; do not claim a ready Checkpoint.
+
+### Lightweight Minimum
+
+Use the same root entry, a `CHECKPOINT-NNN` identity (for example `CHECKPOINT-001`),
+and the existing Checkpoint status vocabulary. Record only:
+
+- Checkpoint ID, Checkpoint Status, current mode, and the actual recorder;
+- repository or artifact boundary, observed branch/HEAD when available, and
+  dirty or uncommitted files; absent Git identity stays explicitly unavailable;
+- the accessible native Goal/Plan or actual scoped file that owns the work;
+- the verified completed subset and still-pending work, with evidence references;
+- blockers, missing or skipped required checks, and uncertainty;
+- current action-specific authority and its instruction source, explicitly
+  requiring the next session to re-check its latest user instruction; and
+- exactly one primary Resume Point: stable Plan item or scoped file action,
+  required inputs/capability, expected observable result, and stop condition.
+
+The existing one-owner Supervisor/Integrator records these facts; a Task-scoped
+Worker or Reviewer cannot promote itself into that role. Do not copy the Full Loop
+template or invent Project IDs, Loop IDs, Ledgers, Reviews, or Closure facts for
+Lightweight work. Refer to the existing Plan instead of copying its execution
+history. A ready entry means its recovery facts and exact revalidation/action
+boundary are present, not that future execution is authorized or accepted.
+
+Full Loop continues to require its actual authoritative sources and full recovery
+contract. The Lightweight minimum cannot waive those requirements for active
+Full Loop work. Keep evidence public-safe; no secrets, private reasoning, or full
+conversation belongs in either profile.
+
 ## Recovery Boundary
 
 The Recovery Boundary records repository, branch, verified HEAD, working-tree and
@@ -114,9 +157,13 @@ A resumed Supervisor validates before acting:
 
 1. read the latest user instruction and safety constraints;
 2. inspect the actual repository, branch, HEAD, working tree, and files;
-3. read `PROJECT.md`, `LOOP-MAP.md`, the current Loop Contract,
-   `TASK-LEDGER.md`, `FINDING-LEDGER.md`, and `CHECKPOINT.md`;
-4. apply the Manifest's Must Load selection;
+3. read root `CHECKPOINT.md`; for Full Loop, read `PROJECT.md`, `LOOP-MAP.md`,
+   the current Loop Contract, `TASK-LEDGER.md`, and `FINDING-LEDGER.md`; for
+   Lightweight, read the accessible native Goal/Plan and actual scoped files
+   referenced by the entry, without fabricating Full Loop sources;
+4. for Full Loop, apply its Manifest's Must Load selection; for Lightweight,
+   load the entry's actual Plan/file references and current instructions without
+   requiring a Full Loop Manifest;
 5. check referenced artifacts, required Skills, tools, network, Reviewer access,
    and current action-specific authority;
 6. reproduce required evidence and expose conflicts or invalidated claims;
@@ -182,8 +229,8 @@ the Loop status authority.
 Handoff is a concise transfer summary and may reference the Checkpoint; it cannot
 replace it or transfer authority. Checklist is a projection and may show a recovery
 hint; it cannot own Recovery status or override the exact Resume Point. Lightweight
-work may continue to use a compact Checklist or Handoff without Full Loop recovery
-artifacts.
+work may use a compact Checklist or Handoff without Full Loop history, but an
+intentional session stop still requires the same root Checkpoint's minimum entry.
 
 ## Staleness, Invalidity, and Supersession
 
@@ -193,9 +240,11 @@ files, evidence, Loop state, or a completed Resume Point. Resume Validation corr
 or replaces it.
 
 A Checkpoint is `invalid` when it fabricates evidence or a Commit, claims absent
-authority, conflicts with another current recovery authority, cannot identify its
-Project or Loop, depends entirely on unsaved context, overrides the latest user
-instruction or safety, or has irreconcilable Ledgers. It MUST NOT be used.
+authority, conflicts with another current recovery authority, cannot identify the
+actual sources required by its mode, depends entirely on unsaved context, overrides
+the latest user instruction or safety, or has irreconcilable Ledgers. Full Loop
+must identify its actual Project and Loop; Lightweight must identify its actual
+native Plan or scoped files rather than inventing those entities. It MUST NOT be used.
 
 A `superseded` Checkpoint was valid history but a newer Checkpoint now owns the
 current recovery boundary. Both directions of the replacement relationship remain
