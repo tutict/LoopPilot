@@ -7,6 +7,7 @@ import subprocess
 
 from evaluation_evidence_fixture import approve_record, digest, make_package, reseal_for_schema_test, save_json
 from test_cross_host_acceptance import record
+from test_option_b_successor import DECISION as RC1_DECISION
 
 POLICY = "docs/release/option-b-reference-successor.md"
 REFERENCE = "docs/release/rc-candidate-reference.md"
@@ -59,6 +60,7 @@ def _write_preflight_designation(root):
 def initialize(root, source, *, loading_mode="explicit"):
     shutil.copytree(source, root, ignore=shutil.ignore_patterns(".git", ".tmp", "verification-temp", ".four-axis-test-tmp", "__pycache__"))
     _write_preflight_designation(root)
+    (root / "docs/release/rc-candidate-decision.md").write_text(RC1_DECISION, encoding="utf-8", newline="\n")
     git(root, "init", "-b", "fixture")
     git(root, "add", ".")
     git(root, "commit", "-m", "synthetic synchronized successor boundary")
