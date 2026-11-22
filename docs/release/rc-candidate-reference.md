@@ -1,74 +1,62 @@
-# RC Candidate Reference Designation — v1.0.0-rc2
+# RC Candidate Reference Designation — v1.0.0-rc3
 
-- RC version: v1.0.0-rc2
+- RC version: v1.0.0-rc3
 - Successor ID: OPTION-B-REFERENCE-2026-10-24
 - Successor policy: docs/release/option-b-reference-successor.md
 - Policy version: option-b-successor-v1
-- Reference designation ID: RC2-REF-CODEX-20261120
+- Reference designation ID: RC3-REF-CODEX-20261122
 - Reference Host: Codex
 - Other eligible Host: Claude Code
 - Other Host role: Candidate Host, unverified disclosure retained
-- Designation state: finalized-before-acceptance
-- Designation date: 2026-11-20
-- Finalized at: 2026-11-21T18:26:11+08:00
+- Designation state: preflight-designation
+- Designation date: 2026-11-22
+- Finalized at: unknown
 - Formal acceptance arms at designation: none
-- Reference host version: 0.168.0
-- Model identity: gpt-6.1-sol
-- Provider identity: api.hanbbq.top
-- Endpoint identity: https://api.hanbbq.top/v1
+- Reference host version: unknown
+- Model identity: unknown
+- Provider identity: unknown
+- Endpoint identity: unknown
 - Configured model: gpt-6.1-sol
 - Configured provider: custom
 - Configured endpoint: https://api.hanbbq.top/v1
-- Skill loading mode: explicit, implicit
-- RC baseline commit: 26f42eb9bfa368805b1fb58fd066ad651e5e7216
-- RC baseline tree: 0daf2c73da1913b207bb57f03196ad39a6cb317f
+- Skill loading mode: unknown
+- RC baseline commit: pending-before-formal-run
+- RC baseline tree: pending-before-formal-run
 
-On November 20, 2026, the operator selected `26f42eb9bfa368805b1fb58fd066ad651e5e7216`
-(tree `0daf2c73da1913b207bb57f03196ad39a6cb317f`) as the RC2 product baseline. The designation commit records
-this finalized combination after the preparation observations and before any
-formal arm, under the [Option B successor](option-b-reference-successor.md).
-RC1 remains separately designated and unchanged.
+Proposed product commit: 40f85debf7b59072cdd3b9a4fb446540299c0f36; proposed product tree: 799342167f450379908937b703a3a9fbac1f6f38.
 
-## RC2 identity decision and disclosure
+The latest user accepted the reviewed Checkpoint candidate and authorized its
+application, synchronized installation, necessary local commits, and a new RC
+four-arm rerun. This preflight choice selects the existing Codex execution surface
+for RC3 and is recorded before preparation and any formal arm. It is not a final
+designation, Host Acceptance, release readiness or publication authority.
 
-On November 21, 2026, the responsible party accepted the relay-asserted identity
-layer for RC2 with continuing disclosure. This decision is specific to RC2 and
-does not establish upstream identity. The operator-side runtime probe observed
-GET `/v1/models` and POST `/v1/responses`, both HTTP 200. The selected runtime
-was configured as provider `custom`, model `gpt-6.1-sol`, and endpoint
-`https://api.hanbbq.top/v1`. The relay response asserted model `gpt-6.1-sol`.
-The upstream provider and model remain **UNVERIFIED**. Every run and summary
-must preserve the relay-asserted label and upstream-unverified disclosure.
+The product baseline contains the accepted eight-file candidate and the separately
+reviewed pre-existing RC1 fixture isolation correction. All eight canonical source
+hashes match the reviewed candidate; the official USER installation is synchronized.
+The runtime remains dependency-free for Skill users; maintenance Python and
+capture helpers are not part of the installed runtime.
 
-The minimal POST returned 4,227 input tokens, including relay-injected
-instructions context reported by the probe evidence, and 5 output tokens under
-the requested limit of 16. The capture also flags suspected hidden input
-context. Preserve these anomalies when interpreting results. Credential values
-are excluded from this designation and its cited evidence.
+## Identity and preparation boundary
 
-## Preparation evidence
+The operator directly observed the configured relay at GET /v1/models and
+POST /v1/responses, both HTTP 200. The relay asserted gpt-6.1-sol. Its response
+reported 4,226 input tokens, including 4,216 instructions-context tokens, and five
+output tokens. Upstream provider/model remain UNVERIFIED; this anomaly and the
+prior suspected injected context must accompany interpretation.
 
-The USER-scope installation was re-observed at the selected baseline. Installer
-status was `CURRENT`; 84 of 84 managed files matched installed and committed
-bytes; C2 was `C2_CLEAN` with zero findings. HB-1 matched the bound installation
-receipt. The operator rotated the relay credential and locally propagated the
-replacement to `arm-home-p5fix`; the key revocation itself is operator-attested.
+The new independent Reviewer uses a distinct agent context and operator role under
+the same human account and filesystem. Blinding is best effort. Fresh raw input
+pins, relay-identity disposition, runtime/permissions/loading and fixture
+observations must be confirmed before finalization and formal execution.
 
-The selected `arm-home-p5fix` run completed C1 P1–P6 and fixture-isolation
-verification with six passing probes and no credential leak in captured
-rollouts. P1 targeted the main checkout README and preserved the inner
-`UnauthorizedAccessException` with OS error 5. The tools digest was uniform
-across the six probes, and the permission profile was `c1arm` under Windows
-sandbox `mxc`.
+The new scope is exactly LW-1, FL-1, FL-1R and IMP-1. Prior replication captures,
+loading confounds, original RC2 results and its not-run FL-1R remain unchanged.
+The new four-arm plan is not an eighteen-arm replication report.
 
-The 18-arm plan and operator-only mapping are generated, validated, and pinned.
-The independent Reviewer disclosed session-level independence under the same
-human account as the operator, knowledge of the design, and best-effort
-blinding. These limitations must accompany the resulting report.
+## RC2 preservation
 
-## Finalization authority
-
-The responsible party's RC2 decision accepts relay-asserted identity with
-continuing disclosure. The local designation finalization commit and formal
-18-arm start are separately authorized in the RC2 preparation conversation.
-That run authorization does not create an acceptance verdict or release status.
+RC2's finalized reference and decision remain at Git boundary
+74030c203722aa3aa4f48025632bbb323b82174d. Their exact working and committed bytes
+were separately preserved before this forward-only RC3 designation. Existing
+historical packages, verdicts and review judgments are not reinterpreted.

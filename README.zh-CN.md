@@ -17,17 +17,18 @@ LoopPilot 复用宿主已有的计划、工具和任务状态。
 
 | 项目 | 当前记录的状态 |
 | --- | --- |
-| 开发候选版本 | `v1.0.0-rc1`，`NOT_RELEASE_READY` |
-| 指定 Reference Host | Codex，依据 Option B successor 对本次 RC 固定 |
+| 开发候选版本 | `v1.0.0-rc3`，`NOT_RELEASE_READY` |
+| Reference Host | Codex 已选作 RC3 预检目标；最终指定待完成 |
 | 正式验收 | `NOT_RUN`；Gate 4 为 `UNMET` |
 | 宿主兼容性 | 所有宿主均明确标记为 `unverified` |
 
-[候选决定](docs/release/rc-candidate-decision.md)和
-[最新预检](docs/release/rc1-preflight-20261024.md)记录了已观察证据及具体阻塞。
-组件版本和安装目录检查已有观察结果；实际 provider、model、endpoint 的可信身份，
-正式加载与 Hash B 绑定、完整隔离以及独立行为审查仍未具备完整证据。
-仓库测试通过和独立事实审查不构成 Host Acceptance。
-[RC 清单](docs/release/v1.0-rc-checklist.md)继续保留全部发布门槛。
+RC3 产品基线为 `40f85debf7b59072cdd3b9a4fb446540299c0f36`，tree 为
+`799342167f450379908937b703a3a9fbac1f6f38`。[候选决定](docs/release/rc-candidate-decision.md)
+和 [Reference 记录](docs/release/rc-candidate-reference.md)保留了仅供预检的选择。
+基线维护记录显示 1,288 项完整回归及 72、134、89、3 项必需后续测试均通过，未跳过测试。
+这些仓库检查不构成 Host Acceptance。正式 fixture 准备和四个正式 arm 仍待完成。
+运行身份仅由 relay 声称，上游 provider/model 仍未验证，疑似额外输入上下文继续披露。
+[RC 清单](docs/release/v1.0-rc-checklist.md)记录剩余门槛。
 
 ## 它解决什么问题
 
@@ -239,7 +240,7 @@ Skill 候选补丁；只有用户接受后才更新正式 Skill。详见[Skill �
   多 Agent 运行隔离、跨会话恢复以及真实 Project Closure 等能力。
 
 Claude Code、Codex、Gemini CLI、GitHub Copilot 及其他宿主都保持 `unverified`。
-本次 RC 指定 Codex 为 Reference；Claude Code 和其他宿主继续保留 Candidate 角色及披露要求。
+RC3 预检选择 Codex 作为 Reference 目标，但最终指定尚未完成；Claude Code 和其他宿主继续保留 Candidate 角色及披露要求。
 历史 Claude Code 记录不因此改写或提升结论。
 任何合格兼容性结论都必须通过
 [Cross-Host Acceptance](docs/cross-host-acceptance.md)，并绑定实际宿主版本、模型和加载组合。
@@ -278,7 +279,7 @@ Claude Code、Codex、Gemini CLI、GitHub Copilot 及其他宿主都保持 `unve
 | [Project Closure](docs/project-closure-and-final-delivery.md) | Project 验收、就绪与最终交付的区别 |
 | [最终协议校准](docs/final-protocol-calibration.md) / [v1 迁移](docs/v1-migration.md) | feature freeze、证据分类与迁移 |
 | [Option B successor](docs/release/option-b-reference-successor.md) | 有界、向前生效的 RC Reference 政策 |
-| [RC 候选决定](docs/release/rc-candidate-decision.md) / [预检](docs/release/rc1-preflight-20261024.md) | 当前事实、阻塞和最小解阻步骤 |
+| [RC 候选决定](docs/release/rc-candidate-decision.md) / [Reference 记录](docs/release/rc-candidate-reference.md) | RC3 预检状态、身份披露和未满足的前置条件 |
 | [RC 清单](docs/release/v1.0-rc-checklist.md) | 发布门槛及其证据要求 |
 | [验证说明](docs/validation.md) | 可重复的维护检查及其局限 |
 | [评估指南](evaluations/README.md) / [历史包审计](docs/evaluations/historical-evaluation-audit.md) / [两阶段行为验证计划](docs/evaluations/two-stage-behavior-validation-runbook.md) | v2 评分、代码质量适用性、历史缺口和行为验证准备 |

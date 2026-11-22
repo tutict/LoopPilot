@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.0.0-rc3 — 2026-11-22 (preflight candidate; NOT_RELEASE_READY)
+
+- Includes the intentional-stop Checkpoint persistence repair and its public-validator
+  regressions, scenario coverage, and recovery documentation.
+- Records Codex as the RC3 preflight Reference choice. Final designation, native
+  fixture preparation, four formal arms, and Host Acceptance remain pending. The
+  relay-asserted model and unverified upstream identity remain disclosed.
+- The candidate-boundary maintenance record reports 1,288 full-suite tests and
+  required follow-ups of 72, 134, 89, and 3 tests passed without skips. Gate 4 remains
+  unmet; no release tag or publication is declared.
+
 ## v1.0.0-rc1 — 2026-10-24 (development candidate; NOT_RELEASE_READY)
 
 - Added the bounded `OPTION-B-REFERENCE-2026-10-24` successor: each applicable

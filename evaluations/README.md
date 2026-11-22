@@ -66,9 +66,10 @@ operator-approved evidence-index gates.
 
 ## Two-stage Codex replacement experiment
 
-The replacement study has seven matched Codex scenario-replication pairs
+The separate replacement study has seven matched Codex scenario-replication pairs
 (fourteen runs), followed by the four current formal arms. The five behavior
-pairs are descriptive Codex-only comparisons. Two loading probes preserve a
+pairs are descriptive Codex-only comparisons. This eighteen-run study is distinct from RC3's declared four-arm rerun and does not
+expand that candidate's scope. Two loading probes preserve a
 `loaded`, `not-loaded`, or `not-observed` receipt and do not contribute
 behavioral rubric scores. A 429, timeout, or unavailable Host remains an
 Execution Infrastructure Incident and cannot satisfy an arm. The Claude

@@ -17,18 +17,21 @@ and recovery. It reuses the host's own planning, tools, and task state.
 
 | Item | Current recorded status |
 | --- | --- |
-| Development candidate | `v1.0.0-rc1` — `NOT_RELEASE_READY` |
-| Designated Reference Host | Codex, fixed for this RC under the Option B successor |
+| Development candidate | `v1.0.0-rc3` — `NOT_RELEASE_READY` |
+| Reference Host | Codex selected for RC3 preflight; final designation pending |
 | Formal acceptance | `NOT_RUN`; Gate 4 remains `UNMET` |
 | Host compatibility | Every host remains explicitly `unverified` |
 
-The [candidate decision](docs/release/rc-candidate-decision.md) and
-[latest preflight](docs/release/rc1-preflight-20261024.md) record the evidence and
-blockers. Component versions and installation checks have been observed; trusted
-actual provider/model/endpoint identity, formal loading and Hash B binding,
-complete isolation, and independent behavior review remain unresolved.
-Repository tests and independent facts review do not establish Host Acceptance.
-The [RC checklist](docs/release/v1.0-rc-checklist.md) retains the release gates.
+The RC3 product baseline is `40f85debf7b59072cdd3b9a4fb446540299c0f36` with tree
+`799342167f450379908937b703a3a9fbac1f6f38`. The [candidate
+decision](docs/release/rc-candidate-decision.md) and [Reference
+record](docs/release/rc-candidate-reference.md) preserve the preflight-only choice.
+The recorded baseline maintenance run passed 1,288 tests and the required 72-,
+134-, 89-, and 3-test follow-ups without skips. These repository checks do not
+establish Host Acceptance. Native per-fixture preparation and all four formal arms
+remain pending. Runtime identity is relay-asserted, upstream provider/model remain
+unverified, and suspected extra input context remains disclosed. The
+[RC checklist](docs/release/v1.0-rc-checklist.md) tracks the remaining gates.
 
 ## What It Is
 
@@ -518,10 +521,10 @@ another project, host, or model.
 
 No evidence in this repository supports any of the following:
 
-- Actual host behavior. Every host, including this RC's designated Codex Reference,
-  is `unverified` because no qualified RC-bound accepted Host Acceptance Record
-  exists. Earlier Claude Code preparation and historical records retain their
-  original scope and verdicts.
+- Actual host behavior. Every host, including the Codex Reference selected for
+  RC3 preflight, is `unverified` because no qualified RC-bound accepted Host
+  Acceptance Record exists. Earlier Claude Code preparation and historical records
+  retain their original scope and verdicts.
 - Production reliability, longitudinal governance behavior, release, and
   deployment.
 - Automatic agent compliance, including implicit activation accuracy, automatic
@@ -560,8 +563,9 @@ observed before a development candidate can qualify for release.
   this list only through an observed
   [Host Acceptance Record](docs/cross-host-acceptance.md), and its verdict then
   covers only that exact host, host version, model, and loading mode.
-  For `v1.0.0-rc1`, Codex is the designated Reference; Claude Code, Gemini CLI,
-  GitHub Copilot, and other hosts remain Candidates with their disclosure duties.
+  For `v1.0.0-rc3`, Codex is selected for preflight and its final designation is
+  pending; Claude Code, Gemini CLI, GitHub Copilot, and other hosts remain Candidates
+  with their disclosure duties.
 - Real concurrent scheduling, runtime permission isolation, distributed locking,
   automatic merging, and cross-session delegated recovery are not implemented.
 - Automatic-trigger accuracy and behavioral reliability still require observed
@@ -606,8 +610,8 @@ references and are not copied by the installer.
 - [v1.0 RC checklist](docs/release/v1.0-rc-checklist.md): Release Candidate gates
   and their required evidence. The checklist is not acceptance.
 - [Current candidate decision](docs/release/rc-candidate-decision.md) and
-  [RC1 preflight](docs/release/rc1-preflight-20261024.md): current recorded facts,
-  unmet prerequisites, and safe next steps.
+  [Reference record](docs/release/rc-candidate-reference.md): RC3 preflight status,
+  identity disclosures, and unmet prerequisites.
 - [Validation](docs/validation.md): repeatable maintenance checks and their boundary.
 - [Full Loop Contracts and Ledgers](docs/full-loop-contracts-and-ledgers.md):
   Phase 2 templates, state enums, completion projection, and authority rules.

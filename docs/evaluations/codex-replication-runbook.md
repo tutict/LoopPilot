@@ -9,7 +9,9 @@ The study has fourteen matched Codex replication arms across seven scenario
 seeds, followed by the four current formal arms `LW-1`, `FL-1`, `FL-1R`, and
 `IMP-1`. Reports keep the Codex replication section separate from both Claude
 historical evidence and current Host Acceptance. Codex results do not establish
-Claude behavior or cross-host equivalence.
+Claude behavior or cross-host equivalence. The RC3 release records define a separate
+four-arm rerun. Those arms do not require the fourteen descriptive replication runs,
+and results from that study cannot be relabelled as RC3 evidence.
 
 ## Claim boundary and evidence sections
 
