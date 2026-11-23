@@ -15,9 +15,12 @@
 The latest user accepted the Checkpoint repair candidate and authorized
 application, synchronized installation, necessary local commits and four formal
 arms on a new RC. The RC3 product baseline is 40f85debf7b59072cdd3b9a4fb446540299c0f36 with tree
-799342167f450379908937b703a3a9fbac1f6f38. Its designation is finalized before formal arms. Acceptance remains unrun until
-the formal packages, independent review, final evidence index and Host Acceptance
-Record are complete.
+799342167f450379908937b703a3a9fbac1f6f38. The designation was finalized and committed before the four formal sessions.
+The sessions and packet review are recorded in the [execution evidence](rc3-formal-execution-20261123.md).
+The machine-readable `Acceptance status` field reports that there is no qualified
+acceptance decision under the current candidate-decision schema. The RC3-bound
+[Host Acceptance Record](../../evaluations/codex/host-acceptance-record-rc3.md)
+records `unverified`.
 
 Fresh source maintenance passed 1,288 tests plus required follow-ups of 72, 134,
 89 and 3 tests, without skips. Static/Skill/diff checks passed, 35 canonical Mermaid
@@ -26,8 +29,8 @@ source review passed all four scoped axes. These checks do not supply formal
 behavior acceptance, independent package approval, upstream identity or remote CI.
 
 The official USER install is CURRENT with 84 managed files matching the committed
-source, C2_CLEAN and a verified nested alias binding. Native per-fixture preparation
-and four actual model sessions remain required. Relay-asserted identity and
+source, C2_CLEAN and a verified nested alias binding. Native preparation and the
+four model sessions are recorded with their observed outcomes. Relay-asserted identity and
 suspected extra input context remain disclosed; upstream identity is UNVERIFIED.
 
 RC2 keeps its frozen combination and prior observations, including its not-run
