@@ -8,51 +8,41 @@
 - Reference Host: Codex
 - Other eligible Host: Claude Code
 - Other Host role: Candidate Host, unverified disclosure retained
-- Designation state: preflight-designation
+- Designation state: finalized-before-acceptance
 - Designation date: 2026-11-22
-- Finalized at: unknown
+- Finalized at: 2026-11-23T11:28:47+08:00
 - Formal acceptance arms at designation: none
-- Reference host version: unknown
-- Model identity: unknown
-- Provider identity: unknown
-- Endpoint identity: unknown
+- Reference host version: codex-cli 0.168.0
+- Model identity: gpt-6.1-sol (relay-asserted; upstream model UNVERIFIED)
+- Provider identity: custom (configured; upstream provider UNVERIFIED)
+- Endpoint identity: https://api.hanbbq.top/v1 (configured relay endpoint)
 - Configured model: gpt-6.1-sol
 - Configured provider: custom
 - Configured endpoint: https://api.hanbbq.top/v1
-- Skill loading mode: unknown
-- RC baseline commit: pending-before-formal-run
-- RC baseline tree: pending-before-formal-run
+- Skill loading mode: explicit, implicit
+- RC baseline commit: 40f85debf7b59072cdd3b9a4fb446540299c0f36
+- RC baseline tree: 799342167f450379908937b703a3a9fbac1f6f38
 
-Proposed product commit: 40f85debf7b59072cdd3b9a4fb446540299c0f36; proposed product tree: 799342167f450379908937b703a3a9fbac1f6f38.
+This designation fixes Codex as the RC3 Reference Host before any formal
+acceptance arm. It binds the observed host version, relay-asserted model,
+configured provider and endpoint, both declared loading modes, and the RC3
+product baseline. Upstream provider/model identity remains UNVERIFIED.
 
-The latest user accepted the reviewed Checkpoint candidate and authorized its
-application, synchronized installation, necessary local commits, and a new RC
-four-arm rerun. This preflight choice selects the existing Codex execution surface
-for RC3 and is recorded before preparation and any formal arm. It is not a final
-designation, Host Acceptance, release readiness or publication authority.
+The relay was freshly observed at GET /v1/models and POST /v1/responses, both
+HTTP 200. The selected alias was listed, the response asserted gpt-6.1-sol,
+and the response reported 4,226 input tokens including 4,216 instructions-context
+tokens. The suspected extra input context remains disclosed and accepted for
+this RC3 boundary.
 
-The product baseline contains the accepted eight-file candidate and the separately
-reviewed pre-existing RC1 fixture isolation correction. All eight canonical source
-hashes match the reviewed candidate; the official USER installation is synchronized.
-The runtime remains dependency-free for Skill users; maintenance Python and
-capture helpers are not part of the installed runtime.
+The operator confirmed the four exact external input pins and accepted the
+relay-identity and extra-context disclosures before this designation. The
+independent Reviewer uses a distinct agent context and operator role under the
+same human account and filesystem. Blinding is best effort. Upstream identity is
+not promoted by that confirmation.
 
-## Identity and preparation boundary
-
-The operator directly observed the configured relay at GET /v1/models and
-POST /v1/responses, both HTTP 200. The relay asserted gpt-6.1-sol. Its response
-reported 4,226 input tokens, including 4,216 instructions-context tokens, and five
-output tokens. Upstream provider/model remain UNVERIFIED; this anomaly and the
-prior suspected injected context must accompany interpretation.
-
-The new independent Reviewer uses a distinct agent context and operator role under
-the same human account and filesystem. Blinding is best effort. Fresh raw input
-pins, relay-identity disposition, runtime/permissions/loading and fixture
-observations must be confirmed before finalization and formal execution.
-
-The new scope is exactly LW-1, FL-1, FL-1R and IMP-1. Prior replication captures,
-loading confounds, original RC2 results and its not-run FL-1R remain unchanged.
-The new four-arm plan is not an eighteen-arm replication report.
+The formal scope is exactly LW-1, FL-1, FL-1R and IMP-1. Prior replication
+captures, loading confounds, original RC2 results and its not-run FL-1R remain
+unchanged. The new four-arm plan is not an eighteen-arm replication report.
 
 ## RC2 preservation
 

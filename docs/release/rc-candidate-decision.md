@@ -15,8 +15,9 @@
 The latest user accepted the Checkpoint repair candidate and authorized
 application, synchronized installation, necessary local commits and four formal
 arms on a new RC. The RC3 product baseline is 40f85debf7b59072cdd3b9a4fb446540299c0f36 with tree
-799342167f450379908937b703a3a9fbac1f6f38. Its new choice is preflight-only until the actual preparation,
-independent raw pin/trust decision and committed finalization are recorded.
+799342167f450379908937b703a3a9fbac1f6f38. Its designation is finalized before formal arms. Acceptance remains unrun until
+the formal packages, independent review, final evidence index and Host Acceptance
+Record are complete.
 
 Fresh source maintenance passed 1,288 tests plus required follow-ups of 72, 134,
 89 and 3 tests, without skips. Static/Skill/diff checks passed, 35 canonical Mermaid
