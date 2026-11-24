@@ -32,6 +32,19 @@ range, and extractable Mermaid blocks. It also validates `AGENTS.md` and
 Task Contract lifecycles, explicit authority, review identity, revision budgets,
 required Review Results, and obvious credential assignments.
 
+`scripts/markdown_blocks.py` supplies one bounded literal-code scan to Markdown
+and lifecycle validation. It returns code-line indexes and an unclosed-fence
+flag; code examples remain exempt from prose links, whitespace and copied-value
+checks. Fenced or indented examples cannot declare live projection sections or
+supply their fields and tables. The public-validator regressions cover canonical
+root Checkpoint facts, conflicting flat shadows, valid Lightweight root-only
+recovery, and real assertions outside code. Full Loop instance-shape checks require
+root `CHECKPOINT.md` only when other Full Loop instance markers exist.
+Direct lifecycle-field and authority-declaration reads also exclude literal code.
+Regressions reject examples that mask real recovery, Project, Integration,
+Closure and current Review values, while preserving valid authority examples and
+rejecting real competing declarations outside code.
+
 For the historical evaluation boundary, run the read-only audit separately:
 
 ```text

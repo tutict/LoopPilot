@@ -7,6 +7,8 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from markdown_blocks import scan_code_blocks
+
 LIFECYCLE_CONSISTENCY_FILES = (
     "scripts/lifecycle_consistency_validation.py",
     "tests/test_lifecycle_consistency.py",
@@ -71,29 +73,46 @@ def _same(left: str, right: str) -> bool:
     return " ".join(_plain(left).split()).casefold() == " ".join(_plain(right).split()).casefold()
 
 
+def _prose_text(text: str) -> str:
+    """Keep line boundaries while excluding literal-code metadata examples."""
+    lines = text.splitlines()
+    code_lines = scan_code_blocks(lines).code_lines
+    return "\n".join("" if index in code_lines else line for index, line in enumerate(lines))
+
+
 def _field(text: str, name: str, *, bullet: bool = True) -> str | None:
     prefix = r"^-[ \t]*" if bullet else r"^"
-    match = re.search(rf"{prefix}{re.escape(name)}:[ \t]*(.*)$", text, re.MULTILINE)
+    match = re.search(rf"{prefix}{re.escape(name)}:[ \t]*(.*)$", _prose_text(text), re.MULTILINE)
     return _plain(match.group(1)) if match else None
 
 
+def _matches_heading(line: str, heading: str) -> bool:
+    return re.fullmatch(r" {0,3}" + re.escape(heading) + r"[ \t]*", line.expandtabs(4)) is not None
+
+
 def _has_heading(text: str, heading: str) -> bool:
-    """Match a real heading line, so prose that quotes the heading is not one."""
-    return any(line.strip() == heading for line in text.splitlines())
+    """Match a real heading rather than a literal code example."""
+    lines = text.splitlines()
+    code_lines = scan_code_blocks(lines).code_lines
+    return any(index not in code_lines and _matches_heading(line, heading) for index, line in enumerate(lines))
 
 
 def _section_lines(text: str, heading: str) -> list[str]:
     lines = text.splitlines()
+    code_lines = scan_code_blocks(lines).code_lines
     start = next(
-        (index + 1 for index, line in enumerate(lines) if line.strip() == heading),
+        (index + 1 for index, line in enumerate(lines) if index not in code_lines and _matches_heading(line, heading)),
         None,
     )
     if start is None:
         return []
     result: list[str] = []
     level = len(heading) - len(heading.lstrip("#"))
-    for line in lines[start:]:
-        match = re.match(r"^(#+) ", line)
+    for index in range(start, len(lines)):
+        if index in code_lines:
+            continue
+        line = lines[index]
+        match = re.match(r"^ {0,3}(#+)(?:[ \t]+|$)", line.expandtabs(4))
         if match and len(match.group(1)) <= level:
             break
         result.append(line)
@@ -201,7 +220,7 @@ def _collect_authority(root: Path, loop_dir: Path, closure_text: str, errors: li
     loop_map_text = _read(root / ".looppilot" / "LOOP-MAP.md", "LOOP-MAP.md", errors)
     task_text = _read(loop_dir / "TASK-LEDGER.md", "TASK-LEDGER.md", errors)
     finding_text = _read(loop_dir / "FINDING-LEDGER.md", "FINDING-LEDGER.md", errors)
-    checkpoint_text = _read(root / ".looppilot" / "CHECKPOINT.md", "CHECKPOINT.md", errors)
+    checkpoint_text = _read(root / "CHECKPOINT.md", "CHECKPOINT.md", errors)
     if project_text is not None:
         status = _field(project_text, "Status", bullet=False)
         if status is None: errors.append("PROJECT.md: missing Status")
@@ -311,7 +330,7 @@ def _collect_projections(
         if "loops" in relative.parts and loop_dir not in path.parents:
             continue
         location = relative.as_posix()
-        for match in AUTHORITY_DECLARATION_PATTERN.finditer(text):
+        for match in AUTHORITY_DECLARATION_PATTERN.finditer(_prose_text(text)):
             if not _declared_authority_ok(match.group(1), match.group(2)):
                 errors.append(f"{location}: supporting artifact declares competing lifecycle authority")
         if not _has_heading(text, "## Lifecycle Projections"): continue
@@ -405,24 +424,21 @@ def _validate_closure_snapshot(root: Path, closure_path: Path, closure_text: str
 def _declared_lines(lines: list[str]) -> set[int]:
     """Line indexes exempt from the undeclared-copy check.
 
-    A declared lifecycle section carries the metadata, and a fenced block is
-    format documentation rather than a live value, so both are exempt.
+    A declared lifecycle section carries the metadata, and a code block is
+    format documentation rather than a live value, so both are exempt. Only
+    real headings may declare or terminate the section.
     """
-    declared: set[int] = set()
+    code_lines = scan_code_blocks(lines).code_lines
+    declared = set(code_lines)
     for index, line in enumerate(lines):
-        if line.strip() not in DECLARED_SECTIONS:
+        if index in code_lines or not any(_matches_heading(line, heading) for heading in DECLARED_SECTIONS):
             continue
         for offset in range(index + 1, len(lines)):
-            if re.match(r"^#{1,2} ", lines[offset]):
+            if offset in code_lines:
+                continue
+            if re.match(r"^ {0,3}#{1,2}(?:[ \t]+|$)", lines[offset].expandtabs(4)):
                 break
             declared.add(offset)
-    fenced = False
-    for index, line in enumerate(lines):
-        if line.lstrip().startswith("```"):
-            fenced = not fenced
-            declared.add(index)
-        elif fenced:
-            declared.add(index)
     return declared
 
 
@@ -433,7 +449,7 @@ def _validate_declared_projection_metadata(root: Path, errors: list[str]) -> Non
     section, where it names its authority, its Git boundary, and its derived
     status. The same value written as free prose has no source location, no
     commit boundary, and no derived label, so it is invalid rather than merely
-    undocumented. A fenced block documents the format rather than tracking a
+    undocumented. A code block documents the format rather than tracking a
     live value and is exempt. Semantic staleness of undeclared narrative stays
     Reviewer work.
     """

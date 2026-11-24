@@ -44,6 +44,7 @@ from lifecycle_consistency_validation import (
     LIFECYCLE_CONSISTENCY_FILES,
     validate_lifecycle_consistency,
 )
+from markdown_blocks import scan_code_blocks
 from protocol_validation import (
     validate_repository_extensions,
     validate_review_protocol,
@@ -101,6 +102,7 @@ REQUIRED_FILES = (
     ".github/workflows/validate.yml",
     "requirements-dev.txt",
     "scripts/validate.py",
+    "scripts/markdown_blocks.py",
     "scripts/protocol_validation.py",
     "scripts/engineering_validation.py",
     "scripts/full_loop_validation.py",
@@ -1178,13 +1180,20 @@ def validate_markdown_file(root: Path, path: Path, errors: list[str], validated_
         text = structural_text
     if not raw.endswith(b"\n"):
         errors.append(f"{relative}: file must end with a newline")
-    for line_number, line in enumerate(text.splitlines(), start=1):
+    lines = text.splitlines()
+    blocks = scan_code_blocks(lines)
+    outside_code_lines = []
+    for index, line in enumerate(lines):
+        if index in blocks.code_lines:
+            outside_code_lines.append("")
+            continue
+        outside_code_lines.append(line)
         if line.endswith((" ", "\t")):
-            errors.append(f"{relative}:{line_number}: trailing whitespace")
-    fence_count = sum(1 for line in text.splitlines() if line.lstrip().startswith("```"))
-    if fence_count % 2:
+            errors.append(f"{relative}:{index + 1}: trailing whitespace")
+    if blocks.unclosed_fence:
         errors.append(f"{relative}: unbalanced Markdown code fences")
-    for match in LINK_PATTERN.finditer(text):
+    markdown_text = "\n".join(outside_code_lines)
+    for match in LINK_PATTERN.finditer(markdown_text):
         raw_target = match.group(1).strip()
         if raw_target.startswith("<") and raw_target.endswith(">"):
             raw_target = raw_target[1:-1]

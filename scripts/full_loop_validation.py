@@ -647,18 +647,24 @@ def validate_state_source_discipline(root: Path, errors: list[str]) -> None:
 
 
 def validate_active_full_loop_instance_shape(root: Path, errors: list[str]) -> None:
-    required = (
+    instance_markers = (
         ".looppilot/PROJECT.md",
         ".looppilot/LOOP-MAP.md",
-        ".looppilot/CHECKPOINT.md",
         ".looppilot/loops",
     )
-    present = [relative for relative in required if (root / relative).exists()]
-    if present and len(present) != len(required):
-        missing = [relative for relative in required if relative not in present]
+    if (root / ".looppilot/CHECKPOINT.md").exists():
         errors.append(
-            "active Full Loop instance is incomplete; missing " + ", ".join(missing)
+            ".looppilot/CHECKPOINT.md: competing recovery authority; use root CHECKPOINT.md"
         )
+    # Lightweight recovery also uses root CHECKPOINT.md. It cannot by itself
+    # create a Full Loop instance or require the other Full Loop authorities.
+    if any((root / relative).exists() for relative in instance_markers):
+        required = (*instance_markers, "CHECKPOINT.md")
+        missing = [relative for relative in required if not (root / relative).exists()]
+        if missing:
+            errors.append(
+                "active Full Loop instance is incomplete; missing " + ", ".join(missing)
+            )
 
 
 def validate_full_loop(
