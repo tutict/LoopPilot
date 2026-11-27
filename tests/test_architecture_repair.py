@@ -177,6 +177,25 @@ class ArchitectureContractTests(unittest.TestCase):
         self.assertIn(".looppilot-installation", contract)
         self.assertIn("shortcuts/lp/SKILL.md", text("distribution/managed-files.txt").splitlines())
 
+    def test_defensive_code_proportionality_and_staged_boundaries_contract(self):
+        core = " ".join(text("SKILL.md").split()).casefold()
+        for phrase in (
+            "before adding a guard, fallback, retry, exception handler, or state branch",
+            "unchanged trust boundary",
+            "catch and rethrow without cleanup, recovery, or useful context",
+            "silent defaults lacking a degradation contract",
+            "stop limits and side-effect control",
+            "retain necessary controls for security, data integrity, compatibility, concurrency, and partial-success risks",
+            "must not implement, commit, or fold later-stage deliverables into an earlier authorized stage",
+            "deliver and commit only the currently authorized stage",
+            "disclose pending downstream checks rather than absorbing future stages",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, core)
+        scenarios = text("tests/scenarios.md")
+        self.assertRegex(scenarios, r"(?m)^## 319\. ")
+        self.assertRegex(scenarios, r"(?m)^## 320\. ")
+
 
 class ShortcutResolutionTests(unittest.TestCase):
     def test_installed_alias_equals_canonical_despite_repository_shadow(self):

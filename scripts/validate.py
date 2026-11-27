@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 from dataclasses import dataclass
@@ -44,6 +45,7 @@ from lifecycle_consistency_validation import (
     LIFECYCLE_CONSISTENCY_FILES,
     validate_lifecycle_consistency,
 )
+from markdown_blocks import scan_code_blocks
 from protocol_validation import (
     validate_repository_extensions,
     validate_review_protocol,
@@ -101,6 +103,7 @@ REQUIRED_FILES = (
     ".github/workflows/validate.yml",
     "requirements-dev.txt",
     "scripts/validate.py",
+    "scripts/markdown_blocks.py",
     "scripts/protocol_validation.py",
     "scripts/engineering_validation.py",
     "scripts/full_loop_validation.py",
@@ -484,13 +487,25 @@ def validate_openai_yaml(root: Path, errors: list[str]) -> None:
         errors.append(str(error))
 
 
+def validation_files(root: Path, patterns: tuple[str, ...]) -> list[Path]:
+    """Discover source files without entering generated or dependency trees."""
+    ignored = {".git", ".tmp", ".venv", "node_modules", "__pycache__"}
+    paths = []
+    for directory, children, names in os.walk(root, followlinks=False):
+        children[:] = [name for name in children if name not in ignored]
+        for name in names:
+            if any(Path(name).match(pattern) for pattern in patterns):
+                paths.append(Path(directory) / name)
+    return sorted(paths)
+
+
 def validate_yaml_files(root: Path, errors: list[str]) -> None:
-    paths = sorted((*root.rglob("*.yaml"), *root.rglob("*.yml")))
+    paths = validation_files(root, ("*.yaml", "*.yml"))
     for path in paths:
         try:
             parse_yaml_mapping(path, path.read_text(encoding="utf-8"))
         except (ConstructorError, ValueError, yaml.YAMLError) as error:
-            errors.append(str(error))
+            errors.append(f"{path.relative_to(root).as_posix()}: {error}")
 
 
 def require_non_empty_list(
@@ -1158,12 +1173,7 @@ def validate_shared_state(root: Path, errors: list[str]) -> None:
 
 
 def markdown_files(root: Path) -> list[Path]:
-    ignored = {".git", ".tmp", ".venv", "node_modules", "__pycache__"}
-    return sorted(
-        path
-        for path in root.rglob("*.md")
-        if not any(part in ignored for part in path.relative_to(root).parts)
-    )
+    return validation_files(root, ("*.md",))
 
 
 def validate_markdown_file(root: Path, path: Path, errors: list[str], validated_view=None) -> None:
@@ -1178,13 +1188,20 @@ def validate_markdown_file(root: Path, path: Path, errors: list[str], validated_
         text = structural_text
     if not raw.endswith(b"\n"):
         errors.append(f"{relative}: file must end with a newline")
-    for line_number, line in enumerate(text.splitlines(), start=1):
+    lines = text.splitlines()
+    blocks = scan_code_blocks(lines)
+    outside_code_lines = []
+    for index, line in enumerate(lines):
+        if index in blocks.code_lines:
+            outside_code_lines.append("")
+            continue
+        outside_code_lines.append(line)
         if line.endswith((" ", "\t")):
-            errors.append(f"{relative}:{line_number}: trailing whitespace")
-    fence_count = sum(1 for line in text.splitlines() if line.lstrip().startswith("```"))
-    if fence_count % 2:
+            errors.append(f"{relative}:{index + 1}: trailing whitespace")
+    if blocks.unclosed_fence:
         errors.append(f"{relative}: unbalanced Markdown code fences")
-    for match in LINK_PATTERN.finditer(text):
+    markdown_text = "\n".join(outside_code_lines)
+    for match in LINK_PATTERN.finditer(markdown_text):
         raw_target = match.group(1).strip()
         if raw_target.startswith("<") and raw_target.endswith(">"):
             raw_target = raw_target[1:-1]

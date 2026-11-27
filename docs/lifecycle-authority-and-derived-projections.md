@@ -19,6 +19,11 @@ Git snapshot boundary, never a competing authority.
 | Closure decision | current `LOOP-CLOSURE.md` |
 | Current Git boundary | observed repository HEAD; a recorded snapshot stays valid as an ancestor commit |
 
+The recovery authority is repository-root `CHECKPOINT.md` in both modes. A flat
+`.looppilot/CHECKPOINT.md` is a competing shadow and is rejected, even when its
+bytes match the root file. Root Checkpoint presence alone does not create a Full
+Loop instance or require its Project, Map, or Ledgers.
+
 ```mermaid
 flowchart LR
     A["Authoritative lifecycle state"] --> P["Derived projection"]
@@ -87,10 +92,21 @@ because such a copy states no source, no boundary, and no derived status. The
 deterministic check reads the assertion grammar only; whether undeclared
 narrative prose is stale in context remains Reviewer judgment.
 
+Literal code blocks are format examples. Markdown validation and lifecycle
+metadata validation share the same bounded backtick, tilde, list-container, and
+indented-code boundaries. A heading or table inside code cannot declare a live
+projection section or supply its authority metadata. Real section headings use
+at most three leading spaces; extra-indented paragraph text cannot declare one.
+The same code boundary applies to lifecycle field and authority-declaration
+reads: an example cannot supply or mask the current Checkpoint, Project,
+Integration, Closure, or Review judgment. Real values and declarations outside
+code retain their existing authority and validation rules.
+
 Allowed assertion names are the finite Closure set: `Project.status`, current
 `Loop[id].status`, current `Task[id].status/owner/revision`, current
 `Finding[id].status/severity`, `Git.current_boundary`, `Integration.decision`,
-`Review.Spec`, `Review.Standards`, `Closure.decision`, and
+`Review.Spec`, `Review.Standards`, `Review.ImplementationQuality`,
+`Review.VerificationEvidence`, `Closure.decision`, and
 `Checkpoint.current_boundary/next_action`. Do not inventory the whole repository.
 
 ## Closure Consistency

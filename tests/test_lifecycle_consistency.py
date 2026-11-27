@@ -187,7 +187,7 @@ class LifecycleConsistencyTests(unittest.TestCase):
         self.write(state / "LOOP-MAP.md", "# Loop Map\n\n## Loops\n\n| Loop ID | Status |\n|---|---|\n| LOOP-001 | closed |")
         self.write(loop / "TASK-LEDGER.md", "# Task Ledger\n\n## Task Summary\n\n| Task ID | Status | Worker | Revision |\n|---|---|---|---|\n| TASK-001 | integrated | worker-a | 2 |")
         self.write(loop / "FINDING-LEDGER.md", "# Finding Ledger\n\n## Finding Summary\n\n| Finding ID | Severity | Status |\n|---|---|---|\n| FINDING-001 | major | closed |")
-        self.write(state / "CHECKPOINT.md", f"# Checkpoint\n\n- Verified HEAD: {head}\n- Resume action: prepare release candidate")
+        self.write(fixture / "CHECKPOINT.md", f"# Checkpoint\n\n- Verified HEAD: {head}\n- Resume action: prepare release candidate")
         self.write(loop / "integration" / "INTEGRATION-RECORD.md", "# Integration\n\n- Status: integrated\n- Barrier result: pass")
         self.write(loop / "reviews" / "REVIEW-001.md", "# Review\n\n- Review Schema Version: 2\n\n## Spec Review Contribution\n\n- Decision: pass\n\n## Standards Review Contribution\n\n- Decision: pass\n\n## Implementation Quality Review Contribution\n\n- Decision: pass\n\n## Verification & Evidence Review Contribution\n\n- Decision: pass")
         self.write(loop / "LOOP-CLOSURE.md", self.closure(head, {}))
@@ -343,6 +343,237 @@ class LifecycleConsistencyTests(unittest.TestCase):
                 self.assertIn("Static validation passed", output)
             if case.warning:
                 self.assertIn(case.warning, output)
+
+    def test_root_checkpoint_is_authoritative(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = self.copy_repository(directory)
+            head = self.initialize_git(fixture)
+            self.create_full_loop(fixture, head)
+            self.assertTrue((fixture / "CHECKPOINT.md").is_file())
+            self.assertFalse((fixture / ".looppilot" / "CHECKPOINT.md").exists())
+            result = self.validate(fixture)
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_missing_root_checkpoint_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = self.copy_repository(directory)
+            head = self.initialize_git(fixture)
+            self.create_full_loop(fixture, head)
+            (fixture / "CHECKPOINT.md").unlink()
+            result = self.validate(fixture)
+            output = result.stdout + result.stderr
+            self.assertEqual(1, result.returncode, output)
+            self.assertIn("missing CHECKPOINT.md", output)
+
+    def test_flat_checkpoint_shadow_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = self.copy_repository(directory)
+            head = self.initialize_git(fixture)
+            self.create_full_loop(fixture, head)
+            shadow = fixture / ".looppilot" / "CHECKPOINT.md"
+            shadow.write_bytes((fixture / "CHECKPOINT.md").read_bytes())
+            result = self.validate(fixture)
+            output = result.stdout + result.stderr
+            self.assertEqual(1, result.returncode, output)
+            self.assertIn(".looppilot/CHECKPOINT.md: competing recovery authority", output)
+
+    def test_flat_shadow_cannot_replace_missing_root(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = self.copy_repository(directory)
+            head = self.initialize_git(fixture)
+            self.create_full_loop(fixture, head)
+            (fixture / "CHECKPOINT.md").replace(fixture / ".looppilot" / "CHECKPOINT.md")
+            result = self.validate(fixture)
+            output = result.stdout + result.stderr
+            self.assertEqual(1, result.returncode, output)
+            self.assertIn("missing CHECKPOINT.md", output)
+
+    def test_root_checkpoint_contradiction_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = self.copy_repository(directory)
+            head = self.initialize_git(fixture)
+            self.create_full_loop(fixture, head)
+            self.write(fixture / "CHECKPOINT.md", f"# Checkpoint\n\n- Verified HEAD: {head}\n- Resume action: retry old worker")
+            result = self.validate(fixture)
+            output = result.stdout + result.stderr
+            self.assertEqual(1, result.returncode, output)
+            self.assertIn("Checkpoint.next_action Expected does not match authority", output)
+
+    def test_shadow_cannot_hide_root_checkpoint_contradiction(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = self.copy_repository(directory)
+            head = self.initialize_git(fixture)
+            self.create_full_loop(fixture, head)
+            shadow = fixture / ".looppilot" / "CHECKPOINT.md"
+            shadow.write_bytes((fixture / "CHECKPOINT.md").read_bytes())
+            self.write(fixture / "CHECKPOINT.md", f"# Checkpoint\n\n- Verified HEAD: {head}\n- Resume action: retry old worker")
+            result = self.validate(fixture)
+            output = result.stdout + result.stderr
+            self.assertEqual(1, result.returncode, output)
+            self.assertIn("Checkpoint.next_action Expected does not match authority", output)
+
+    def test_lightweight_root_checkpoint_does_not_create_full_loop(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = self.copy_repository(directory)
+            self.write(fixture / "CHECKPOINT.md", "# Checkpoint\n\n- Resume action: verify bounded work")
+            result = self.validate(fixture)
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def check_supporting_document(self, body: str, *, rejected: bool, full_loop: bool = False, expected_error: str = "copied without authority metadata") -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = self.copy_repository(directory)
+            if full_loop:
+                head = self.initialize_git(fixture)
+                self.create_full_loop(fixture, head)
+            self.write(fixture / ".looppilot" / "full-loop" / "EXAMPLE.md", "# Supporting Example\n\n" + body)
+            result = self.validate(fixture)
+            output = result.stdout + result.stderr
+            self.assertEqual(1 if rejected else 0, result.returncode, output)
+            if rejected:
+                self.assertIn(expected_error, output)
+
+    def test_literal_code_blocks_exempt_lifecycle_examples(self) -> None:
+        bodies = (
+            "~~~text\nTask[TASK-001].status\n~~~",
+            "````text\n```\nTask[TASK-001].status\n````",
+            "```text\n``` trailing\nTask[TASK-001].status\n```",
+            "    Task[TASK-001].status",
+            "- example\n\n  ~~~text\n  Task[TASK-001].status\n  ~~~",
+            "- example\n\n      Task[TASK-001].status",
+        )
+        for body in bodies:
+            with self.subTest(body=body):
+                self.check_supporting_document(body, rejected=False)
+
+    def test_real_prose_is_not_exempted_by_malformed_fence_or_indentation(self) -> None:
+        bodies = (
+            "```has`backtick\nTask[TASK-001].status is integrated.",
+            "a real paragraph\n    Task[TASK-001].status is integrated.",
+            "- a real paragraph\nlazy continuation\n      Task[TASK-001].status is integrated.",
+            "-\n\n  Task[TASK-001].status is integrated.",
+        )
+        for body in bodies:
+            with self.subTest(body=body):
+                self.check_supporting_document(body, rejected=True)
+
+    def test_real_assertion_after_code_block_is_rejected(self) -> None:
+        for marker in ("```", "~~~"):
+            with self.subTest(marker=marker):
+                self.check_supporting_document(
+                    f"{marker}text\nexample\n{marker}\n\nTask[TASK-001].status is integrated.",
+                    rejected=True,
+                )
+
+    def test_fenced_projection_heading_does_not_exempt_later_prose(self) -> None:
+        for marker in ("```", "~~~"):
+            with self.subTest(marker=marker):
+                self.check_supporting_document(
+                    f"{marker}markdown\n## Lifecycle Projections\n{marker}\n\nTask[TASK-001].status is integrated.",
+                    rejected=True,
+                )
+
+    def test_fenced_projection_heading_is_literal_in_full_loop(self) -> None:
+        for marker in ("```", "~~~"):
+            with self.subTest(marker=marker):
+                self.check_supporting_document(
+                    f"{marker}markdown\n## Lifecycle Projections\nTask[TASK-001].status\n{marker}",
+                    rejected=False,
+                    full_loop=True,
+                )
+
+    def test_fenced_heading_does_not_end_real_projection_section(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = self.copy_repository(directory)
+            head = self.initialize_git(fixture)
+            self.create_full_loop(fixture, head)
+            source = "full-loop/EXAMPLE.md"
+            self.add_projection(fixture, head, "Task[TASK-001].status", "integrated", source)
+            path = fixture / ".looppilot" / source
+            text = path.read_text(encoding="utf-8")
+            self.write(path, text.replace("| Assertion |", "~~~markdown\n## Example heading\n~~~\n\n| Assertion |", 1))
+            result = self.validate(fixture)
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_fenced_metadata_cannot_supply_real_projection(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = self.copy_repository(directory)
+            head = self.initialize_git(fixture)
+            self.create_full_loop(fixture, head)
+            source = "full-loop/EXAMPLE.md"
+            self.add_projection(fixture, head, "Task[TASK-001].status", "integrated", source)
+            path = fixture / ".looppilot" / source
+            text = path.read_text(encoding="utf-8")
+            prefix, metadata = text.split("## Lifecycle Projections\n", 1)
+            self.write(path, prefix + "## Lifecycle Projections\n\n```text\n" + metadata + "```\n")
+            result = self.validate(fixture)
+            output = result.stdout + result.stderr
+            self.assertEqual(1, result.returncode, output)
+            self.assertIn("Lifecycle Projections require a 40-character Git boundary", output)
+            self.assertIn("requires a Markdown table", output)
+
+    def test_indented_heading_ends_declared_projection_exemption(self) -> None:
+        self.check_supporting_document(
+            "## Lifecycle Projections\n\n   ## Other section\nTask[TASK-001].status is integrated.",
+            rejected=True,
+        )
+
+    def test_indented_paragraph_heading_does_not_declare_section(self) -> None:
+        self.check_supporting_document(
+            "a real paragraph\n    ## Lifecycle Projections\nTask[TASK-001].status is integrated.",
+            rejected=True,
+        )
+
+    def test_literal_authority_declaration_is_code_example(self) -> None:
+        for marker in ("```", "~~~"):
+            with self.subTest(marker=marker):
+                self.check_supporting_document(
+                    f"{marker}markdown\n- Task authority: HANDOFF.md\n{marker}",
+                    rejected=False,
+                    full_loop=True,
+                )
+
+    def test_competing_authority_outside_code_is_enforced(self) -> None:
+        for marker in ("```", "~~~"):
+            with self.subTest(marker=marker):
+                self.check_supporting_document(
+                    f"{marker}markdown\n- Task authority: TASK-LEDGER.md\n{marker}\n\n- Task authority: HANDOFF.md",
+                    rejected=True,
+                    full_loop=True,
+                    expected_error="competing lifecycle authority",
+                )
+
+    def test_literal_fields_do_not_mask_current_authority(self) -> None:
+        cases = (
+            ("checkpoint", "Checkpoint.next_action Expected does not match authority"),
+            ("project", "Project.status Expected does not match authority"),
+            ("integration", "Integration.decision Expected does not match authority"),
+            ("closure", "Closure.decision Expected does not match authority"),
+            ("review", "REVIEW-REPORT.md: expected one current Spec decision"),
+        )
+        for case, expected_error in cases:
+            with self.subTest(case=case), tempfile.TemporaryDirectory() as directory:
+                fixture = self.copy_repository(directory)
+                head = self.initialize_git(fixture)
+                self.create_full_loop(fixture, head)
+                state = fixture / ".looppilot"
+                loop = state / "loops" / "LOOP-001"
+                if case == "checkpoint":
+                    self.write(fixture / "CHECKPOINT.md", f"# Checkpoint\n\n```text\n- Resume action: prepare release candidate\n```\n\n- Verified HEAD: {head}\n- Resume action: retry old worker")
+                elif case == "project":
+                    self.write(state / "PROJECT.md", "# Project\n\n```text\nStatus: active\n```\n\nStatus: cancelled")
+                elif case == "integration":
+                    self.write(loop / "integration" / "INTEGRATION-RECORD.md", "# Integration\n\n```text\n- Barrier result: pass\n```\n\n- Status: integrated\n- Barrier result: fail")
+                elif case == "closure":
+                    path = loop / "LOOP-CLOSURE.md"
+                    text = path.read_text(encoding="utf-8").replace("- Decision: accepted", "- Decision: blocked", 1)
+                    self.write(path, "```text\n- Decision: accepted\n```\n\n" + text)
+                elif case == "review":
+                    text = (loop / "reviews" / "REVIEW-001.md").read_text(encoding="utf-8").replace("- Decision: pass", "- Decision: fail", 1)
+                    self.write(loop / "reviews" / "REVIEW-002.md", "```text\n- Status: superseded\n```\n\n- Status: under-review\n" + text)
+                result = self.validate(fixture)
+                output = result.stdout + result.stderr
+                self.assertEqual(1, result.returncode, output)
+                self.assertIn(expected_error, output)
 
     def test_validator_does_not_modify_files_or_create_finding(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
