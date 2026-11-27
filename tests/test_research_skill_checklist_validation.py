@@ -54,6 +54,15 @@ Last compaction: none
 
 - None.
 
+## Full Loop Relationship
+
+A human-readable projection and recovery aid, not the authoritative Task, Finding,
+or Loop state source. In Full Loop Mode, this Checklist MUST NOT override
+`LOOP-MAP.md`, `TASK-LEDGER.md`, `FINDING-LEDGER.md`, or the current authoritative
+`CHECKPOINT.md`. It MUST NOT own Recovery status or replace the exact Resume Point.
+It also MUST NOT own Project Acceptance or Project status. Only integrated evidence
+may support the Project Closure Gate, and `PROJECT.md` remains authoritative.
+
 ## Stop Reason
 
 - None.
@@ -404,8 +413,8 @@ class ResearchSkillChecklistValidationTests(unittest.TestCase):
         )
         checklist = fixture / ".looppilot" / "CHECKLIST.md"
         research = fixture / ".looppilot" / "RESEARCH-TEMPLATE.md"
-        if not checklist.exists():
-            checklist.write_text(CHECKLIST_TEMPLATE, encoding="utf-8")
+        # Mutate an inactive test fixture, independently of live task progress.
+        checklist.write_text(CHECKLIST_TEMPLATE, encoding="utf-8")
         if not research.exists():
             research.write_text(RESEARCH_TEMPLATE, encoding="utf-8")
         return fixture

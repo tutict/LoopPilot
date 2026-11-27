@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 from dataclasses import dataclass
@@ -486,13 +487,25 @@ def validate_openai_yaml(root: Path, errors: list[str]) -> None:
         errors.append(str(error))
 
 
+def validation_files(root: Path, patterns: tuple[str, ...]) -> list[Path]:
+    """Discover source files without entering generated or dependency trees."""
+    ignored = {".git", ".tmp", ".venv", "node_modules", "__pycache__"}
+    paths = []
+    for directory, children, names in os.walk(root, followlinks=False):
+        children[:] = [name for name in children if name not in ignored]
+        for name in names:
+            if any(Path(name).match(pattern) for pattern in patterns):
+                paths.append(Path(directory) / name)
+    return sorted(paths)
+
+
 def validate_yaml_files(root: Path, errors: list[str]) -> None:
-    paths = sorted((*root.rglob("*.yaml"), *root.rglob("*.yml")))
+    paths = validation_files(root, ("*.yaml", "*.yml"))
     for path in paths:
         try:
             parse_yaml_mapping(path, path.read_text(encoding="utf-8"))
         except (ConstructorError, ValueError, yaml.YAMLError) as error:
-            errors.append(str(error))
+            errors.append(f"{path.relative_to(root).as_posix()}: {error}")
 
 
 def require_non_empty_list(
@@ -1160,12 +1173,7 @@ def validate_shared_state(root: Path, errors: list[str]) -> None:
 
 
 def markdown_files(root: Path) -> list[Path]:
-    ignored = {".git", ".tmp", ".venv", "node_modules", "__pycache__"}
-    return sorted(
-        path
-        for path in root.rglob("*.md")
-        if not any(part in ignored for part in path.relative_to(root).parts)
-    )
+    return validation_files(root, ("*.md",))
 
 
 def validate_markdown_file(root: Path, path: Path, errors: list[str], validated_view=None) -> None:

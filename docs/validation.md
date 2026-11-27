@@ -32,6 +32,21 @@ range, and extractable Mermaid blocks. It also validates `AGENTS.md` and
 Task Contract lifecycles, explicit authority, review identity, revision budgets,
 required Review Results, and obvious credential assignments.
 
+Markdown and YAML discovery excludes `.git`, `.tmp`, `.venv`, `node_modules`,
+and `__pycache__` directories before traversal, including nested occurrences.
+Generated outputs and dependency files in those trees are outside the source
+validation boundary. Live `.github`, `.looppilot`, and `agents` files remain
+checked. `tests/test_validation_file_scope.py` exercises temporary YAML exclusion
+and live duplicate-key rejection through the public CLI and focused checks.
+YAML diagnostics identify the source file; filename matching retains the native
+platform's case rules.
+
+Checklist and Delegation mutation suites initialize their owned copies with inactive
+fixture content before applying each case. This keeps an active maintainer's task
+progress from supplying the mutation baseline. The Checklist fixture retains the
+required Full Loop projection boundary; the original public-validator assertions
+and live shared-state records remain intact.
+
 `scripts/markdown_blocks.py` supplies one bounded literal-code scan to Markdown
 and lifecycle validation. It returns code-line indexes and an unclosed-fence
 flag; code examples remain exempt from prose links, whitespace and copied-value
